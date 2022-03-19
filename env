@@ -1,0 +1,21 @@
+case ":$PATH:" in
+    *:"home/.cvm":*)
+        ;;
+    *)
+        export PATH="home/.cvm:$PATH"
+        ;;
+esac
+case ":$PATH:" in
+    *:"home/.ghcup/bin":*)
+        ;;
+    *)
+        export PATH="home/.ghcup/bin:$PATH"
+        ;;
+esac
+case ":$PATH:" in
+    *:"home/.cabal/bin":*)
+        ;;
+    *)
+        export PATH="home/.cabal/bin:$PATH"
+        ;;
+esac
