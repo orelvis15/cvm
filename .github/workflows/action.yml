@@ -27,7 +27,7 @@ jobs:
             artifact_name: target/release/cvm
             asset_name: cvm-armv7-unknown-linux-gnueabihf
             target: armv7-unknown-linux-gnueabihf
-          - name:aarm64
+          - name: aarm64
             os: ubuntu-latest
             artifact_name: target/release/cvm
             asset_name: cvm-aarch64-unknown-none
