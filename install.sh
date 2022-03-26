@@ -10,6 +10,8 @@ arc=$(uname -m)
 
 if [[ $os == "Linux" && $arc == "x86_64" ]]; then resource="cvm-x86-64-unknown-linux-gnu"; fi
 
+if [[ $os == "Linux" && $arc == "aarch64" ]]; then resource="cvm-aarch64-unknown-none"; fi
+
 if [[ $resource == "uname" ]]; then
   echo "this architecture is not yet supported"
   exit
