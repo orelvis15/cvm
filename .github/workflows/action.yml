@@ -13,7 +13,8 @@ jobs:
       matrix:
         name: [
           linux,
-          rpi
+          rpi,
+          aarm64
         ]
         include:
           - name: linux
@@ -26,6 +27,11 @@ jobs:
             artifact_name: target/release/cvm
             asset_name: cvm-armv7-unknown-linux-gnueabihf
             target: armv7-unknown-linux-gnueabihf
+          - name:aarm64
+            os: ubuntu-latest
+            artifact_name: target/release/cvm
+            asset_name: cvm-aarch64-unknown-none
+            Target: aarch64-unknown-none
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
