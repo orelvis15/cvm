@@ -31,7 +31,7 @@ jobs:
             os: ubuntu-latest
             artifact_name: target/release/cvm
             asset_name: cvm-aarch64-unknown-none
-            Target: aarch64-unknown-none
+            target: aarch64-unknown-none
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
