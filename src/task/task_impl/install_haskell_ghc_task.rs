@@ -17,7 +17,7 @@ pub struct InstallHanskellGhcOutputData {
     pub ghcup_path: String,
 }
 
-const SUBST: &str = "s#read.*#answer=Y;next_answer=P;hls_answer=N#";
+const SUBST: &str = "s/read /#/g";
 const GHCUP_BIN_PATH: &str = "/.ghcup/bin";
 
 impl Task for InstallHanskellGhcTask {
