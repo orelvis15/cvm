@@ -6,6 +6,13 @@ case ":$PATH:" in
         ;;
 esac
 case ":$PATH:" in
+    *:"home/.cvm":*)
+        ;;
+    *)
+        export PATH="home/.cvm/bin:$PATH"
+        ;;
+esac
+case ":$PATH:" in
     *:"home/.ghcup/bin":*)
         ;;
     *)
