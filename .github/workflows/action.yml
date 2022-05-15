@@ -20,17 +20,17 @@ jobs:
           - name: linux
             os: ubuntu-latest
             artifact_name: target/release/cvm
-            asset_name: cvm-x86-64-unknown-linux-gnu
+            asset_name: cvm-x86_64
             target: x86_64-unknown-linux-gnu
           - name: rpi
             os: ubuntu-latest
             artifact_name: target/release/cvm
-            asset_name: cvm-armv7-unknown-linux-gnueabihf
+            asset_name: cvm-armv7
             target: armv7-unknown-linux-gnueabihf
           - name: aarm64
             os: ubuntu-latest
             artifact_name: target/release/cvm
-            asset_name: cvm-aarch64-unknown-none
+            asset_name: cvm-aarch64
             target: aarch64-unknown-none
     steps:
       - uses: actions/checkout@v2
