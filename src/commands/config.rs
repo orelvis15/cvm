@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 use clap::{Arg, App, ArgMatches};
 
-const VERSION: &str = "0.0.2";
+const VERSION: &str = "0.0.1";
 
 pub fn command_config() -> ArgMatches {
     let network = Args::NETWORK.to_string();

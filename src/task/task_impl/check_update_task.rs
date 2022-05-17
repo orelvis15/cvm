@@ -35,7 +35,7 @@ impl Task for CheckUpdateTask {
             });
         };
 
-        download_and_copy_version(&self.input_data.version, &config.as_ref().unwrap().init.git_assets)
+        download_and_copy_version(&config.as_ref().unwrap().general.last_cvm_version, &config.as_ref().unwrap().init.git_assets)
     }
 
     fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
