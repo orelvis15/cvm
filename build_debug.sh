@@ -31,8 +31,8 @@ if [ "$(uname)" == "Darwin" ]; then
 	fi
 fi
 
-cargo build --release --target=$TOOLCHAIN
-cd target/x86_64-unknown-linux-musl/release/
+cargo build --target=$TOOLCHAIN
+cd target/x86_64-unknown-linux-musl/debug/
 docker cp cvm 28e659273ede:/home/orelvis
 
 

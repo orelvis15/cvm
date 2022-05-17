@@ -17,6 +17,7 @@ pub struct Error {
 }
 
 impl Error {
+
     pub fn to_string(self: Self) -> String{
 
         let mut stack_out = String::new();
@@ -24,7 +25,13 @@ impl Error {
             stack_out.push_str(stack.as_str());
             stack_out.push_str("\n");
         }
-        let output = format!("Code: {}\nError: {}\nTask: {}\nStack: {}\n", self.code, self.message, self.task, stack_out);
+
+        let mut output= format!("Code: {} - Error: {}", self.code, self.message);
+
+        if cfg!(debug_assertions) {
+            output = format!("Code: {}\nError: {}\nTask: {}\nStack: {}\n", self.code, self.message, self.task, stack_out);
+        }
+
         format!("{}", output.red())
     }
 }

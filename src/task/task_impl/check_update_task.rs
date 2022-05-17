@@ -70,12 +70,7 @@ fn decompress(file_uri: String, home_dir: String) -> Result<Success, Error>{
     let file = File::open(file_uri);
 
     if let Err(_) = &file {
-        return Err(Error{
-            code: 0,
-            message: "error abriendo archivo".to_string(),
-            task: "".to_string(),
-            stack: vec![]
-        })
+        return Err(error())
     };
 
     let tar = GzDecoder::new(file.unwrap());
@@ -84,13 +79,8 @@ fn decompress(file_uri: String, home_dir: String) -> Result<Success, Error>{
 
     let result = archive.unpack(format!("{}/{}", home_dir, ".cvm/"));
 
-    if let Err(error) = &result {
-        return Err(Error{
-            code: 0,
-            message: "error descomprimiendo archivo".to_string(),
-            task: "".to_string(),
-            stack: vec![error.to_string()]
-        })
+    if let Err(_) = &result {
+        return Err(error())
     };
 
     Ok(Success{})
