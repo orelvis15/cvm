@@ -33,6 +33,6 @@ fi
 
 cargo build --release --target=$TOOLCHAIN
 cd target/x86_64-unknown-linux-musl/release/
-docker cp cvm 910ddbcca49c:/home/orelvis
+docker cp cvm 28e659273ede:/home/orelvis
 
 

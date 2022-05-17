@@ -37,6 +37,10 @@ fn main() {
         Some("list") => {
             let subcommand = args.subcommand_matches(Commands::LIST.to_string());
             commands::list::start(subcommand.unwrap())
+        },
+        Some("update") => {
+            let subcommand = args.subcommand_matches(Commands::UPDATE.to_string());
+            commands::update::start(subcommand.unwrap(), commands::config::get_version())
         }
         _ => { print_error() }
     };

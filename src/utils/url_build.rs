@@ -17,6 +17,5 @@ pub fn url_build(args: Vec<&str>, last_slash: bool) -> String {
             &patter.push_str("/");
         }
     }
-
     strfmt(&patter.as_str(), &args_map).unwrap()
 }

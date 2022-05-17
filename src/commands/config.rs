@@ -1,12 +1,14 @@
 use std::fmt::{Display, Formatter};
 use clap::{Arg, App, ArgMatches};
 
+const VERSION: &str = "0.0.2";
+
 pub fn command_config() -> ArgMatches {
     let network = Args::NETWORK.to_string();
     let version = Args::VERSION.to_string();
 
     return App::new("cvm")
-        .version("0.0.1")
+        .version(VERSION)
         .about("Version manager for cardano node")
         .author("Orelvis L. <orelvis15@gmail.com>")
         .args(&[
@@ -45,7 +47,13 @@ pub fn command_config() -> ArgMatches {
                 .requires(true)]
         )).subcommand(App::new(Commands::LIST.to_string())
         .about("List all installed versions of cardano node"))
+        .subcommand(App::new(Commands::UPDATE.to_string())
+        .about("Update to the new version of CVM if it exists"))
         .get_matches();
+}
+
+pub fn get_version() -> String {
+    VERSION.to_string()
 }
 
 pub enum Commands {
@@ -53,6 +61,7 @@ pub enum Commands {
     INSTALL,
     USE,
     LIST,
+    UPDATE
 }
 
 impl Display for Commands {
@@ -62,6 +71,7 @@ impl Display for Commands {
             Commands::INSTALL => write!(f, "install"),
             Commands::USE => write!(f, "use"),
             Commands::LIST => write!(f, "list"),
+            Commands::UPDATE => write!(f, "update"),
         }
     }
 }

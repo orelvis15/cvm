@@ -12,6 +12,7 @@ pub enum TaskType{
     BuildCardanoNode,
     CopyBinFiles,
     UseVersion,
+    CheckUpdate
 }
 
 impl fmt::Display for TaskType {
@@ -27,6 +28,7 @@ impl fmt::Display for TaskType {
             TaskType::BuildCardanoNode => write!(f, "build_cardano_node"),
             TaskType::CopyBinFiles => write!(f, "copy_bin_file"),
             TaskType::UseVersion => write!(f, "use_version"),
+            TaskType::CheckUpdate => write!(f, "check_update"),
         }
     }
 }

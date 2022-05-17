@@ -1,6 +1,6 @@
 use std::env;
 
-use std::io::{copy, Cursor, Read};
+use std::io::{copy, Cursor, Read, Write};
 use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
@@ -31,8 +31,7 @@ pub fn download(url: String, name: &str) -> Result<String, Error> {
         }
     }
 
-    let mut body = String::new();
-    response.read_to_string(&mut body);
+    let content = response.bytes();
 
     let file_result = std::fs::File::create(&path);
     let mut file: File;
@@ -53,8 +52,7 @@ pub fn download(url: String, name: &str) -> Result<String, Error> {
 
     fs::set_permissions(&path, fs::Permissions::from_mode(0o755));
 
-    let mut content = Cursor::new(body);
-    copy(&mut content, &mut file);
+    file.write_all(&content.unwrap());
 
     Result::Ok(path)
 }
@@ -79,8 +77,7 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
         }
     }
 
-    let mut body = String::new();
-    response.read_to_string(&mut body);
+    let content = response.bytes();
 
     let file_result = std::fs::File::create(&file_path);
     let mut file: File;
@@ -101,8 +98,7 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
 
     fs::set_permissions(&file_path, fs::Permissions::from_mode(0o755));
 
-    let mut content = Cursor::new(body);
-    copy(&mut content, &mut file);
+    file.write_all(content.unwrap().as_ref());
 
-    Result::Ok(path)
+    Ok(path)
 }

@@ -140,10 +140,12 @@ pub struct Config {
 #[derive(Deserialize, Debug, Clone)]
 pub struct General {
     pub version: String,
+    pub last_cvm_version: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Init {
+    pub git_assets: String,
     pub config_path: String,
     pub ghcup_path: String,
     pub install_ghc_file: String,
