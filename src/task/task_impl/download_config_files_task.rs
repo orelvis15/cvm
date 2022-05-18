@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use strfmt::strfmt;
 use crate::config::config::{ConfigFileItem, get_config, get_home_dir};
 use crate::env::Env;
-use crate::task::task::{Error, Success, Task};
+use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
 use crate::url_build;
 use crate::utils::download_manager::download_in_path;
@@ -16,7 +16,7 @@ pub struct DownloadConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for DownloadConfigFilesTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -33,7 +33,7 @@ impl Task for DownloadConfigFilesTask {
         Result::Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         Result::Ok(Success {})
     }
 

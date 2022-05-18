@@ -2,8 +2,9 @@ use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
-use crate::{Error, Success, url_build};
+use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
+use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 
@@ -20,7 +21,7 @@ pub struct CopyBinInputData {
 const BIN_FOLDER: &str = "bin";
 
 impl Task for CopyBinTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -41,7 +42,7 @@ impl Task for CopyBinTask {
         build_copy_program_to_bin_folder_command(&self.input_data.file_name, &version_folder.to_string(), &self.input_data.origin_path)
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         Result::Ok(Success {})
     }
 
@@ -50,7 +51,7 @@ impl Task for CopyBinTask {
     }
 }
 
-fn build_copy_program_to_bin_folder_command(file_name: &String, destination_path: &String, origin_path: &String) -> Result<Success, Error> {
+fn build_copy_program_to_bin_folder_command(file_name: &String, destination_path: &String, origin_path: &String) -> Result<Success, Message> {
 
     for entry in WalkDir::new(origin_path) {
         let entry = entry.unwrap();
@@ -59,9 +60,10 @@ fn build_copy_program_to_bin_folder_command(file_name: &String, destination_path
             return Result::Ok(Success {});
         }
     }
-    return Result::Err(Error {
+    return Err(Message {
         code: 0,
         message: "Cardano executable not found".to_string(),
+        kind: MessageType::Error,
         task: TaskType::BuildCardanoNode.to_string(),
         stack: vec![],
     });

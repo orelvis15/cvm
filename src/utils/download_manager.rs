@@ -5,9 +5,10 @@ use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
 use reqwest::blocking::Response;
-use crate::task::task::{Error};
+use crate::task::message_type::MessageType;
+use crate::task::task::{Message};
 
-pub fn download(url: String, name: &str) -> Result<String, Error> {
+pub fn download(url: String, name: &str) -> Result<String, Message> {
     let dir = env::temp_dir();
 
     let mut path = String::new();
@@ -22,9 +23,10 @@ pub fn download(url: String, name: &str) -> Result<String, Error> {
             response = data;
         }
         Err(error) => {
-            return Result::Err(Error {
+            return Err(Message {
                 code: 0,
                 message: format!("Error download file: {} from url: {}", name, url),
+                kind: MessageType::Error,
                 task: "download function".to_string(),
                 stack: vec![error.to_string()],
             });
@@ -41,9 +43,10 @@ pub fn download(url: String, name: &str) -> Result<String, Error> {
             file = data
         }
         Err(error) => {
-            return Result::Err(Error {
+            return Err(Message {
                 code: 0,
                 message: format!("Error creating file: {}", name),
+                kind: MessageType::Error,
                 task: "download function".to_string(),
                 stack: vec![error.to_string()],
             });
@@ -54,10 +57,10 @@ pub fn download(url: String, name: &str) -> Result<String, Error> {
 
     file.write_all(&content.unwrap());
 
-    Result::Ok(path)
+    Ok(path)
 }
 
-pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String, Error> {
+pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String, Message> {
     let file_path = format!("{}/{}", path, name);
 
     let res = reqwest::blocking::get(url);
@@ -68,9 +71,10 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
             response = data;
         }
         Err(error) => {
-            return Result::Err(Error {
+            return Err(Message {
                 code: 0,
                 message: format!("Error download file: {} from url: {}", name, url),
+                kind: MessageType::Error,
                 task: "".to_string(),
                 stack: vec![error.to_string()],
             });
@@ -87,9 +91,10 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
             file = data
         }
         Err(error) => {
-            return Result::Err(Error {
+            return Err(Message {
                 code: 0,
                 message: format!("Error creating file: {}", name),
+                kind: MessageType::Error,
                 task: "".to_string(),
                 stack: vec![error.to_string()],
             });

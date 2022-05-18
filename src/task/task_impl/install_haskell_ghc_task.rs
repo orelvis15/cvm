@@ -1,9 +1,9 @@
-
 use std::path::Path;
 use crate::config::config::{get_config, get_home_dir, Init};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::env::Env;
-use crate::task::task::{Error, Success, Task};
+use crate::task::message_type::MessageType;
+use crate::task::task::{Message, Success, Task};
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 
 use crate::task::task_manager;
@@ -21,8 +21,7 @@ const SUBST: &str = "s/read /#/g";
 const GHCUP_BIN_PATH: &str = "/.ghcup/bin";
 
 impl Task for InstallHanskellGhcTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
-
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -60,17 +59,17 @@ impl Task for InstallHanskellGhcTask {
         result
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         match env {
             Env::InstallHaskellGhc(output) => {
                 let path = Path::new(output.ghcup_path.as_str());
                 if path.is_dir() {
-                    Result::Ok(Success {})
+                    Ok(Success {})
                 } else {
-                    Result::Err(Error { code: 0, message: format!("Not found directory: {}", output.ghcup_path), task: "".to_string(), stack: vec![] })
+                    Err(Message { code: 0, message: format!("Not found directory: {}", output.ghcup_path), kind: MessageType::Error, task: "".to_string(), stack: vec![] })
                 }
             }
-            _ => Result::Err(Error { code: 0, message: format!("task type {} is expected", self.get_type()), task: "".to_string(), stack: vec![] })
+            _ => Err(Message { code: 0, message: format!("task type {} is expected", self.get_type()), kind: MessageType::Error, task: "".to_string(), stack: vec![] })
         }
     }
 
@@ -79,7 +78,7 @@ impl Task for InstallHanskellGhcTask {
     }
 }
 
-fn download_install_ghc_file(init: Init) -> Result<String, Error> {
+fn download_install_ghc_file(init: Init) -> Result<String, Message> {
     download(init.ghcup_path, format!("/{}", init.install_ghc_file).as_str())
 }
 

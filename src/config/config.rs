@@ -3,8 +3,9 @@ use serde::{Deserialize};
 use std::{fs};
 use std::path::Path;
 use directories::{BaseDirs, ProjectDirs};
+use crate::task::message_type::MessageType;
 
-use crate::task::task::{Error, Success};
+use crate::task::task::{Message, Success};
 use crate::utils::download_manager::download;
 
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/config.toml";
@@ -13,7 +14,7 @@ const ORGANIZATION: &str = "orelvis15";
 const APPLICATION: &str = "cvm";
 const FILE_NAME: &str = "config.tom";
 
-pub fn get_config() -> Result<Config, Error> {
+pub fn get_config() -> Result<Config, Message> {
 
         let project_dir = get_project_dir();
         if let Err(error) = project_dir{
@@ -46,28 +47,31 @@ pub fn get_config() -> Result<Config, Error> {
                 match toml::from_str(&file) {
                     Ok(config) => {return Result::Ok(config);},
                     Err(error) => {
-                        return Result::Err(Error {
+                        return Err(Message {
                             code: 0,
                             message: "Error try parsing config file".to_string(),
+                            kind: MessageType::Error,
                             task: "".to_string(),
                             stack: vec![error.to_string()],
                         });
                     }
                 }
             }
-            Err(_) => return Result::Err(Error {
+            Err(_) => return Err(Message {
                 code: 0,
                 message: "Error try reading config file".to_string(),
+                kind: MessageType::Error,
                 task: "".to_string(),
                 stack: vec![],
             }),
         };
 }
 
-pub fn get_home_dir() -> Result<String, Error> {
-    let error = Result::Err(Error {
+pub fn get_home_dir() -> Result<String, Message> {
+    let error = Err(Message {
         code: 0,
         message: "An error occurred reading the home directory".to_string(),
+        kind: MessageType::Error,
         task: "".to_string(),
         stack: vec![],
     });
@@ -82,7 +86,7 @@ pub fn get_home_dir() -> Result<String, Error> {
     error
 }
 
-pub fn download_config(config_folder: String, file_name: String) -> Result<Success, Error> {
+pub fn download_config(config_folder: String, file_name: String) -> Result<Success, Message> {
     let download_path = download(CONFIG_URL.to_string(), &file_name);
 
     if let Err(error) = download_path {
@@ -93,9 +97,10 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
     let result = fs::copy(download_path.unwrap(), format!("{}/{}", &config_folder, file_name));
 
     if result.is_err() {
-        return Result::Err(Error {
+        return Err(Message {
             code: 0,
             message: "Error download configurations files".to_string(),
+            kind: MessageType::Error,
             task: "".to_string(),
             stack: vec![],
         });
@@ -103,7 +108,7 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
     Result::Ok(Success {})
 }
 
-pub fn get_project_dir() -> Result<ProjectDirs, Error> {
+pub fn get_project_dir() -> Result<ProjectDirs, Message> {
 
     if let Some(proj_dirs) = ProjectDirs::from(
         QUALIFIER,
@@ -116,11 +121,12 @@ pub fn get_project_dir() -> Result<ProjectDirs, Error> {
             fs::create_dir_all(config_dir);
         }
 
-        Result::Ok(proj_dirs)
+        Ok(proj_dirs)
     } else {
-        Result::Err(Error {
+        Err(Message {
             code: 0,
             message: "Not found config directory".to_string(),
+            kind: MessageType::Error,
             task: "".to_string(),
             stack: vec![],
         })

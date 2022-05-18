@@ -2,9 +2,10 @@ use std::fs;
 use std::path::Path;
 use futures::future::err;
 use crate::env::Env;
-use crate::{Error, Success, url_build};
+use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
 use crate::config::enviroment::{Enviroment, set_env};
+use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData};
 use crate::task::task_impl::set_enviroment_variable::{SetEnvironmentVariable, SetEnvironmentVariableInput};
@@ -22,7 +23,7 @@ const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
 const PATH_KEY: &str = "PATH";
 
 impl Task for UserVersionTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -40,9 +41,12 @@ impl Task for UserVersionTask {
         let current_folder_path = Path::new(current_folder.as_str());
 
         if !version_folder_path.exists() {
-            return Result::Err(Error {
+            return Err(Message {
+                code: 0,
                 message: format!("The version {version} is not installed yet, please install it using the command: cvm install {version}", version = &self.version),
-                ..Default::default()
+                kind: MessageType::Error,
+                task: "".to_string(),
+                stack: vec![]
             });
         };
 
@@ -60,7 +64,7 @@ impl Task for UserVersionTask {
         ])
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         Result::Ok(Success {})
     }
 
@@ -74,7 +78,7 @@ fn build_add_current_dir_var_command(version: String, current_dir: String) -> Se
     SetEnvironmentVariableInput { key: PATH_KEY.to_string(), value: current_dir }
 }
 
-fn copy_file_version(version_folder: String, current_folder: String, file_names: Vec<&str>) -> Result<Success, Error> {
+fn copy_file_version(version_folder: String, current_folder: String, file_names: Vec<&str>) -> Result<Success, Message> {
     for name in file_names {
         let file = url_build(vec![version_folder.as_str(), name], false);
         let file_out = url_build(vec![current_folder.as_str(), name], false);
@@ -83,9 +87,10 @@ fn copy_file_version(version_folder: String, current_folder: String, file_names:
         match copy_result {
             Ok(_) => continue,
             Err(error) => {
-                return Result::Err(Error {
+                return Err(Message {
                     code: 0,
                     message: "Error copying the new files".to_string(),
+                    kind: MessageType::Error,
                     task: TaskType::UseVersion.to_string(),
                     stack: vec![error.to_string()],
                 });

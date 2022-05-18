@@ -5,8 +5,9 @@ use flate2::read::GzDecoder;
 use flate2::write::GzEncoder;
 use tar::Archive;
 use crate::env::Env;
-use crate::{Error, Success, url_build};
+use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
+use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
@@ -20,16 +21,17 @@ pub struct CheckUpdateData {
 }
 
 impl Task for CheckUpdateTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(_) = config {
             return Err(error());
         }
 
         if &config.as_ref().unwrap().general.last_cvm_version <= &self.input_data.version {
-            return Err(Error {
+            return Err(Message {
                 code: 0,
                 message: "You already have the latest version".to_string(),
+                kind: MessageType::Info,
                 task: TaskType::CheckUpdate.to_string(),
                 stack: vec![],
             });
@@ -38,7 +40,7 @@ impl Task for CheckUpdateTask {
         download_and_copy_version(&config.as_ref().unwrap().general.last_cvm_version, &config.as_ref().unwrap().init.git_assets)
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         Ok(Success {})
     }
 
@@ -47,7 +49,7 @@ impl Task for CheckUpdateTask {
     }
 }
 
-fn download_and_copy_version(version: &String, base_url: &String) -> Result<Success, Error> {
+fn download_and_copy_version(version: &String, base_url: &String) -> Result<Success, Message> {
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
         return Err(error);
@@ -66,7 +68,7 @@ fn download_and_copy_version(version: &String, base_url: &String) -> Result<Succ
     decompress(download_path.unwrap(), home_dir.unwrap())
 }
 
-fn decompress(file_uri: String, home_dir: String) -> Result<Success, Error>{
+fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message>{
     let file = File::open(file_uri);
 
     if let Err(_) = &file {
@@ -86,10 +88,11 @@ fn decompress(file_uri: String, home_dir: String) -> Result<Success, Error>{
     Ok(Success{})
 }
 
-fn error() -> Error {
-    Error {
+fn error() -> Message {
+    Message {
         code: 0,
         message: "Error trying to update".to_string(),
+        kind: MessageType::Error,
         task: "".to_string(),
         stack: vec![],
     }

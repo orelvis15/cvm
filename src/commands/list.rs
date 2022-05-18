@@ -1,14 +1,14 @@
 use clap::ArgMatches;
 use owo_colors::OwoColorize;
 use walkdir::WalkDir;
-use crate::{Error, Success};
+use crate::{Message, Success};
 use crate::utils::version_utils::verify_version;
 use crate::config::config::{get_config, get_home_dir};
 use crate::config::enviroment::get_env;
 
 const BIN_FOLDER: &str = "bin";
 
-pub fn start(command: &ArgMatches) -> Result<Success, Error> {
+pub fn start(command: &ArgMatches) -> Result<Success, Message> {
     let config = get_config();
     if let Err(error) = config {
         return Result::Err(error);

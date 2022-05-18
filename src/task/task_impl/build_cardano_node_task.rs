@@ -3,7 +3,7 @@ use std::fs::DirEntry;
 use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
-use crate::{Error, Success, url_build};
+use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
 use crate::task::task::Task;
 use crate::task::task_impl::copy_bin_task::{CopyBinInputData, CopyBinTask};
@@ -22,7 +22,7 @@ const CARDANO_NODE_FILE_NAME: &str = "cardano-node";
 const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
 
 impl Task for BuildCardanoNodeTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -52,7 +52,7 @@ impl Task for BuildCardanoNodeTask {
         ])
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         Result::Ok(Success {})
     }
 

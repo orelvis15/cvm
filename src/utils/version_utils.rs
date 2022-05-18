@@ -1,5 +1,5 @@
 use regex::Regex;
-use crate::Error;
+use crate::{Message, MessageType};
 use serde::{Serialize, Deserialize};
 
 pub const LATEST: &str = "latest";
@@ -10,7 +10,7 @@ pub fn verify_version(version: &str) -> bool {
     regex.is_match(version) || version == LATEST
 }
 
-pub fn get_last_tag(url: String) -> Result<String, Error> {
+pub fn get_last_tag(url: String) -> Result<String, Message> {
     let client = reqwest::blocking::Client::builder().user_agent(USER_AGENT).build();
     if let Ok(client) = client {
         if let Ok(response) = client.get(url).send() {
@@ -20,9 +20,12 @@ pub fn get_last_tag(url: String) -> Result<String, Error> {
             }
         }
     }
-    return Result::Err(Error {
+    return Err(Message {
+        code: 0,
         message: "Error checking latest cardano node tag".to_string(),
-        ..Default::default()
+        kind: MessageType::Error,
+        task: "".to_string(),
+        stack: vec![]
     });
 }
 

@@ -1,6 +1,6 @@
 use std::env;
 use crate::env::Env;
-use crate::task::task::{Error, Success, Task};
+use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
 use globalenv::set_var;
 use owo_colors::OwoColorize;
@@ -12,7 +12,7 @@ pub struct SetEnvironmentVariable {
 const PATH_KEY: &str = "PATH";
 
 impl Task for SetEnvironmentVariable {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         if self.input_data.key == PATH_KEY {
             set_path(&self.input_data.value)
         }else {
@@ -21,7 +21,7 @@ impl Task for SetEnvironmentVariable {
         Result::Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         Result::Ok(Success {})
     }
 

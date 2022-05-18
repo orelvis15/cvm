@@ -3,7 +3,8 @@ use std::path::Path;
 use crate::config::config::{get_config, get_home_dir};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::env::Env;
-use crate::task::task::{Error, Success, Task};
+use crate::task::message_type::MessageType;
+use crate::task::task::{Message, Success, Task};
 use crate::task::task_impl::set_enviroment_variable::{SetEnvironmentVariable, SetEnvironmentVariableInput};
 use crate::task::task_manager;
 use crate::task::task_type::TaskType;
@@ -14,7 +15,7 @@ pub struct CreateFolderStructure {}
 const CNODE_HOME: &str = "CNODE_HOME";
 
 impl Task for CreateFolderStructure {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -39,15 +40,16 @@ impl Task for CreateFolderStructure {
         ])
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
         }
 
-        let error = Error {
+        let error = Message {
             code: 0,
             message: "Error creating folder structures".to_string(),
+            kind: MessageType::Error,
             task: "".to_string(),
             stack: vec![],
         };

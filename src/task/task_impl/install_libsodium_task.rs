@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Error, Success, url_build};
+use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::task::task::Task;
@@ -22,7 +22,7 @@ const AUTOGEN_FILE: &str = "./autogen.sh";
 const CONFIGURE_FILE: &str = "./configure";
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -54,7 +54,7 @@ impl Task for InstallLibsodiumTask {
         ])
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         Result::Ok(Success{})
     }
 

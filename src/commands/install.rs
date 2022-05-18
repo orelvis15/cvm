@@ -11,13 +11,14 @@ use crate::task::task_impl::install_haskell_ghc_task::InstallHanskellGhcTask;
 use crate::task::task_manager;
 use crate::task::task_type::TaskType;
 use regex::Regex;
-use crate::task::task::{Error, Success};
+use crate::task::task::{Message, Success};
 use crate::task::task_impl::build_cardano_node_task::BuildCardanoNodeTask;
 use reqwest::header;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::get_config;
+use crate::task::message_type::MessageType;
 
-pub fn start(command: &ArgMatches) -> Result<Success, Error> {
+pub fn start(command: &ArgMatches) -> Result<Success, Message> {
     let mut version: String = LATEST.to_string();
 
     let config = get_config();
@@ -31,9 +32,10 @@ pub fn start(command: &ArgMatches) -> Result<Success, Error> {
                 if verify_version(value) || version == LATEST {
                     version = value.to_string()
                 } else {
-                    return Result::Err(Error {
+                    return Err(Message {
                         code: 0,
                         message: "The version is not well formed".to_string(),
+                        kind: MessageType::Error,
                         task: "".to_string(),
                         stack: vec![],
                     });

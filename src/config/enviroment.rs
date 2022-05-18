@@ -3,10 +3,11 @@ use std::path::Path;
 
 use serde::{Serialize, Deserialize};
 use crate::config::config::{get_project_dir};
+use crate::task::message_type::MessageType;
 
-use crate::task::task::{Error, Success};
+use crate::task::task::{Message, Success};
 
-pub fn get_env() -> Result<Enviroment, Error> {
+pub fn get_env() -> Result<Enviroment, Message> {
     const FILE_NAME: &str = "env.tom";
 
     let project_dir = get_project_dir();
@@ -30,9 +31,10 @@ pub fn get_env() -> Result<Enviroment, Error> {
         let creation = fs::write(path_str, tom_string);
 
         if let Err(_) = creation {
-            return Result::Err(Error {
+            return Err(Message {
                 code: 0,
                 message: "Error creating enviroment file".to_string(),
+                kind: MessageType::Error,
                 task: "".to_string(),
                 stack: vec![],
             });
@@ -48,26 +50,28 @@ pub fn get_env() -> Result<Enviroment, Error> {
     match env_file {
         Ok(file) => {
             if let Ok(env) = toml::from_str(&file) {
-                return Result::Ok(env);
+                return Ok(env);
             } else {
-                return Result::Err(Error {
+                return Err(Message {
                     code: 0,
                     message: "Error try parsing enviroment file".to_string(),
+                    kind: MessageType::Error,
                     task: "".to_string(),
                     stack: vec![],
                 });
             }
         }
-        Err(_) => return Result::Err(Error {
+        Err(_) => return Err(Message {
             code: 0,
             message: "Error try reading enviroment file".to_string(),
+            kind: MessageType::Error,
             task: "".to_string(),
             stack: vec![],
         }),
     };
 }
 
-pub fn set_env(env: Enviroment) -> Result<Success, Error> {
+pub fn set_env(env: Enviroment) -> Result<Success, Message> {
     const FILE_NAME: &str = "env.tom";
 
     let current_env = get_env();
@@ -93,9 +97,10 @@ pub fn set_env(env: Enviroment) -> Result<Success, Error> {
     let creation = fs::write(path_str, toml_string.unwrap());
 
     if let Err(error) = creation {
-        return Result::Err(Error {
+        return Err(Message {
             code: 0,
             message: "Error creating enviroment file".to_string(),
+            kind: MessageType::Error,
             task: "".to_string(),
             stack: vec![error.to_string()],
         })

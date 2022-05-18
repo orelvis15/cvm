@@ -1,7 +1,7 @@
 use clap::ArgMatches;
 use owo_colors::OwoColorize;
 use crate::commands::config::{Args};
-use crate::task::task::{Error, Success};
+use crate::task::task::{Message, Success};
 use crate::task::task_impl::create_folder_structure_task::CreateFolderStructure;
 use crate::task::task_impl::download_config_files_task::DownloadConfigFilesTask;
 use crate::task::task_impl::install_dependences_task::InstallDependencesTask;
@@ -13,7 +13,7 @@ use crate::task::task_type::TaskType;
 const MAINNET: &str = "mainnet";
 const TESTNET: &str = "testnet";
 
-pub fn start(command: &ArgMatches) -> Result<Success, Error> {
+pub fn start(command: &ArgMatches) -> Result<Success, Message> {
     let mut network = MAINNET;
 
     match command.value_of(Args::NETWORK.to_string()) {

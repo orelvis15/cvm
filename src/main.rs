@@ -3,7 +3,8 @@ extern crate core;
 
 use owo_colors::OwoColorize;
 use crate::commands::config::Commands;
-use crate::task::task::{Error, Success};
+use crate::task::message_type::MessageType;
+use crate::task::task::{Message, Success};
 use crate::utils::url_build::url_build;
 
 mod task;
@@ -55,10 +56,11 @@ fn main() {
     }
 }
 
-fn print_error() -> Result<Success, Error> {
-    return Result::Err(Error {
+fn print_error() -> Result<Success, Message> {
+    return Err(Message {
         code: 0,
         message: "Command not found".to_string(),
+        kind: MessageType::Error,
         task: "".to_string(),
         stack: vec![],
     });

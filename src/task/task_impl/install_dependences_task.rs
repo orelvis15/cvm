@@ -2,9 +2,10 @@ extern crate rs_release;
 
 use os_info::Type;
 use crate::env::Env;
-use crate::task::task::{Error, Success, Task};
+use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
 use crate::config::config::{Dependencies, get_config};
+use crate::task::message_type::MessageType;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 
 pub struct InstallDependencesTask {}
@@ -15,7 +16,7 @@ pub struct InstallDependencesOutputData {
 }
 
 impl Task for InstallDependencesTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Result::Err(error);
@@ -31,9 +32,10 @@ impl Task for InstallDependencesTask {
                 dependences = String::from(data)
             }
             None => {
-                return Result::Err(Error {
+                return Err(Message {
                     code: 0,
                     message: "Error getting dependencies".to_string(),
+                    kind: MessageType::Error,
                     task: self.get_type().to_string(),
                     stack: vec![],
                 });
@@ -51,9 +53,10 @@ impl Task for InstallDependencesTask {
                 cmd.run(&mut env_aux)
             }
             None => {
-                return Result::Err(Error {
+                return Err(Message {
                     code: 0,
                     message: "Error getting dependencies".to_string(),
+                    kind: MessageType::Error,
                     task: self.get_type().to_string(),
                     stack: vec![],
                 });
@@ -61,13 +64,13 @@ impl Task for InstallDependencesTask {
         }
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let dependences: String;
         match env {
             Env::InstallDependences(output) => {
                 dependences = output.clone().dependences;
             }
-            _ => return Result::Err(Error { code: 0, message: format!("task type {} is expected", self.get_type()), task: "".to_string(), stack: vec![] })
+            _ => return Err(Message { code: 0, message: format!("task type {} is expected", self.get_type()), kind: MessageType::Error, task: "".to_string(), stack: vec![] })
         }
 
         let command_input_result = get_verify_command_from_os(dependences);
@@ -78,7 +81,7 @@ impl Task for InstallDependencesTask {
                 cmd.run(env)
             }
             None => {
-                Result::Ok(Success{})
+                Result::Ok(Success {})
                 /*return Result::Err(Error {
                     code: 0,
                     message: "Error verify dependencies".to_string(),
@@ -106,7 +109,7 @@ fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
             let os_release = get_os_release();
             if os_release == "7" {
                 extra_dependences = dependences.centos_7.join(" ");
-            }else if os_release == "7" {
+            } else if os_release == "7" {
                 extra_dependences = dependences.centos_8.join(" ");
             }
             Option::Some(format!("{} {}", dependences.centos.join(" "), extra_dependences))
@@ -116,7 +119,7 @@ fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
             let os_release = get_os_release();
             if os_release == "7" {
                 extra_dependences = dependences.rhel_7.join(" ");
-            }else if os_release == "7" {
+            } else if os_release == "7" {
                 extra_dependences = dependences.rhel_8.join(" ");
             }
             Option::Some(format!("{} {}", dependences.rhel.join(" "), extra_dependences))
@@ -124,6 +127,7 @@ fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
         _ => { Option::None }
     }
 }
+
 ///Arreglar release os
 fn get_os_release() -> String {
     match rs_release::get_os_release() {

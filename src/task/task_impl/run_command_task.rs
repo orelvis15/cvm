@@ -4,7 +4,8 @@ use std::thread;
 use owo_colors::OwoColorize;
 
 use crate::env::Env;
-use crate::task::task::{Error, Success, Task};
+use crate::task::message_type::MessageType;
+use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
 
 pub struct RunCommandTask {
@@ -13,7 +14,7 @@ pub struct RunCommandTask {
 
 pub struct RunCommandOutputData {
     pub tag: String,
-    pub result: Result<Success, Error>,
+    pub result: Result<Success, Message>,
 }
 
 impl RunCommandOutputData
@@ -35,8 +36,7 @@ pub struct RunCommandInputData {
 }
 
 impl RunCommandInputData {
-    pub fn to_string(self: Self) -> String{
-
+    pub fn to_string(self: Self) -> String {
         let mut command = String::new();
         command.push_str(self.command.as_str());
         command.push_str(" ");
@@ -50,7 +50,7 @@ impl RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
         let result = command.stdout(Stdio::piped())
@@ -60,11 +60,12 @@ impl Task for RunCommandTask {
         match result {
             Ok(data) => {
                 child = data;
-            },
+            }
             Err(error) => {
-                return Result::Err(Error {
+                return Err(Message {
                     code: 0,
-                    message: format!("Failed to run command: {}, args: {:?}",self.input_data.command, self.input_data.args),
+                    message: format!("Failed to run command: {}, args: {:?}", self.input_data.command, self.input_data.args),
+                    kind: MessageType::Error,
                     task: "RunCommandTask".to_string(),
                     stack: vec![error.to_string()],
                 });
@@ -82,20 +83,20 @@ impl Task for RunCommandTask {
         result_
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Error> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
         match env {
             Env::RunCommnad(output) => {
                 let result = &output.result;
                 match result {
                     Ok(_) => {
-                        Result::Ok(Success{})
+                        Ok(Success {})
                     }
                     Err(error) => {
-                        Result::Err(Error { code: 0, message: "An error occurred while executing a task".to_string(), task: String::from(error.clone().task), stack: error.clone().stack })
+                        Err(Message { code: 0, message: "An error occurred while executing a task".to_string(), kind: MessageType::Error, task: String::from(error.clone().task), stack: error.clone().stack })
                     }
                 }
             }
-            _ => Result::Err(Error { code: 0, message: format!("task type {} is expected", self.get_type()), task: "".to_string(), stack: vec![] })
+            _ => Err(Message { code: 0, message: format!("task type {} is expected", self.get_type()), kind: MessageType::Error, task: "".to_string(), stack: vec![] })
         }
     }
 
@@ -141,7 +142,7 @@ fn watch_log_process(child: &mut Child) {
     });
 }
 
-fn start_command(task_type: String, mut child: Child) -> Result<Success, Error> {
+fn start_command(task_type: String, mut child: Child) -> Result<Success, Message> {
     let handler = thread::spawn(move || {
         return child.wait();
     });
@@ -149,21 +150,23 @@ fn start_command(task_type: String, mut child: Child) -> Result<Success, Error> 
     match handler.join().unwrap() {
         Ok(code) => {
             if code.success() {
-                Result::Ok(Success {})
+                Ok(Success {})
             } else {
-                Result::Err(Error {
+                Err(Message {
                     code: 0,
                     message: "The command output an error".to_string(),
+                    kind: MessageType::Error,
                     task: task_type,
                     stack: vec![],
                 })
             }
         }
         Err(_) => {
-            Result::Err(
-                Error {
+            Err(
+                Message {
                     code: 0,
                     message: "Failed to run command".to_string(),
+                    kind: MessageType::Error,
                     task: "".to_string(),
                     stack: vec![],
                 })
