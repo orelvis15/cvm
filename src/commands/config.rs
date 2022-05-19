@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use clap::{Arg, App, ArgMatches};
+use clap::{Arg, ArgMatches, Command};
 
 const VERSION: &str = "0.0.1";
 
@@ -7,7 +7,7 @@ pub fn command_config() -> ArgMatches {
     let network = Args::NETWORK.to_string();
     let version = Args::VERSION.to_string();
 
-    return App::new("cvm")
+    return Command::new("cvm")
         .version(VERSION)
         .about("Version manager for cardano node")
         .author("Orelvis L. <orelvis15@gmail.com>")
@@ -19,7 +19,7 @@ pub fn command_config() -> ArgMatches {
                 .short('v')
                 .long("version")
         ])
-        .subcommand(App::new(Commands::INIT.to_string())
+        .subcommand(Command::new(Commands::INIT.to_string())
             .about("Start the environment to be able to build a Cardano node")
             .args(&[
                 Arg::new(network.as_str())
@@ -27,27 +27,25 @@ pub fn command_config() -> ArgMatches {
                     .long("network")
                     .help("For which network do you want to download the configuration files [MAINNET | TESTNET]")
                     .takes_value(true)]
-            )).subcommand(App::new(Commands::INSTALL.to_string())
+            )).subcommand(Command::new(Commands::INSTALL.to_string())
         .about("Build the cardano node and make it available for use")
         .args(&[
             Arg::new(version.as_str())
                 .short('v')
                 .long("version")
                 .help("Version of the cardano node that you want to install")
-                .takes_value(true)
-                .requires(true)]
-        )).subcommand(App::new(Commands::USE.to_string())
+                .takes_value(true)]
+        )).subcommand(Command::new(Commands::USE.to_string())
         .about("Change the current cardano-node to the new version")
         .args(&[
             Arg::new(version.as_str())
                 .short('v')
                 .long("version")
                 .help("Version of the cardano node that you want to use")
-                .takes_value(true)
-                .requires(true)]
-        )).subcommand(App::new(Commands::LIST.to_string())
+                .takes_value(true)]
+        )).subcommand(Command::new(Commands::LIST.to_string())
         .about("List all installed versions of cardano node"))
-        .subcommand(App::new(Commands::UPDATE.to_string())
+        .subcommand(Command::new(Commands::UPDATE.to_string())
         .about("Update to the new version of CVM if it exists"))
         .get_matches();
 }
