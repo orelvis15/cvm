@@ -8,20 +8,20 @@ use crate::config::enviroment::get_env;
 
 const BIN_FOLDER: &str = "bin";
 
-pub fn start(command: &ArgMatches) -> Result<Success, Message> {
+pub fn start(_command: &ArgMatches) -> Result<Success, Message> {
     let config = get_config();
     if let Err(error) = config {
-        return Result::Err(error);
+        return Err(error);
     }
 
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
-        return Result::Err(error);
+        return Err(error);
     }
 
     let enviromet = get_env();
     if let Err(error) = enviromet {
-        return Result::Err(error);
+        return Err(error);
     }
 
     let bin_folder = format!("{}/{}/{}", home_dir.clone().unwrap(), &config.as_ref().unwrap().workspace.workspace_folder, BIN_FOLDER);
@@ -37,5 +37,5 @@ pub fn start(command: &ArgMatches) -> Result<Success, Message> {
             }
         };
     }
-    Result::Ok(Success {})
+    Ok(Success {})
 }

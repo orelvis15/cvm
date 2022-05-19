@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Message, Success, url_build};
+use crate::{Message, MessageType, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::task::task::Task;
@@ -22,15 +22,15 @@ const AUTOGEN_FILE: &str = "./autogen.sh";
 const CONFIGURE_FILE: &str = "./configure";
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let repo = &config.as_ref().unwrap().init.libsodium_repository;
@@ -39,7 +39,16 @@ impl Task for InstallLibsodiumTask {
         let path = Path::new(libsodium_folder.as_str());
 
         if path.exists() {
-            fs::remove_dir_all(path);
+            let remove_result = fs::remove_dir_all(path);
+            if let Err(error) = remove_result {
+                return Err(Message{
+                    code: 0,
+                    message: "Error deleting folders".to_string(),
+                    kind: MessageType::Error,
+                    task: "".to_string(),
+                    stack: vec![error.to_string()]
+                });
+            }
         };
 
         task_manager::start(vec![
@@ -54,8 +63,8 @@ impl Task for InstallLibsodiumTask {
         ])
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
-        Result::Ok(Success{})
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
+        Ok(Success{})
     }
 
     fn get_type(self: &Self) -> TaskType {
@@ -93,11 +102,11 @@ fn build_make_install_repo_command(path: String) -> RunCommandInputData {
 }
 
 fn build_set_libsodium_env_var_command() -> SetEnvironmentVariableInput {
-    set_env(Enviroment { libsodium_path: LIBSODIUM_PATH.to_string(), ..Default::default() });
+    let _ = set_env(Enviroment { libsodium_path: LIBSODIUM_PATH.to_string(), ..Default::default() });
     SetEnvironmentVariableInput { key: LIBSODIUM_HOME.to_string(), value: LIBSODIUM_PATH.to_string() }
 }
 
 fn build_set_pkg_config_env_var_command() -> SetEnvironmentVariableInput {
-    set_env(Enviroment { libsodium_path: PKG_PATH.to_string(), ..Default::default() });
+    let _ = set_env(Enviroment { libsodium_path: PKG_PATH.to_string(), ..Default::default() });
     SetEnvironmentVariableInput { key: PKG_HOME.to_string(), value: PKG_PATH.to_string() }
 }

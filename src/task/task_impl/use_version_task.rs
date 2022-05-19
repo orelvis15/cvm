@@ -1,13 +1,11 @@
 use std::fs;
 use std::path::Path;
-use futures::future::err;
 use crate::env::Env;
 use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_home_dir};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
-use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData};
 use crate::task::task_impl::set_enviroment_variable::{SetEnvironmentVariable, SetEnvironmentVariableInput};
 use crate::task::task_manager;
 use crate::task::task_type::TaskType;
@@ -23,15 +21,15 @@ const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
 const PATH_KEY: &str = "PATH";
 
 impl Task for UserVersionTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let bin_folder = url_build(vec![home_dir.clone().unwrap().as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), BIN_FOLDER], false);
@@ -46,17 +44,27 @@ impl Task for UserVersionTask {
                 message: format!("The version {version} is not installed yet, please install it using the command: cvm install {version}", version = &self.version),
                 kind: MessageType::Error,
                 task: "".to_string(),
-                stack: vec![]
+                stack: vec![],
             });
         };
 
         if !current_folder_path.exists() {
-            fs::create_dir_all(current_folder.clone());
+            let folder_result = fs::create_dir_all(current_folder.clone());
+
+            if let Err(error) = folder_result {
+                return Err(Message {
+                    code: 0,
+                    message: "Error creating folder structure".to_string(),
+                    kind: MessageType::Error,
+                    task: "".to_string(),
+                    stack: vec![error.to_string()],
+                });
+            }
         };
 
         let copy_result = copy_file_version(version_folder, current_folder.clone(), vec![CARDANO_NODE_FILE_NAME, CARDANO_CLI_FILE_NAME]);
         if let Err(error) = copy_result {
-            return Result::Err(error);
+            return Err(error);
         };
 
         task_manager::start(vec![
@@ -64,8 +72,8 @@ impl Task for UserVersionTask {
         ])
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
-        Result::Ok(Success {})
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
+        Ok(Success {})
     }
 
     fn get_type(self: &Self) -> TaskType {
@@ -74,7 +82,7 @@ impl Task for UserVersionTask {
 }
 
 fn build_add_current_dir_var_command(version: String, current_dir: String) -> SetEnvironmentVariableInput {
-    set_env(Enviroment { active_version: version, ..Default::default() });
+    let _ = set_env(Enviroment { active_version: version, ..Default::default() });
     SetEnvironmentVariableInput { key: PATH_KEY.to_string(), value: current_dir }
 }
 
@@ -97,5 +105,5 @@ fn copy_file_version(version_folder: String, current_folder: String, file_names:
             }
         }
     }
-    Result::Ok(Success {})
+    Ok(Success {})
 }

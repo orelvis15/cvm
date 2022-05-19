@@ -11,7 +11,7 @@ pub fn start(command: &ArgMatches) -> Result<Success, Message> {
 
     let config = get_config();
     if let Err(error) = config {
-        return Result::Err(error);
+        return Err(error);
     }
 
     let mut version: String = LATEST.to_string();
@@ -39,7 +39,7 @@ pub fn start(command: &ArgMatches) -> Result<Success, Message> {
         let last_tag = get_last_tag(config.unwrap().build_cardano_node.cnode_release);
         match last_tag {
             Ok(tag) => version = tag,
-            Err(error) => return Result::Err(error)
+            Err(error) => return Err(error)
         }
     };
 

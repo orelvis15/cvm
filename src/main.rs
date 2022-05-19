@@ -15,11 +15,14 @@ mod utils;
 
 fn main() {
     let config = config::config::get_config();
+    let current_version = commands::config::get_version();
 
     if let Err(error) = config {
         println!("{}", error.to_string());
         return;
     }
+
+    show_update_alert(&config.as_ref().unwrap().general.last_cvm_version, &current_version);
 
     let args = commands::config::command_config();
     let result = match args.subcommand_name() {
@@ -30,18 +33,18 @@ fn main() {
         Some("install") => {
             let subcommand = args.subcommand_matches(Commands::INSTALL.to_string());
             commands::install::start(subcommand.unwrap())
-        },
+        }
         Some("use") => {
             let subcommand = args.subcommand_matches(Commands::USE.to_string());
             commands::r#use::start(subcommand.unwrap())
-        },
+        }
         Some("list") => {
             let subcommand = args.subcommand_matches(Commands::LIST.to_string());
             commands::list::start(subcommand.unwrap())
-        },
+        }
         Some("update") => {
             let subcommand = args.subcommand_matches(Commands::UPDATE.to_string());
-            commands::update::start(subcommand.unwrap(), commands::config::get_version())
+            commands::update::start(subcommand.unwrap(), current_version)
         }
         _ => { print_error() }
     };
@@ -64,4 +67,10 @@ fn print_error() -> Result<Success, Message> {
         task: "".to_string(),
         stack: vec![],
     });
+}
+
+fn show_update_alert(last_version: &String, current_version: &String) {
+    if &last_version > &current_version {
+        println!("{} {} => {}", "New update available".blue(), &current_version.blue(), &last_version.green());
+    };
 }

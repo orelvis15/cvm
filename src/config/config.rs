@@ -1,7 +1,7 @@
 
 use serde::{Deserialize};
 use std::{fs};
-use std::path::Path;
+
 use directories::{BaseDirs, ProjectDirs};
 use crate::task::message_type::MessageType;
 
@@ -18,46 +18,41 @@ pub fn get_config() -> Result<Config, Message> {
 
         let project_dir = get_project_dir();
         if let Err(error) = project_dir{
-            return Result::Err(error)
+            return Err(error)
         }
 
         let config_dir = project_dir.unwrap().config_dir().to_str().unwrap().to_string();
 
-        // obtenemos el path del directorio como string y lo concatenamos con  el archivo
         let mut path_str: String = config_dir.clone();
         path_str.push_str("/");
         path_str.push_str(FILE_NAME);
 
-        // en caso de no existir los descargamos
         let download_config = download_config(config_dir.clone()
                                               , format!("/{}", FILE_NAME.to_string()));
         if let Err(error) = download_config {
-            return Result::Err(error);
+            return Err(error);
         }
 
-        // leemos el archivo de configuracion
         let config_file = fs::read_to_string(
             format!("{}/{}", config_dir, FILE_NAME)
         );
 
-        // si fue correcta la lectura se devuelve el objeto Config parseado del archivo
-        match config_file {
+        return match config_file {
             Ok(file) => {
-
                 match toml::from_str(&file) {
-                    Ok(config) => {return Result::Ok(config);},
+                    Ok(config) => { Ok(config) },
                     Err(error) => {
-                        return Err(Message {
+                        Err(Message {
                             code: 0,
                             message: "Error try parsing config file".to_string(),
                             kind: MessageType::Error,
                             task: "".to_string(),
                             stack: vec![error.to_string()],
-                        });
+                        })
                     }
                 }
             }
-            Err(_) => return Err(Message {
+            Err(_) => Err(Message {
                 code: 0,
                 message: "Error try reading config file".to_string(),
                 kind: MessageType::Error,
@@ -77,10 +72,10 @@ pub fn get_home_dir() -> Result<String, Message> {
     });
 
     if let Some(dir) = BaseDirs::new() {
-        if let Some(path) = dir.home_dir().to_str() {
-            return Result::Ok(String::from(path));
+        return if let Some(path) = dir.home_dir().to_str() {
+            Ok(String::from(path))
         } else {
-            return error.clone();
+            error.clone()
         }
     }
     error
@@ -90,10 +85,21 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
     let download_path = download(CONFIG_URL.to_string(), &file_name);
 
     if let Err(error) = download_path {
-        return Result::Err(error);
+        return Err(error);
     }
 
-    fs::create_dir_all(&config_folder);
+    let folder_result = fs::create_dir_all(&config_folder);
+
+    if let Err(error) = folder_result {
+        return Err(Message{
+            code: 0,
+            message: "Error creating folder structure".to_string(),
+            kind: MessageType::Error,
+            task: "".to_string(),
+            stack: vec![error.to_string()]
+        });
+    }
+
     let result = fs::copy(download_path.unwrap(), format!("{}/{}", &config_folder, file_name));
 
     if result.is_err() {
@@ -105,7 +111,7 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
             stack: vec![],
         });
     }
-    Result::Ok(Success {})
+    Ok(Success {})
 }
 
 pub fn get_project_dir() -> Result<ProjectDirs, Message> {
@@ -118,7 +124,17 @@ pub fn get_project_dir() -> Result<ProjectDirs, Message> {
         let config_dir = proj_dirs.config_dir();
 
         if !config_dir.exists() {
-            fs::create_dir_all(config_dir);
+            let folder_result = fs::create_dir_all(config_dir);
+
+            if let Err(error) = folder_result {
+                return Err(Message{
+                    code: 0,
+                    message: "Error creating folder structure".to_string(),
+                    kind: MessageType::Error,
+                    task: "".to_string(),
+                    stack: vec![error.to_string()]
+                });
+            }
         }
 
         Ok(proj_dirs)

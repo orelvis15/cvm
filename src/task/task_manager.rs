@@ -1,4 +1,3 @@
-
 use owo_colors::OwoColorize;
 use crate::task::task::{Message, Success, Task};
 use crate::env::Env;
@@ -16,12 +15,12 @@ pub fn start(task_list: Vec<Box<dyn Task>>) -> Result<Success, Message> {
                         continue;
                     },
                     Err(error) => {
-                        return Result::Err(error);
+                        return Err(error);
                     }
                 }
             },
             Err(error) => {
-                return Result::Err(error);
+                return Err(error);
             }
         }
     }

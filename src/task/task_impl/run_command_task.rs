@@ -2,7 +2,6 @@ use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::thread;
 use owo_colors::OwoColorize;
-
 use crate::env::Env;
 use crate::task::message_type::MessageType;
 use crate::task::task::{Message, Success, Task};

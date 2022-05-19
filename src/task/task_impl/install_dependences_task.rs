@@ -1,5 +1,4 @@
 extern crate rs_release;
-
 use os_info::Type;
 use crate::env::Env;
 use crate::task::task::{Message, Success, Task};
@@ -19,7 +18,7 @@ impl Task for InstallDependencesTask {
     fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
-            return Result::Err(error);
+            return Err(error);
         }
 
         // read the dependence file and build command
@@ -81,7 +80,7 @@ impl Task for InstallDependencesTask {
                 cmd.run(env)
             }
             None => {
-                Result::Ok(Success {})
+                Ok(Success {})
                 /*return Result::Err(Error {
                     code: 0,
                     message: "Error verify dependencies".to_string(),
@@ -99,11 +98,11 @@ impl Task for InstallDependencesTask {
 
 fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
     match os_info::get().os_type() {
-        Type::Macos => { Option::Some(dependences.macos.join(" ")) }
-        Type::Ubuntu => { Option::Some(dependences.ubuntu.join(" ")) }
-        Type::Debian => { Option::Some(dependences.debian.join(" ")) }
-        Type::OracleLinux => { Option::Some(dependences.debian.join(" ")) }
-        Type::Fedora => { Option::Some(dependences.fedora.join(" ")) }
+        Type::Macos => { Some(dependences.macos.join(" ")) }
+        Type::Ubuntu => { Some(dependences.ubuntu.join(" ")) }
+        Type::Debian => { Some(dependences.debian.join(" ")) }
+        Type::OracleLinux => { Some(dependences.debian.join(" ")) }
+        Type::Fedora => { Some(dependences.fedora.join(" ")) }
         Type::CentOS => {
             let mut extra_dependences = String::new();
             let os_release = get_os_release();
@@ -112,7 +111,7 @@ fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
             } else if os_release == "7" {
                 extra_dependences = dependences.centos_8.join(" ");
             }
-            Option::Some(format!("{} {}", dependences.centos.join(" "), extra_dependences))
+            Some(format!("{} {}", dependences.centos.join(" "), extra_dependences))
         }
         Type::Redhat => {
             let mut extra_dependences = String::new();
@@ -122,9 +121,9 @@ fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
             } else if os_release == "7" {
                 extra_dependences = dependences.rhel_8.join(" ");
             }
-            Option::Some(format!("{} {}", dependences.rhel.join(" "), extra_dependences))
+            Some(format!("{} {}", dependences.rhel.join(" "), extra_dependences))
         }
-        _ => { Option::None }
+        _ => { None }
     }
 }
 

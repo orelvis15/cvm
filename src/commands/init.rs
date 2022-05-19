@@ -1,5 +1,4 @@
 use clap::ArgMatches;
-use owo_colors::OwoColorize;
 use crate::commands::config::{Args};
 use crate::task::task::{Message, Success};
 use crate::task::task_impl::create_folder_structure_task::CreateFolderStructure;
@@ -8,7 +7,6 @@ use crate::task::task_impl::install_dependences_task::InstallDependencesTask;
 use crate::task::task_impl::install_haskell_ghc_task::InstallHanskellGhcTask;
 use crate::task::task_impl::install_libsodium_task::InstallLibsodiumTask;
 use crate::task::task_manager;
-use crate::task::task_type::TaskType;
 
 const MAINNET: &str = "mainnet";
 const TESTNET: &str = "testnet";

@@ -16,7 +16,7 @@ pub fn get_last_tag(url: String) -> Result<String, Message> {
         if let Ok(response) = client.get(url).send() {
             if let Ok(test) = response.text() {
                 let tag: Tag = serde_json::from_str(test.as_str()).unwrap();
-                return Result::Ok(tag.tag_name);
+                return Ok(tag.tag_name);
             }
         }
     }

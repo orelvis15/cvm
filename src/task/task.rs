@@ -44,12 +44,12 @@ impl Message {
     }
 
     fn print_warning(self: Message) -> String {
-        let mut output = format!("{}", self.message);
+        let output = format!("{}", self.message);
         format!("{}", output.yellow())
     }
 
     fn print_info(self: Message) -> String {
-        let mut output = format!("{}", self.message);
+        let output = format!("{}", self.message);
         format!("{}", output.blue())
     }
 }

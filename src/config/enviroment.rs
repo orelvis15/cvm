@@ -12,7 +12,7 @@ pub fn get_env() -> Result<Enviroment, Message> {
 
     let project_dir = get_project_dir();
     if let Err(error) = project_dir {
-        return Result::Err(error);
+        return Err(error);
     }
 
     let config_dir = project_dir.unwrap().config_dir().to_str().unwrap().to_string();
@@ -47,21 +47,21 @@ pub fn get_env() -> Result<Enviroment, Message> {
     );
 
     // si fue correcta la lectura se devuelve el objeto Config parseado del archivo
-    match env_file {
+    return match env_file {
         Ok(file) => {
             if let Ok(env) = toml::from_str(&file) {
-                return Ok(env);
+                Ok(env)
             } else {
-                return Err(Message {
+                Err(Message {
                     code: 0,
                     message: "Error try parsing enviroment file".to_string(),
                     kind: MessageType::Error,
                     task: "".to_string(),
                     stack: vec![],
-                });
+                })
             }
         }
-        Err(_) => return Err(Message {
+        Err(_) => Err(Message {
             code: 0,
             message: "Error try reading enviroment file".to_string(),
             kind: MessageType::Error,
@@ -76,14 +76,14 @@ pub fn set_env(env: Enviroment) -> Result<Success, Message> {
 
     let current_env = get_env();
     if let Err(error) = current_env {
-        return Result::Err(error);
+        return Err(error);
     };
 
     let update = current_env.unwrap().update(env);
 
     let project_dir = get_project_dir();
     if let Err(error) = project_dir {
-        return Result::Err(error);
+        return Err(error);
     };
 
     let config_dir = project_dir.unwrap().config_dir().to_str().unwrap().to_string();
@@ -105,7 +105,7 @@ pub fn set_env(env: Enviroment) -> Result<Success, Message> {
             stack: vec![error.to_string()],
         })
     }else {
-        Result::Ok(Success{})
+        Ok(Success{})
     }
 }
 

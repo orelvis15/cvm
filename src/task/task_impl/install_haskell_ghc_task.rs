@@ -5,7 +5,6 @@ use crate::env::Env;
 use crate::task::message_type::MessageType;
 use crate::task::task::{Message, Success, Task};
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-
 use crate::task::task_manager;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
@@ -24,17 +23,17 @@ impl Task for InstallHanskellGhcTask {
     fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let uri = download_install_ghc_file(config.clone().unwrap().init);
         if let Err(error) = uri {
-            return Result::Err(error);
+            return Err(error);
         }
 
         let mut ghcup_dir = String::from(home_dir.as_ref().unwrap());
@@ -49,12 +48,23 @@ impl Task for InstallHanskellGhcTask {
             Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.as_ref().unwrap().init.haskell_cabal_version) }),
         ]);
 
-        set_env(Enviroment {
+        let set_env_result = set_env(Enviroment {
             ghcup_home: ghcup_dir.clone(),
             cabal_home: ghcup_dir.clone(),
             ghc_home: ghcup_dir.clone(),
             ..Default::default()
         });
+
+        if let Err(error) = set_env_result {
+            return Err(Message{
+                code: 0,
+                message: "Error creating environment variable".to_string(),
+                kind: MessageType::Error,
+                task: "".to_string(),
+                stack: vec![error.to_string()]
+            });
+        }
+
         *env = Env::InstallHaskellGhc(InstallHanskellGhcOutputData { ghcup_path: ghcup_dir.clone() });
         result
     }

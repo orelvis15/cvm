@@ -1,11 +1,8 @@
-use std::fs;
 use std::fs::File;
-use flate2::Compression;
 use flate2::read::GzDecoder;
-use flate2::write::GzEncoder;
 use tar::Archive;
 use crate::env::Env;
-use crate::{Message, Success, url_build};
+use crate::{Message, Success};
 use crate::config::config::{get_config, get_home_dir};
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
@@ -21,7 +18,7 @@ pub struct CheckUpdateData {
 }
 
 impl Task for CheckUpdateTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(_) = config {
             return Err(error());
@@ -40,7 +37,7 @@ impl Task for CheckUpdateTask {
         download_and_copy_version(&config.as_ref().unwrap().general.last_cvm_version, &config.as_ref().unwrap().init.git_assets)
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         Ok(Success {})
     }
 
@@ -68,11 +65,11 @@ fn download_and_copy_version(version: &String, base_url: &String) -> Result<Succ
     decompress(download_path.unwrap(), home_dir.unwrap())
 }
 
-fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message>{
+fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message> {
     let file = File::open(file_uri);
 
     if let Err(_) = &file {
-        return Err(error())
+        return Err(error());
     };
 
     let tar = GzDecoder::new(file.unwrap());
@@ -82,10 +79,10 @@ fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message>{
     let result = archive.unpack(format!("{}/{}", home_dir, ".cvm/"));
 
     if let Err(_) = &result {
-        return Err(error())
+        return Err(error());
     };
 
-    Ok(Success{})
+    Ok(Success {})
 }
 
 fn error() -> Message {
