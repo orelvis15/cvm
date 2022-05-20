@@ -197,7 +197,7 @@ pub enum Cmd {
 }
 
 impl Cmd {
-    pub fn as_str(&self) -> String {
+    pub fn as_string(&self) -> String {
         match self {
             Cmd::Install => "install".to_string(),
             Cmd::Brew => "brew".to_string(),

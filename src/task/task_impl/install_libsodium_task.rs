@@ -75,32 +75,32 @@ impl Task for InstallLibsodiumTask {
 }
 
 fn build_clone_repo_command(repo: String, path: String) -> RunCommandInputData {
-    let args = vec![Cmd::Clone.as_str(), repo];
-    RunCommandInputData { command: Cmd::Git.as_str(), args, current_dir: path }
+    let args = vec![Cmd::Clone.as_string(), repo];
+    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
 }
 
 fn build_checkout_repo_command(path: String, commit: String) -> RunCommandInputData {
-    let args = vec![Cmd::Checkout.as_str(), commit];
-    RunCommandInputData { command: Cmd::Git.as_str(), args, current_dir: path }
+    let args = vec![Cmd::Checkout.as_string(), commit];
+    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
 }
 
 fn build_autogen_repo_command(path: String) -> RunCommandInputData {
     let args = vec![AUTOGEN_FILE.to_string()];
-    RunCommandInputData { command: Cmd::Sh.as_str(), args, current_dir: path }
+    RunCommandInputData { command: Cmd::Sh.as_string(), args, current_dir: path }
 }
 
 fn build_configure_repo_command(path: String) -> RunCommandInputData {
     let args = vec![CONFIGURE_FILE.to_string()];
-    RunCommandInputData { command: Cmd::Sh.as_str(), args, current_dir: path }
+    RunCommandInputData { command: Cmd::Sh.as_string(), args, current_dir: path }
 }
 
 fn build_make_repo_command(path: String) -> RunCommandInputData {
-    RunCommandInputData { command: Cmd::Make.as_str(), args: vec![], current_dir: path }
+    RunCommandInputData { command: Cmd::Make.as_string(), args: vec![], current_dir: path }
 }
 
 fn build_make_install_repo_command(path: String) -> RunCommandInputData {
-    let args = vec![Cmd::Make.as_str(), Cmd::Install.as_str()];
-    RunCommandInputData { command: Cmd::Sudo.as_str(), args, current_dir: path }
+    let args = vec![Cmd::Make.as_string(), Cmd::Install.as_string()];
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: path }
 }
 
 fn build_set_libsodium_env_var_command() -> SetEnvironmentVariableInput {

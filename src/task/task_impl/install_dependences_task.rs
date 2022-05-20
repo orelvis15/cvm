@@ -152,24 +152,24 @@ fn get_install_command_from_os(dependences: String) -> Option<RunCommandInputDat
 
 fn build_macos_install_command(dependences: String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
-    args.insert(0, Cmd::Install.as_str());
-    RunCommandInputData { command: Cmd::Install.as_str(), args, ..Default::default() }
+    args.insert(0, Cmd::Install.as_string());
+    RunCommandInputData { command: Cmd::Install.as_string(), args, ..Default::default() }
 }
 
 fn build_ubuntu_debian_install_command(dependences: String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
-    args.insert(0, Cmd::Install.as_str());
+    args.insert(0, Cmd::Install.as_string());
     args.insert(0, "-y".to_string());
-    args.insert(0, Cmd::AptGet.as_str());
-    RunCommandInputData { command: Cmd::Sudo.as_str(), args, ..Default::default() }
+    args.insert(0, Cmd::AptGet.as_string());
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
 }
 
 fn build_centos_fedora_rhel_install_command(dependences: String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
     args.insert(0, "-y".to_string());
-    args.insert(0, Cmd::Install.as_str());
-    args.insert(0, Cmd::Yum.as_str());
-    RunCommandInputData { command: Cmd::Sudo.as_str(), args, ..Default::default() }
+    args.insert(0, Cmd::Install.as_string());
+    args.insert(0, Cmd::Yum.as_string());
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
 }
 
 fn get_verify_command_from_os(dependences: String) -> Option<RunCommandInputData> {
@@ -181,6 +181,6 @@ fn get_verify_command_from_os(dependences: String) -> Option<RunCommandInputData
 
 fn build_macos_verify_install_command(dependences: String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
-    args.insert(0, Cmd::List.as_str());
-    RunCommandInputData { command: Cmd::Brew.as_str(), args, ..Default::default() }
+    args.insert(0, Cmd::List.as_string());
+    RunCommandInputData { command: Cmd::Brew.as_string(), args, ..Default::default() }
 }
