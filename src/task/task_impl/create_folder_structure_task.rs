@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::Path;
-use crate::config::config::{get_config, get_home_dir};
+use crate::config::config::{get_config, get_home_dir, get_project_dir};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::env::Env;
 use crate::task::message_type::MessageType;
@@ -21,12 +21,9 @@ impl Task for CreateFolderStructure {
             return Err(error);
         }
 
-        let home_dir = get_home_dir();
-        if let Err(error) = home_dir {
-            return Err(error);
-        }
+        let project_dir = get_project_dir();
 
-        let workspace_home = url_build(vec![home_dir.unwrap().as_str(), config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
+        let workspace_home = url_build(vec![project_dir.as_str(), config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
         let create_folder_result = fs::create_dir(&workspace_home);
 
         if let Err(error) = create_folder_result {
@@ -79,12 +76,9 @@ impl Task for CreateFolderStructure {
             stack: vec![],
         };
 
-        let home_dir = get_home_dir();
-        if let Err(error) = home_dir {
-            return Err(error);
-        }
+        let project_dir = get_project_dir();
 
-        let workspace_home = url_build(vec![home_dir.unwrap().as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
+        let workspace_home = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
 
         if !Path::new(&workspace_home).is_dir() { return Err(error.clone()); }
 

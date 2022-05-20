@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use serde::{Serialize, Deserialize};
-use crate::config::config::{get_project_dir};
+use crate::config::config::{get_config_dir};
 use crate::task::message_type::MessageType;
 
 use crate::task::task::{Message, Success};
@@ -10,7 +10,7 @@ use crate::task::task::{Message, Success};
 pub fn get_env() -> Result<Enviroment, Message> {
     const FILE_NAME: &str = "env.tom";
 
-    let project_dir = get_project_dir();
+    let project_dir = get_config_dir();
     if let Err(error) = project_dir {
         return Err(error);
     }
@@ -81,7 +81,7 @@ pub fn set_env(env: Enviroment) -> Result<Success, Message> {
 
     let update = current_env.unwrap().update(env);
 
-    let project_dir = get_project_dir();
+    let project_dir = get_config_dir();
     if let Err(error) = project_dir {
         return Err(error);
     };

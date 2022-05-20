@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Message, MessageType, Success, url_build};
-use crate::config::config::{get_config, get_home_dir};
+use crate::config::config::{get_config, get_home_dir, get_project_dir};
 use crate::task::task::Task;
 use crate::task::task_impl::copy_bin_task::{CopyBinInputData, CopyBinTask};
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
@@ -25,13 +25,10 @@ impl Task for BuildCardanoNodeTask {
             return Err(error);
         }
 
-        let home_dir = get_home_dir();
-        if let Err(error) = home_dir {
-            return Err(error);
-        }
+        let project_dir = get_project_dir();
 
         let repo = &config.as_ref().unwrap().build_cardano_node.cnode_repository;
-        let git_folder = url_build(vec![home_dir.clone().unwrap().as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), GIT_FOLDER], false);
+        let git_folder = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), GIT_FOLDER], false);
         let cardano_folder = url_build(vec![git_folder.as_str(), CARDANO_REPOSITORY_FOLDER], false);
         let cardano_folder_path = Path::new(cardano_folder.as_str());
 

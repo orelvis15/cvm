@@ -21,7 +21,6 @@ impl Task for InstallDependencesTask {
             return Err(error);
         }
 
-        // read the dependence file and build command
         let dependece = config.unwrap().dependencies;
         let dependences_result = get_dependences_from_os(dependece);
         let dependences: String;

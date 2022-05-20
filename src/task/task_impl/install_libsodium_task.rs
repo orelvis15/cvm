@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Message, MessageType, Success, url_build};
-use crate::config::config::{get_config, get_home_dir};
+use crate::config::config::{get_config, get_home_dir, get_project_dir};
 use crate::config::enviroment::{Enviroment, set_env};
 use crate::task::task::Task;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
@@ -33,8 +33,10 @@ impl Task for InstallLibsodiumTask {
             return Err(error);
         }
 
+        let project_dir = get_project_dir();
+
         let repo = &config.as_ref().unwrap().init.libsodium_repository;
-        let folder = url_build(vec![home_dir.unwrap().as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), GIT_FOLDER], false);
+        let folder = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), GIT_FOLDER], false);
         let libsodium_folder = url_build(vec![folder.as_str(), LIBSODIUM_FOLDER], false);
         let path = Path::new(libsodium_folder.as_str());
 
