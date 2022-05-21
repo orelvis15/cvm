@@ -3,7 +3,7 @@ use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Message, Success, url_build};
-use crate::config::config::{get_config, get_home_dir};
+use crate::config::config::{get_config, get_home_dir, get_project_dir};
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -27,12 +27,9 @@ impl Task for CopyBinTask {
             return Err(error);
         };
 
-        let home_dir = get_home_dir();
-        if let Err(error) = home_dir {
-            return Err(error);
-        };
+        let project_dir = get_project_dir();
 
-        let bin_folder = url_build(vec![home_dir.clone().unwrap().as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), BIN_FOLDER], false);
+        let bin_folder = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), BIN_FOLDER], false);
         let version_folder = url_build(vec![bin_folder.as_str(), &self.input_data.version], false);
         let version_folder_path = Path::new(version_folder.as_str());
         if !version_folder_path.exists() {

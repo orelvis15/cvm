@@ -3,7 +3,7 @@ use owo_colors::OwoColorize;
 use walkdir::WalkDir;
 use crate::{Message, Success};
 use crate::utils::version_utils::verify_version;
-use crate::config::config::{get_config, get_home_dir};
+use crate::config::config::{get_config, get_home_dir, get_project_dir};
 use crate::config::enviroment::get_env;
 
 const BIN_FOLDER: &str = "bin";
@@ -14,17 +14,14 @@ pub fn start(_command: &ArgMatches) -> Result<Success, Message> {
         return Err(error);
     }
 
-    let home_dir = get_home_dir();
-    if let Err(error) = home_dir {
-        return Err(error);
-    }
+    let project_dir = get_project_dir();
 
     let enviromet = get_env();
     if let Err(error) = enviromet {
         return Err(error);
     }
 
-    let bin_folder = format!("{}/{}/{}", home_dir.clone().unwrap(), &config.as_ref().unwrap().workspace.workspace_folder, BIN_FOLDER);
+    let bin_folder = format!("{}/{}/{}", project_dir, &config.as_ref().unwrap().workspace.workspace_folder, BIN_FOLDER);
 
     for entry in WalkDir::new(bin_folder) {
         let entry = entry.unwrap();
