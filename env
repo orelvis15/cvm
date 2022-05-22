@@ -6,10 +6,10 @@ case ":$PATH:" in
         ;;
 esac
 case ":$PATH:" in
-    *:"home/cardano/bin/current":*)
+    *:"/opt/cardano/bin/current":*)
         ;;
     *)
-        export PATH="home/cardano/bin/current:$PATH"
+        export PATH="/opt/cardano/bin/current:$PATH"
         ;;
 esac
 case ":$PATH:" in
