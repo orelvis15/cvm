@@ -39,17 +39,29 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - name: Build
+      - name: Build Release
         run: cargo build --release --locked
 
-      - name: Tar files
+      - name: Build Debug
+        run: cargo build
+
+      - name: Tar release files
         run: tar -czf ${{ matrix.asset_name }}.tar.gz --directory=target/release/ cvm
 
-      - name: Upload binaries to release
+      - name: Tar debug files
+        run: tar -czf ${{ matrix.asset_name }}-debug.tar.gz --directory=target/debug/ cvm
+
+      - name: Upload release binaries to release
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.asset_name }}.tar.gz
           path: ${{ matrix.asset_name }}.tar.gz
+
+      - name: Upload debug binaries to release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.asset_name }}-debug.tar.gz
+          path: ${{ matrix.asset_name }}-debug.tar.gz
 
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
@@ -59,19 +71,7 @@ jobs:
           asset_name: ${{ matrix.asset_name }}.tar.gz
           tag: ${{ github.ref }}
 
-      - name: Build_debug
-        run: cargo build
-
-      - name: Tar files
-        run: tar -czf ${{ matrix.asset_name }}.tar.gz --directory=target/debug/ cvm
-
-      - name: Upload binaries to release
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.asset_name }}-debug.tar.gz
-          path: ${{ matrix.asset_name }}-debug.tar.gz
-
-      - name: Create Release
+      - name: Create Release with debug
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.TOKEN_DEPLOY }}
