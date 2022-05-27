@@ -4,13 +4,15 @@ repo="https://api.github.com/repos/orelvis15/cvm/releases/latest"
 env="https://raw.githubusercontent.com/orelvis15/cvm/master/env"
 
 resource="uname"
+debug=""
+
+if [[ $1 == "debug" ]]; then debug="-debug"; fi
 
 os=$(uname -s)
 arc=$(uname -m)
 
-if [[ $os == "Linux" && $arc == "x86_64" ]]; then resource="cvm-x86_64"; fi
-
-if [[ $os == "Linux" && $arc == "aarch64" ]]; then resource="cvm-aarch64"; fi
+if [[ $os == "Linux" && $arc == "x86_64" ]]; then resource="cvm-x86_64"$debug; fi
+if [[ $os == "Linux" && $arc == "aarch64" ]]; then resource="cvm-aarch64"$debug; fi
 
 if [[ $resource == "uname" ]]; then
   echo "this architecture is not yet supported"
