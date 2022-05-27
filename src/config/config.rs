@@ -111,7 +111,7 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
             message: "Error download configurations files".to_string(),
             kind: MessageType::Error,
             task: "".to_string(),
-            stack: vec![],
+            stack: vec![result.err().unwrap().to_string()],
         });
     }
     Ok(Success {})
