@@ -1,7 +1,10 @@
 use serde::{Deserialize};
 use std::{fs};
+use std::fs::File;
+use std::path::Path;
 
 use directories::{BaseDirs, ProjectDirs};
+use tar::Unpacked::File;
 use crate::task::message_type::MessageType;
 
 use crate::task::task::{Message, Success};
@@ -103,7 +106,13 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
         });
     }
 
-    let result = fs::copy(download_path.unwrap(), format!("{}/{}", &config_folder, file_name));
+    let config_file = format!("{}/{}", &config_folder, file_name);
+    let file = Path::new(&config_file);
+    if file.exists(){
+        fs::remove_file(file).expect("Error deleting config file");
+    }
+
+    let result = fs::copy(download_path.unwrap(), &config_file);
 
     if result.is_err() {
         return Err(Message {
