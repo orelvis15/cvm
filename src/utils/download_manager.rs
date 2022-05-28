@@ -3,6 +3,7 @@ use std::io::Write;
 use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
+use std::path::Path;
 use reqwest::blocking::Response;
 use crate::task::message_type::MessageType;
 use crate::task::task::{Message};
@@ -33,6 +34,11 @@ pub fn download(url: String, name: &str) -> Result<String, Message> {
     }
 
     let content = response.bytes();
+
+    let file = Path::new(&path);
+    if file.exists(){
+        fs::remove_file(file).expect("Error deleting config file");
+    }
 
     let file_result = File::create(&path);
     let mut file: File;
