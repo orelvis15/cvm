@@ -4,7 +4,6 @@ use std::fs::File;
 use std::path::Path;
 
 use directories::{BaseDirs, ProjectDirs};
-use tar::Unpacked::File;
 use crate::task::message_type::MessageType;
 
 use crate::task::task::{Message, Success};
