@@ -5,14 +5,21 @@ use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use reqwest::blocking::Response;
+use crate::config::config::get_home_dir;
 use crate::task::message_type::MessageType;
 use crate::task::task::{Message};
 
 pub fn download(url: String, name: &str) -> Result<String, Message> {
-    let dir = env::temp_dir();
+
+    let home_dir = get_home_dir();
+    if let Err(error) = home_dir {
+        return Err(error);
+    }
+
+    let dir_tmp = format!("{}/tmp",home_dir.unwrap());
 
     let mut path = String::new();
-    path.push_str(dir.to_str().unwrap());
+    path.push_str(dir_tmp.to_str().unwrap());
     path.push_str(&*name);
 
     let res = reqwest::blocking::get(&*url);
@@ -69,7 +76,6 @@ pub fn download(url: String, name: &str) -> Result<String, Message> {
             stack: vec![error.to_string()]
         });
     }
-
 
     let write_result = file.write_all(&content.unwrap());
 

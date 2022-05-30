@@ -23,6 +23,7 @@ fi
 artifact=$(curl -s $repo | awk -F\" '/browser_download_url.*.'$resource'.tar.gz/{print $(NF-1)}')
 
 mkdir -p "$HOME"/.cvm
+mkdir -p "$HOME"/.cvm/tmp
 
 curl -L "$env" -o "$HOME"/.cvm/env
 sed -i "s|home|$HOME|g" "$HOME"/.cvm/env
