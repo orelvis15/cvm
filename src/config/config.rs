@@ -82,7 +82,6 @@ pub fn get_home_dir() -> Result<String, Message> {
 }
 
 pub fn get_project_dir() -> String {
-    sudo::escalate_if_needed().expect("Error running sudo");
     String::from("/opt")
 }
 

@@ -10,13 +10,12 @@ use crate::task::message_type::MessageType;
 use crate::task::task::{Message};
 
 pub fn download(url: String, name: &str) -> Result<String, Message> {
-
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
         return Err(error);
     }
 
-    let dir_tmp = format!("{}/tmp",home_dir.unwrap());
+    let dir_tmp = format!("{}/.cvm/tmp", home_dir.unwrap());
 
     let mut path = String::new();
     path.push_str(&dir_tmp);
@@ -41,12 +40,6 @@ pub fn download(url: String, name: &str) -> Result<String, Message> {
     }
 
     let content = response.bytes();
-
-    let file = Path::new(&path);
-    if file.exists(){
-        fs::remove_file(file).expect("Error deleting config file");
-    }
-
     let file_result = File::create(&path);
     let mut file: File;
 
@@ -68,24 +61,24 @@ pub fn download(url: String, name: &str) -> Result<String, Message> {
     let permission_result = fs::set_permissions(&path, fs::Permissions::from_mode(0o755));
 
     if let Err(error) = permission_result {
-        return Err(Message{
+        return Err(Message {
             code: 0,
             message: "Error assigning permissions to the downloaded file".to_string(),
             kind: MessageType::Error,
             task: "".to_string(),
-            stack: vec![error.to_string()]
+            stack: vec![error.to_string()],
         });
     }
 
     let write_result = file.write_all(&content.unwrap());
 
     if let Err(error) = write_result {
-        return Err(Message{
+        return Err(Message {
             code: 0,
             message: "Error writing file".to_string(),
             kind: MessageType::Error,
             task: "".to_string(),
-            stack: vec![error.to_string()]
+            stack: vec![error.to_string()],
         });
     }
 
@@ -136,12 +129,12 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
     let permission_result = fs::set_permissions(&path, fs::Permissions::from_mode(0o755));
 
     if let Err(error) = permission_result {
-        return Err(Message{
+        return Err(Message {
             code: 0,
             message: "Error assigning permissions to the downloaded file".to_string(),
             kind: MessageType::Error,
             task: "".to_string(),
-            stack: vec![error.to_string()]
+            stack: vec![error.to_string()],
         });
     }
 
@@ -149,12 +142,12 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
     let write_result = file.write_all(&content.unwrap());
 
     if let Err(error) = write_result {
-        return Err(Message{
+        return Err(Message {
             code: 0,
             message: "Error writing file".to_string(),
             kind: MessageType::Error,
             task: "".to_string(),
-            stack: vec![error.to_string()]
+            stack: vec![error.to_string()],
         });
     }
 
