@@ -19,7 +19,7 @@ pub fn download(url: String, name: &str) -> Result<String, Message> {
     let dir_tmp = format!("{}/tmp",home_dir.unwrap());
 
     let mut path = String::new();
-    path.push_str(dir_tmp.to_str().unwrap());
+    path.push_str(&dir_tmp);
     path.push_str(&*name);
 
     let res = reqwest::blocking::get(&*url);
