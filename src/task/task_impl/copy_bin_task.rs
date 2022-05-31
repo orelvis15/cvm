@@ -3,7 +3,7 @@ use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Message, Success, url_build};
-use crate::config::config::{get_config, get_home_dir, get_project_dir};
+use crate::config::config::{get_config, get_project_dir};
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;

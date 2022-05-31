@@ -1,9 +1,7 @@
-use std::env;
 use std::io::Write;
 use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
-use std::path::Path;
 use reqwest::blocking::Response;
 use crate::config::config::get_home_dir;
 use crate::task::message_type::MessageType;

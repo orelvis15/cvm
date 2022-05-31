@@ -2,7 +2,7 @@ extern crate strfmt;
 
 use std::collections::HashMap;
 use strfmt::strfmt;
-use crate::config::config::{ConfigFileItem, get_config, get_home_dir, get_project_dir};
+use crate::config::config::{ConfigFileItem, get_config, get_project_dir};
 use crate::env::Env;
 use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;

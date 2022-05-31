@@ -18,10 +18,12 @@ pub struct RunCommandOutputData {
 
 impl RunCommandOutputData
 {
+    #[allow(dead_code)]
     fn get_tag(&self) -> &String {
         &self.tag
     }
 
+    #[allow(dead_code)]
     fn get_data(&self) -> &RunCommandOutputData {
         self
     }
@@ -35,6 +37,7 @@ pub struct RunCommandInputData {
 }
 
 impl RunCommandInputData {
+    #[allow(dead_code)]
     pub fn to_string(self: Self) -> String {
         let mut command = String::new();
         command.push_str(self.command.as_str());
@@ -193,8 +196,6 @@ pub enum Cmd {
     Make,
     Fetch,
     Build,
-    Cp,
-    Mkdir
 }
 
 impl Cmd {
@@ -219,8 +220,6 @@ impl Cmd {
             Cmd::Make => "make".to_string(),
             Cmd::Fetch => "fetch".to_string(),
             Cmd::Build => "build".to_string(),
-            Cmd::Cp => "cp".to_string(),
-            Cmd::Mkdir => "mkdir".to_string(),
         }
     }
 }

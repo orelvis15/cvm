@@ -1,9 +1,8 @@
 use serde::{Deserialize};
 use std::{env, fs};
-use std::fs::File;
 use std::path::Path;
 
-use directories::{BaseDirs, ProjectDirs};
+use directories::{ProjectDirs};
 use users::{get_current_uid, get_user_by_uid};
 use crate::task::message_type::MessageType;
 
@@ -73,7 +72,7 @@ pub fn get_home_dir() -> Result<String, Message> {
     });
 
     //if user is not root return current user
-    let mut user = get_user_by_uid(get_current_uid()).unwrap();
+    let user = get_user_by_uid(get_current_uid()).unwrap();
     if user.uid() != 0 {
         return Ok(String::from(format!("/home/{}", user.name().to_str().unwrap())));
     }

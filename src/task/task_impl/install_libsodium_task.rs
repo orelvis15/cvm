@@ -3,19 +3,13 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Message, MessageType, Success, url_build};
 use crate::config::config::{get_config, get_home_dir, get_project_dir};
-use crate::config::enviroment::{Enviroment, set_env};
 use crate::task::task::Task;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-use crate::task::task_impl::set_enviroment_variable::{SetEnvironmentVariable, SetEnvironmentVariableInput};
 use crate::task::task_manager;
 use crate::task::task_type::TaskType;
 
 pub struct InstallLibsodiumTask {}
 
-const LIBSODIUM_PATH: &str = "/usr/local/lib";
-const LIBSODIUM_HOME: &str = "LD_LIBRARY_PATH";
-const PKG_PATH: &str = "/usr/local/lib/pkgconfig";
-const PKG_HOME: &str = "PKG_CONFIG_PATH";
 const LIBSODIUM_FOLDER: &str = "libsodium";
 const GIT_FOLDER: &str = "git";
 const AUTOGEN_FILE: &str = "./autogen.sh";
@@ -60,8 +54,6 @@ impl Task for InstallLibsodiumTask {
             Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_install_repo_command(libsodium_folder.clone()) }),
-            Box::new(SetEnvironmentVariable { input_data: build_set_libsodium_env_var_command() }),
-            Box::new(SetEnvironmentVariable { input_data: build_set_pkg_config_env_var_command() }),
         ])
     }
 
@@ -101,14 +93,4 @@ fn build_make_repo_command(path: String) -> RunCommandInputData {
 fn build_make_install_repo_command(path: String) -> RunCommandInputData {
     let args = vec![Cmd::Make.as_string(), Cmd::Install.as_string()];
     RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: path }
-}
-
-fn build_set_libsodium_env_var_command() -> SetEnvironmentVariableInput {
-    let _ = set_env(Enviroment { libsodium_path: LIBSODIUM_PATH.to_string(), ..Default::default() });
-    SetEnvironmentVariableInput { key: LIBSODIUM_HOME.to_string(), value: LIBSODIUM_PATH.to_string() }
-}
-
-fn build_set_pkg_config_env_var_command() -> SetEnvironmentVariableInput {
-    let _ = set_env(Enviroment { libsodium_path: PKG_PATH.to_string(), ..Default::default() });
-    SetEnvironmentVariableInput { key: PKG_HOME.to_string(), value: PKG_PATH.to_string() }
 }

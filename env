@@ -26,3 +26,6 @@ case ":$PATH:" in
         export PATH="home/.cabal/bin:$PATH"
         ;;
 esac
+
+export LD_LIBRARY_PATH="/usr/local/lib"
+export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"

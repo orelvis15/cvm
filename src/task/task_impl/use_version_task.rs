@@ -2,12 +2,9 @@ use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Message, Success, url_build};
-use crate::config::config::{get_config, get_home_dir, get_project_dir};
-use crate::config::enviroment::{Enviroment, set_env};
+use crate::config::config::{get_config, get_project_dir};
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
-use crate::task::task_impl::set_enviroment_variable::{SetEnvironmentVariable, SetEnvironmentVariableInput};
-use crate::task::task_manager;
 use crate::task::task_type::TaskType;
 
 pub struct UserVersionTask {
@@ -18,7 +15,6 @@ const BIN_FOLDER: &str = "bin";
 const CURRENT_FOLDER_NAME: &str = "current";
 const CARDANO_NODE_FILE_NAME: &str = "cardano-node";
 const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
-const PATH_KEY: &str = "PATH";
 
 impl Task for UserVersionTask {
     fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
@@ -67,9 +63,7 @@ impl Task for UserVersionTask {
             return Err(error);
         };
 
-        task_manager::start(vec![
-            Box::new(SetEnvironmentVariable { input_data: build_add_current_dir_var_command(self.version.clone(), current_folder.clone().to_string()) })
-        ])
+        Ok(Success{})
     }
 
     fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
@@ -79,11 +73,6 @@ impl Task for UserVersionTask {
     fn get_type(self: &Self) -> TaskType {
         TaskType::UseVersion
     }
-}
-
-fn build_add_current_dir_var_command(version: String, current_dir: String) -> SetEnvironmentVariableInput {
-    let _ = set_env(Enviroment { active_version: version, ..Default::default() });
-    SetEnvironmentVariableInput { key: PATH_KEY.to_string(), value: current_dir }
 }
 
 fn copy_file_version(version_folder: String, current_folder: String, file_names: Vec<&str>) -> Result<Success, Message> {
