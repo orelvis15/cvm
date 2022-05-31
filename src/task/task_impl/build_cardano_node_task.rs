@@ -21,6 +21,9 @@ const CABAL_PATH: &str = ".ghcup/bin";
 
 impl Task for BuildCardanoNodeTask {
     fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
+
+        sudo::escalate_if_needed().expect("Super user permissions are required");
+
         let config = get_config();
         if let Err(error) = config {
             return Err(error);

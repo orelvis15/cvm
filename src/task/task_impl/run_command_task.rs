@@ -194,6 +194,7 @@ pub enum Cmd {
     Fetch,
     Build,
     Cp,
+    Mkdir
 }
 
 impl Cmd {
@@ -219,6 +220,7 @@ impl Cmd {
             Cmd::Fetch => "fetch".to_string(),
             Cmd::Build => "build".to_string(),
             Cmd::Cp => "cp".to_string(),
+            Cmd::Mkdir => "mkdir".to_string(),
         }
     }
 }

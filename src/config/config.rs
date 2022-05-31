@@ -1,9 +1,10 @@
 use serde::{Deserialize};
-use std::{fs};
+use std::{env, fs};
 use std::fs::File;
 use std::path::Path;
 
 use directories::{BaseDirs, ProjectDirs};
+use users::{get_current_uid, get_user_by_uid};
 use crate::task::message_type::MessageType;
 
 use crate::task::task::{Message, Success};
@@ -71,13 +72,17 @@ pub fn get_home_dir() -> Result<String, Message> {
         stack: vec![],
     });
 
-    if let Some(dir) = BaseDirs::new() {
-        return if let Some(path) = dir.home_dir().to_str() {
-            Ok(String::from(path))
-        } else {
-            error.clone()
-        };
+    //if user is not root return current user
+    let mut user = get_user_by_uid(get_current_uid()).unwrap();
+    if user.uid() != 0 {
+        return Ok(String::from(format!("/home/{}", user.name().to_str().unwrap())));
     }
+
+    //if user is root return SUDO_USER var
+    if let Some(sudo_user) = env::var_os("SUDO_USER") {
+        return Ok(String::from(format!("/home/{}", sudo_user.to_str().unwrap())));
+    }
+
     error
 }
 
@@ -106,7 +111,7 @@ pub fn download_config(config_folder: String, file_name: String) -> Result<Succe
 
     let config_file = format!("{}/{}", &config_folder, file_name);
     let file = Path::new(&config_file);
-    if file.exists(){
+    if file.exists() {
         fs::remove_file(file).expect("Error deleting config file");
     }
 

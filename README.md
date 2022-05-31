@@ -46,7 +46,7 @@ or
 
 `cvm init -n testnet`
 
-> Mandatory: it is necessary to add to the `secure_path` the following path `/home/{USER}/.ghcup/bin` and `/opt/cardano/bin/current`, use `sudo visudo` and add it
+> Mandatory: it is necessary to add to the `secure_path` the following path `/home/{USER}/.ghcup/bin`, use `sudo visudo` and add it
 
 ## Install cardano node
 

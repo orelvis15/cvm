@@ -15,10 +15,10 @@ pub fn download(url: String, name: &str) -> Result<String, Message> {
         return Err(error);
     }
 
-    let dir_tmp = format!("{}/.cvm/tmp", home_dir.unwrap());
+    let dir_tmp_main = format!("{}/.cvm/tmp/", home_dir.unwrap());
 
     let mut path = String::new();
-    path.push_str(&dir_tmp);
+    path.push_str(&dir_tmp_main);
     path.push_str(&*name);
 
     let res = reqwest::blocking::get(&*url);
