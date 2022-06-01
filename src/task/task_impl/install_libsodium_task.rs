@@ -3,6 +3,7 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Message, MessageType, Success, url_build};
 use crate::config::config::{get_config, get_home_dir, get_project_dir};
+use crate::task::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task::task_manager;
@@ -11,7 +12,6 @@ use crate::task::task_type::TaskType;
 pub struct InstallLibsodiumTask {}
 
 const LIBSODIUM_FOLDER: &str = "libsodium";
-const GIT_FOLDER: &str = "git";
 const AUTOGEN_FILE: &str = "./autogen.sh";
 const CONFIGURE_FILE: &str = "./configure";
 
@@ -21,6 +21,7 @@ impl Task for InstallLibsodiumTask {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
@@ -29,8 +30,8 @@ impl Task for InstallLibsodiumTask {
 
         let project_dir = get_project_dir();
 
-        let repo = &config.as_ref().unwrap().init.libsodium_repository;
-        let folder = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), GIT_FOLDER], false);
+        let repo = &config.init.libsodium_repository;
+        let folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::GIT, &config)], false);
         let libsodium_folder = url_build(vec![folder.as_str(), LIBSODIUM_FOLDER], false);
         let path = Path::new(libsodium_folder.as_str());
 
@@ -49,7 +50,7 @@ impl Task for InstallLibsodiumTask {
 
         task_manager::start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), folder) }),
-            Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.unwrap().init.libsodium_commit.clone()) }),
+            Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()) }),
             Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()) }),

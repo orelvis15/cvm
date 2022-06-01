@@ -4,6 +4,7 @@ use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Message, Success, url_build};
 use crate::config::config::{get_config, get_project_dir};
+use crate::task::folders::Folder;
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -18,18 +19,17 @@ pub struct CopyBinInputData {
     pub version: String,
 }
 
-const BIN_FOLDER: &str = "bin";
-
 impl Task for CopyBinTask {
     fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
         if let Err(error) = config {
             return Err(error);
         };
+        let config = config.as_ref().unwrap();
 
         let project_dir = get_project_dir();
 
-        let bin_folder = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), BIN_FOLDER], false);
+        let bin_folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::BIN, &config)], false);
         let version_folder = url_build(vec![bin_folder.as_str(), &self.input_data.version], false);
         let version_folder_path = Path::new(version_folder.as_str());
         if !version_folder_path.exists() {

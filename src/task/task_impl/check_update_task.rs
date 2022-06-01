@@ -23,8 +23,9 @@ impl Task for CheckUpdateTask {
         if let Err(_) = config {
             return Err(error());
         }
+        let config = config.as_ref().unwrap();
 
-        if &config.as_ref().unwrap().general.last_cvm_version <= &self.input_data.version {
+        if &config.general.last_cvm_version <= &self.input_data.version {
             return Err(Message {
                 code: 0,
                 message: "You already have the latest version".to_string(),
@@ -34,7 +35,7 @@ impl Task for CheckUpdateTask {
             });
         };
 
-        download_and_copy_version(&config.as_ref().unwrap().general.last_cvm_version, &config.as_ref().unwrap().init.git_assets)
+        download_and_copy_version(&config.general.last_cvm_version, &config.init.git_assets)
     }
 
     fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
@@ -56,7 +57,7 @@ fn download_and_copy_version(version: &String, base_url: &String) -> Result<Succ
     let asset = format!("cvm-{}.tar.gz", std::env::consts::ARCH);
     let url = format!("{}/{}/{}", &base_url.as_str(), &ver.as_str(), &asset.as_str());
 
-    let download_path = download(url, "/cvm.tar.gz");
+    let download_path = download(&url, "/cvm.tar.gz");
 
     if let Err(error) = &download_path {
         return Err(error.clone());

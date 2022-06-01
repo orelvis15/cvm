@@ -90,7 +90,7 @@ pub fn get_project_dir() -> String {
 }
 
 pub fn download_config(config_folder: String, file_name: String) -> Result<Success, Message> {
-    let download_path = download(CONFIG_URL.to_string(), &file_name);
+    let download_path = download(&CONFIG_URL.to_string(), &file_name);
 
     if let Err(error) = download_path {
         return Err(error);
@@ -166,10 +166,10 @@ pub fn get_config_dir() -> Result<ProjectDirs, Message> {
 pub struct Config {
     pub general: General,
     pub init: Init,
-    pub workspace: Workspace,
     pub dependencies: Dependencies,
     pub config_file_item: Vec<ConfigFileItem>,
     pub build_cardano_node: BuildCardanoNode,
+    pub folders: Vec<StructureFolderItem>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -188,12 +188,6 @@ pub struct Init {
     pub libsodium_commit: String,
     pub haskell_ghc_version: String,
     pub haskell_cabal_version: String,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct Workspace {
-    pub workspace_folder: String,
-    pub folders: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -221,4 +215,11 @@ pub struct Dependencies {
 pub struct BuildCardanoNode {
     pub cnode_repository: String,
     pub cnode_release: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct StructureFolderItem {
+    pub key: String,
+    pub name: String,
+    pub path: String,
 }

@@ -2,6 +2,7 @@ use std::fs;
 use std::path::Path;
 use crate::config::config::{get_config, get_project_dir};
 use crate::env::Env;
+use crate::task::folders::Folder;
 use crate::task::message_type::MessageType;
 use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
@@ -18,10 +19,11 @@ impl Task for CreateFolderStructure {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
         let project_dir = get_project_dir();
 
-        let workspace_home = url_build(vec![project_dir.as_str(), config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
+        let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
         let create_folder_result = fs::create_dir(&workspace_home);
 
         if let Err(error) = create_folder_result {
@@ -34,10 +36,10 @@ impl Task for CreateFolderStructure {
             });
         }
 
-        let folders = &config.as_ref().unwrap().workspace.folders;
+        let folders = &config.folders;
 
         for folder in folders {
-            let create_folder_result = fs::create_dir(url_build(vec![&workspace_home.as_str(), folder.as_str()], false));
+            let create_folder_result = fs::create_dir(url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false));
 
             if let Err(error) = create_folder_result {
                 return Err(Message {
@@ -57,6 +59,7 @@ impl Task for CreateFolderStructure {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
         let error = Message {
             code: 0,
@@ -68,14 +71,13 @@ impl Task for CreateFolderStructure {
 
         let project_dir = get_project_dir();
 
-        let workspace_home = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
-
+        let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
         if !Path::new(&workspace_home).is_dir() { return Err(error.clone()); }
 
-        let folders = &config.as_ref().unwrap().workspace.folders;
+        let folders = &config.folders;
 
         for folder in folders {
-            let dir = url_build(vec![&workspace_home.as_str(), folder.as_str()], false);
+            let dir = url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false);
             if !Path::new(dir.as_str()).is_dir() { return Err(error.clone()); }
         }
 

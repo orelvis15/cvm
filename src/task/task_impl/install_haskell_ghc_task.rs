@@ -24,13 +24,14 @@ impl Task for InstallHanskellGhcTask {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
             return Err(error);
         }
 
-        let uri = download_install_ghc_file(config.clone().unwrap().init);
+        let uri = download_install_ghc_file(&config.init);
         if let Err(error) = uri {
             return Err(error);
         }
@@ -41,10 +42,10 @@ impl Task for InstallHanskellGhcTask {
         let result = task_manager::start(vec![
             Box::new(RunCommandTask { input_data: build_sed_install_file_command(uri.as_ref().unwrap()) }),
             Box::new(RunCommandTask { input_data: build_install_command(uri.unwrap()) }),
-            Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.as_ref().unwrap().init.haskell_ghc_version) }),
-            Box::new(RunCommandTask { input_data: build_set_ghc_version_command(ghcup_dir.clone(), &config.as_ref().unwrap().init.haskell_ghc_version) }),
-            Box::new(RunCommandTask { input_data: build_install_cabal_version_command(ghcup_dir.clone(), &config.as_ref().unwrap().init.haskell_cabal_version) }),
-            Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.as_ref().unwrap().init.haskell_cabal_version) }),
+            Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version) }),
+            Box::new(RunCommandTask { input_data: build_set_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version) }),
+            Box::new(RunCommandTask { input_data: build_install_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version) }),
+            Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version) }),
         ]);
 
         *env = Env::InstallHaskellGhc(InstallHanskellGhcOutputData { ghcup_path: ghcup_dir.clone() });
@@ -70,8 +71,8 @@ impl Task for InstallHanskellGhcTask {
     }
 }
 
-fn download_install_ghc_file(init: Init) -> Result<String, Message> {
-    download(init.ghcup_path, format!("/{}", init.install_ghc_file).as_str())
+fn download_install_ghc_file(init: &Init) -> Result<String, Message> {
+    download(&init.ghcup_path, format!("/{}", init.install_ghc_file).as_str())
 }
 
 fn build_sed_install_file_command(uri: &String) -> RunCommandInputData {

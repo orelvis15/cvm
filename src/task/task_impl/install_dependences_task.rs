@@ -20,9 +20,10 @@ impl Task for InstallDependencesTask {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
-        let dependece = config.unwrap().dependencies;
-        let dependences_result = get_dependences_from_os(dependece);
+        let dependece = &config.dependencies;
+        let dependences_result = get_dependencies_from_os(dependece);
         let dependences: String;
 
         match dependences_result {
@@ -95,32 +96,32 @@ impl Task for InstallDependencesTask {
     }
 }
 
-fn get_dependences_from_os(dependences: Dependencies) -> Option<String> {
+fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
     match os_info::get().os_type() {
-        Type::Macos => { Some(dependences.macos.join(" ")) }
-        Type::Ubuntu => { Some(dependences.ubuntu.join(" ")) }
-        Type::Debian => { Some(dependences.debian.join(" ")) }
-        Type::OracleLinux => { Some(dependences.debian.join(" ")) }
-        Type::Fedora => { Some(dependences.fedora.join(" ")) }
+        Type::Macos => { Some(dependencies.macos.join(" ")) }
+        Type::Ubuntu => { Some(dependencies.ubuntu.join(" ")) }
+        Type::Debian => { Some(dependencies.debian.join(" ")) }
+        Type::OracleLinux => { Some(dependencies.debian.join(" ")) }
+        Type::Fedora => { Some(dependencies.fedora.join(" ")) }
         Type::CentOS => {
             let mut extra_dependences = String::new();
             let os_release = get_os_release();
             if os_release == "7" {
-                extra_dependences = dependences.centos_7.join(" ");
+                extra_dependences = dependencies.centos_7.join(" ");
             } else if os_release == "7" {
-                extra_dependences = dependences.centos_8.join(" ");
+                extra_dependences = dependencies.centos_8.join(" ");
             }
-            Some(format!("{} {}", dependences.centos.join(" "), extra_dependences))
+            Some(format!("{} {}", dependencies.centos.join(" "), extra_dependences))
         }
         Type::Redhat => {
             let mut extra_dependences = String::new();
             let os_release = get_os_release();
             if os_release == "7" {
-                extra_dependences = dependences.rhel_7.join(" ");
+                extra_dependences = dependencies.rhel_7.join(" ");
             } else if os_release == "7" {
-                extra_dependences = dependences.rhel_8.join(" ");
+                extra_dependences = dependencies.rhel_8.join(" ");
             }
-            Some(format!("{} {}", dependences.rhel.join(" "), extra_dependences))
+            Some(format!("{} {}", dependencies.rhel.join(" "), extra_dependences))
         }
         _ => { None }
     }

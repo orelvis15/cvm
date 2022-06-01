@@ -7,6 +7,7 @@ use crate::env::Env;
 use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{MessageType, url_build};
+use crate::task::folders::Folder;
 use crate::utils::download_manager::download_in_path;
 
 pub struct DownloadConfigFilesTask {
@@ -21,11 +22,12 @@ impl Task for DownloadConfigFilesTask {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
         let project_dir = get_project_dir();
 
-        let workspace_home = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str()], false);
-        let download_result = download_config_files(&workspace_home, &self.network, &config.as_ref().unwrap().config_file_item);
+        let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
+        let download_result = download_config_files(&workspace_home, &self.network, &config.config_file_item);
 
         if let Err(error) = download_result {
             return Err(error);

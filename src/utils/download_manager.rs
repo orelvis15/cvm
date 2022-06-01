@@ -7,7 +7,7 @@ use crate::config::config::get_home_dir;
 use crate::task::message_type::MessageType;
 use crate::task::task::{Message};
 
-pub fn download(url: String, name: &str) -> Result<String, Message> {
+pub fn download(url: &String, name: &str) -> Result<String, Message> {
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
         return Err(error);

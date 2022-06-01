@@ -3,6 +3,7 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Message, MessageType, Success, url_build};
 use crate::config::config::{get_config, get_home_dir, get_project_dir};
+use crate::task::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::copy_bin_task::{CopyBinInputData, CopyBinTask};
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
@@ -14,7 +15,6 @@ pub struct BuildCardanoNodeTask {
 }
 
 const CARDANO_REPOSITORY_FOLDER: &str = "cardano-node";
-const GIT_FOLDER: &str = "git";
 const CARDANO_NODE_FILE_NAME: &str = "cardano-node";
 const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
 const CABAL_PATH: &str = ".ghcup/bin";
@@ -28,6 +28,7 @@ impl Task for BuildCardanoNodeTask {
         if let Err(error) = config {
             return Err(error);
         }
+        let config = config.as_ref().unwrap();
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
@@ -36,8 +37,8 @@ impl Task for BuildCardanoNodeTask {
 
         let project_dir = get_project_dir();
 
-        let repo = &config.as_ref().unwrap().build_cardano_node.cnode_repository;
-        let git_folder = url_build(vec![project_dir.as_str(), &config.as_ref().unwrap().workspace.workspace_folder.as_str(), GIT_FOLDER], false);
+        let repo = &config.build_cardano_node.cnode_repository;
+        let git_folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::GIT, &config)], false);
         let cardano_folder = url_build(vec![git_folder.as_str(), CARDANO_REPOSITORY_FOLDER], false);
         let cardano_folder_path = Path::new(cardano_folder.as_str());
         let cabal_route = url_build(vec![home_dir.as_ref().unwrap().as_str(), CABAL_PATH], false);
