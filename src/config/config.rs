@@ -169,7 +169,7 @@ pub struct Config {
     pub dependencies: Dependencies,
     pub config_file_item: Vec<ConfigFileItem>,
     pub build_cardano_node: BuildCardanoNode,
-    pub folders: Vec<StructureFolderItem>,
+    pub structure_folder_item: Vec<StructureFolderItem>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

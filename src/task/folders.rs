@@ -37,7 +37,7 @@ impl Folder {
 
     // Return folder name in config file for key passed for parameter
     pub fn get(key: Folder, config: &Config) -> &str {
-        let folders = &config.folders;
+        let folders = &config.structure_folder_item;
         folders.iter().find(|folder| folder.key == key.to_str()).unwrap().name.as_str()
     }
 }

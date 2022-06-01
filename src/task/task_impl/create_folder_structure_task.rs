@@ -36,7 +36,7 @@ impl Task for CreateFolderStructure {
             });
         }
 
-        let folders = &config.folders;
+        let folders = &config.structure_folder_item;
 
         for folder in folders {
             let create_folder_result = fs::create_dir(url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false));
@@ -74,7 +74,7 @@ impl Task for CreateFolderStructure {
         let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
         if !Path::new(&workspace_home).is_dir() { return Err(error.clone()); }
 
-        let folders = &config.folders;
+        let folders = &config.structure_folder_item;
 
         for folder in folders {
             let dir = url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false);
