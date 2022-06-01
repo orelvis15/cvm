@@ -12,13 +12,8 @@ pub struct UserVersionTask {
     pub version: String,
 }
 
-const CURRENT_FOLDER_NAME: &str = "current";
-const CARDANO_NODE_FILE_NAME: &str = "cardano-node";
-const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
-
 impl Task for UserVersionTask {
     fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
-
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
         let config = get_config();
@@ -32,7 +27,7 @@ impl Task for UserVersionTask {
         let bin_folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::BIN, &config)], false);
         let version_folder = url_build(vec![bin_folder.as_str(), &self.version.as_str()], false);
         let version_folder_path = Path::new(version_folder.as_str());
-        let current_folder = url_build(vec![bin_folder.as_str(), CURRENT_FOLDER_NAME], false);
+        let current_folder = url_build(vec![bin_folder.as_str(), Folder::get(Folder::CURRENT, &config)], false);
         let current_folder_path = Path::new(current_folder.as_str());
 
         if !version_folder_path.exists() {
@@ -59,12 +54,12 @@ impl Task for UserVersionTask {
             }
         };
 
-        let copy_result = copy_file_version(version_folder, current_folder.clone(), vec![CARDANO_NODE_FILE_NAME, CARDANO_CLI_FILE_NAME]);
+        let copy_result = copy_file_version(version_folder, current_folder.clone(), vec![&config.binaries.cardano_node, &config.binaries.cardano_cli]);
         if let Err(error) = copy_result {
             return Err(error);
         };
 
-        Ok(Success{})
+        Ok(Success {})
     }
 
     fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {

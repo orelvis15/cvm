@@ -14,11 +14,6 @@ pub struct BuildCardanoNodeTask {
     pub version: String,
 }
 
-const CARDANO_REPOSITORY_FOLDER: &str = "cardano-node";
-const CARDANO_NODE_FILE_NAME: &str = "cardano-node";
-const CARDANO_CLI_FILE_NAME: &str = "cardano-cli";
-const CABAL_PATH: &str = ".ghcup/bin";
-
 impl Task for BuildCardanoNodeTask {
     fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
 
@@ -39,9 +34,9 @@ impl Task for BuildCardanoNodeTask {
 
         let repo = &config.build_cardano_node.cnode_repository;
         let git_folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::GIT, &config)], false);
-        let cardano_folder = url_build(vec![git_folder.as_str(), CARDANO_REPOSITORY_FOLDER], false);
+        let cardano_folder = url_build(vec![git_folder.as_str(), &config.build_cardano_node.cnode_repository_name], false);
         let cardano_folder_path = Path::new(cardano_folder.as_str());
-        let cabal_route = url_build(vec![home_dir.as_ref().unwrap().as_str(), CABAL_PATH], false);
+        let cabal_route = url_build(vec![home_dir.as_ref().unwrap().as_str(), &config.init.ghcup_bin_path], false);
 
         if cardano_folder_path.exists() {
             let remove_result = fs::remove_dir_all(cardano_folder_path);
@@ -56,13 +51,16 @@ impl Task for BuildCardanoNodeTask {
             }
         };
 
+        let cardano_node_file_name = config.binaries.cardano_node.to_string();
+        let cardano_cli_file_name = config.binaries.cardano_node.to_string();
+
         task_manager::start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder) }),
             Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()) }),
-            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone()) }),
-            Box::new(CopyBinTask { input_data: CopyBinInputData { file_name: CARDANO_NODE_FILE_NAME.to_string(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
-            Box::new(CopyBinTask { input_data: CopyBinInputData { file_name: CARDANO_CLI_FILE_NAME.to_string(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
+            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone(), cardano_node_file_name.clone(), cardano_cli_file_name.clone()) }),
+            Box::new(CopyBinTask { input_data: CopyBinInputData { file_name: cardano_node_file_name, origin_path: cardano_folder.clone(), version: self.version.clone() } }),
+            Box::new(CopyBinTask { input_data: CopyBinInputData { file_name: cardano_cli_file_name, origin_path: cardano_folder.clone(), version: self.version.clone() } }),
         ])
     }
 
@@ -91,7 +89,7 @@ fn build_checkout_version_command(version: String, path: String) -> RunCommandIn
     RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
 }
 
-fn build_run_cabal_command(cabal_path: String, folder_path: String) -> RunCommandInputData {
-    let args = vec![Cmd::Build.as_string(), CARDANO_NODE_FILE_NAME.to_string(), CARDANO_CLI_FILE_NAME.to_string()];
+fn build_run_cabal_command(cabal_path: String, folder_path: String, cardano_node_file_name: String, cardano_cli_file_name: String) -> RunCommandInputData {
+    let args = vec![Cmd::Build.as_string(), cardano_node_file_name, cardano_cli_file_name];
     RunCommandInputData { command: url_build(vec![cabal_path.as_str(), Cmd::Cabal.as_string().as_str()], false), args, current_dir: folder_path }
 }

@@ -15,9 +15,6 @@ pub struct InstallHanskellGhcOutputData {
     pub ghcup_path: String,
 }
 
-const SUBST: &str = "s/read /#/g";
-const GHCUP_BIN_PATH: &str = "/.ghcup/bin";
-
 impl Task for InstallHanskellGhcTask {
     fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
@@ -37,10 +34,10 @@ impl Task for InstallHanskellGhcTask {
         }
 
         let mut ghcup_dir = String::from(home_dir.as_ref().unwrap());
-        ghcup_dir.push_str(GHCUP_BIN_PATH);
+        ghcup_dir.push_str(format!("/{}", &config.init.ghcup_bin_path).as_str());
 
         let result = task_manager::start(vec![
-            Box::new(RunCommandTask { input_data: build_sed_install_file_command(uri.as_ref().unwrap()) }),
+            Box::new(RunCommandTask { input_data: build_sed_install_file_command(uri.as_ref().unwrap(), &config.init.ghcup_pattern_sed) }),
             Box::new(RunCommandTask { input_data: build_install_command(uri.unwrap()) }),
             Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version) }),
             Box::new(RunCommandTask { input_data: build_set_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version) }),
@@ -72,11 +69,11 @@ impl Task for InstallHanskellGhcTask {
 }
 
 fn download_install_ghc_file(init: &Init) -> Result<String, Message> {
-    download(&init.ghcup_path, format!("/{}", init.install_ghc_file).as_str())
+    download(&init.ghcup_url, format!("/{}", init.install_ghc_file).as_str())
 }
 
-fn build_sed_install_file_command(uri: &String) -> RunCommandInputData {
-    let args = vec!["-i".to_string(), "-e".to_string(), SUBST.to_string(), uri.to_string()];
+fn build_sed_install_file_command(uri: &String, pattern: &String) -> RunCommandInputData {
+    let args = vec!["-i".to_string(), "-e".to_string(), pattern.to_string(), uri.to_string()];
     RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() }
 }
 

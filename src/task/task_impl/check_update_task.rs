@@ -1,9 +1,11 @@
+use std::collections::HashMap;
 use std::fs::File;
 use flate2::read::GzDecoder;
 use tar::Archive;
 use crate::env::Env;
+use strfmt::strfmt;
 use crate::{Message, Success};
-use crate::config::config::{get_config, get_home_dir};
+use crate::config::config::{get_config, get_home_dir, Update};
 use crate::task::message_type::MessageType;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -25,7 +27,7 @@ impl Task for CheckUpdateTask {
         }
         let config = config.as_ref().unwrap();
 
-        if &config.general.last_cvm_version <= &self.input_data.version {
+        if &config.update.last_cvm_version <= &self.input_data.version {
             return Err(Message {
                 code: 0,
                 message: "You already have the latest version".to_string(),
@@ -35,7 +37,7 @@ impl Task for CheckUpdateTask {
             });
         };
 
-        download_and_copy_version(&config.general.last_cvm_version, &config.init.git_assets)
+        download_and_copy_version(&config.update.last_cvm_version, &config.init.git_assets, &config.update)
     }
 
     fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
@@ -47,17 +49,25 @@ impl Task for CheckUpdateTask {
     }
 }
 
-fn download_and_copy_version(version: &String, base_url: &String) -> Result<Success, Message> {
+fn download_and_copy_version(version: &String, base_url: &String, update_data: &Update) -> Result<Success, Message> {
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
         return Err(error);
     }
 
-    let ver = format!("v{}", version);
-    let asset = format!("cvm-{}.tar.gz", std::env::consts::ARCH);
+    let mut version_map = HashMap::new();
+    version_map.insert("version".to_string(), version);
+
+    let ver = strfmt(&update_data.version_pattern, &version_map).unwrap();
+
+    let arch = std::env::consts::ARCH.clone();
+    let mut arch_map = HashMap::new();
+    arch_map.insert("arch".to_string(), arch.to_string());
+
+    let asset = strfmt(&update_data.name_pattern, &arch_map).unwrap();
     let url = format!("{}/{}/{}", &base_url.as_str(), &ver.as_str(), &asset.as_str());
 
-    let download_path = download(&url, "/cvm.tar.gz");
+    let download_path = download(&url, format!("/{}", update_data.file_name).as_str());
 
     if let Err(error) = &download_path {
         return Err(error.clone());
@@ -77,7 +87,7 @@ fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message> {
     let mut archive = Archive::new(tar);
 
 
-    let result = archive.unpack(format!("{}/{}", home_dir, ".cvm/"));
+    let result = archive.unpack(format!("{}/{}/", home_dir, ".cvm"));
 
     if let Err(_) = &result {
         return Err(error());

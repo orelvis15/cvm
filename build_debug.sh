@@ -33,6 +33,6 @@ fi
 
 cargo build --target=$TOOLCHAIN
 cd target/x86_64-unknown-linux-musl/debug/
-docker cp cvm 990aa361efc3:/home/orelvis
+docker cp cvm 9abc97d7afc0:/home/orelvis
 
 

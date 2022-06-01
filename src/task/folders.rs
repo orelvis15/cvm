@@ -1,9 +1,8 @@
-use std::fmt;
-use std::fmt::Formatter;
+use std::str::FromStr;
 use crate::config::config::Config;
 
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
     ROOT,
     SCRIPT,
@@ -16,6 +15,7 @@ pub enum Folder {
     LOGS,
     BIN,
     GIT,
+    CURRENT,
 }
 
 impl Folder {
@@ -32,6 +32,7 @@ impl Folder {
             Folder::LOGS => "LOGS",
             Folder::BIN => "BIN",
             Folder::GIT => "GIT",
+            Folder::CURRENT => "CURRENT",
         }
     }
 
@@ -39,5 +40,28 @@ impl Folder {
     pub fn get(key: Folder, config: &Config) -> &str {
         let folders = &config.structure_folder_item;
         folders.iter().find(|folder| folder.key == key.to_str()).unwrap().name.as_str()
+    }
+}
+
+impl FromStr for Folder {
+
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Folder, Self::Err> {
+        match input.to_uppercase().as_str() {
+            "ROOT"  => Ok(Folder::ROOT),
+            "SCRIPT"  => Ok(Folder::SCRIPT),
+            "FILES"  => Ok(Folder::FILES),
+            "DB"  => Ok(Folder::DB),
+            "GUILDDB"  => Ok(Folder::GUILDDB),
+            "SOCKETS"  => Ok(Folder::SOCKETS),
+            "PRIV"  => Ok(Folder::PRIV),
+            "TMP"  => Ok(Folder::TMP),
+            "LOGS"  => Ok(Folder::LOGS),
+            "BIN"  => Ok(Folder::BIN),
+            "GIT"  => Ok(Folder::GIT),
+            "CURRENT"  => Ok(Folder::CURRENT),
+            _ => Ok(Folder::ROOT) // this case never execute
+        }
     }
 }

@@ -11,10 +11,6 @@ use crate::task::task_type::TaskType;
 
 pub struct InstallLibsodiumTask {}
 
-const LIBSODIUM_FOLDER: &str = "libsodium";
-const AUTOGEN_FILE: &str = "./autogen.sh";
-const CONFIGURE_FILE: &str = "./configure";
-
 impl Task for InstallLibsodiumTask {
     fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
         let config = get_config();
@@ -32,7 +28,7 @@ impl Task for InstallLibsodiumTask {
 
         let repo = &config.init.libsodium_repository;
         let folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::GIT, &config)], false);
-        let libsodium_folder = url_build(vec![folder.as_str(), LIBSODIUM_FOLDER], false);
+        let libsodium_folder = url_build(vec![folder.as_str(), &config.init.libsodium_folder], false);
         let path = Path::new(libsodium_folder.as_str());
 
         if path.exists() {
@@ -51,8 +47,8 @@ impl Task for InstallLibsodiumTask {
         task_manager::start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), folder) }),
             Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()) }),
-            Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone()) }),
-            Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone()) }),
+            Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone(), config.init.libsodium_autogen_file.clone()) }),
+            Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone(), config.init.libsodium_config_file.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_install_repo_command(libsodium_folder.clone()) }),
         ])
@@ -77,13 +73,13 @@ fn build_checkout_repo_command(path: String, commit: String) -> RunCommandInputD
     RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
 }
 
-fn build_autogen_repo_command(path: String) -> RunCommandInputData {
-    let args = vec![AUTOGEN_FILE.to_string()];
+fn build_autogen_repo_command(path: String, autogen_file: String) -> RunCommandInputData {
+    let args = vec![autogen_file];
     RunCommandInputData { command: Cmd::Sh.as_string(), args, current_dir: path }
 }
 
-fn build_configure_repo_command(path: String) -> RunCommandInputData {
-    let args = vec![CONFIGURE_FILE.to_string()];
+fn build_configure_repo_command(path: String, config_file: String) -> RunCommandInputData {
+    let args = vec![config_file];
     RunCommandInputData { command: Cmd::Sh.as_string(), args, current_dir: path }
 }
 

@@ -23,12 +23,7 @@ pub fn get_config() -> Result<Config, Message> {
 
     let config_dir = project_dir.unwrap().config_dir().to_str().unwrap().to_string();
 
-    let mut path_str: String = config_dir.clone();
-    path_str.push_str("/");
-    path_str.push_str(FILE_NAME);
-
-    let download_config = download_config(config_dir.clone()
-                                          , format!("/{}", FILE_NAME.to_string()));
+    let download_config = download_config(config_dir.clone(), FILE_NAME.to_string());
     if let Err(error) = download_config {
         return Err(error);
     }
@@ -165,27 +160,39 @@ pub fn get_config_dir() -> Result<ProjectDirs, Message> {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub general: General,
+    pub update: Update,
     pub init: Init,
     pub dependencies: Dependencies,
     pub config_file_item: Vec<ConfigFileItem>,
     pub build_cardano_node: BuildCardanoNode,
     pub structure_folder_item: Vec<StructureFolderItem>,
+    pub binaries: Binaries,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Binaries {
+    pub cardano_node: String,
+    pub cardano_cli: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct General {
     pub version: String,
-    pub last_cvm_version: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Init {
     pub git_assets: String,
     pub config_path: String,
-    pub ghcup_path: String,
+    pub ghcup_url: String,
     pub install_ghc_file: String,
+    pub ghcup_bin_path: String,
+    pub ghcup_pattern_sed: String,
     pub libsodium_repository: String,
     pub libsodium_commit: String,
+    pub libsodium_folder: String,
+    pub libsodium_autogen_file: String,
+    pub libsodium_config_file: String,
     pub haskell_ghc_version: String,
     pub haskell_cabal_version: String,
 }
@@ -194,7 +201,7 @@ pub struct Init {
 pub struct ConfigFileItem {
     pub url: String,
     pub name: String,
-    pub folder: String,
+    pub folder_key: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -215,6 +222,7 @@ pub struct Dependencies {
 pub struct BuildCardanoNode {
     pub cnode_repository: String,
     pub cnode_release: String,
+    pub cnode_repository_name: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -222,4 +230,12 @@ pub struct StructureFolderItem {
     pub key: String,
     pub name: String,
     pub path: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Update {
+    pub last_cvm_version: String,
+    pub version_pattern: String,
+    pub name_pattern: String,
+    pub file_name: String,
 }

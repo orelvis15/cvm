@@ -22,7 +22,7 @@ fn main() {
         return;
     }
 
-    show_update_alert(&config.as_ref().unwrap().general.last_cvm_version, &current_version);
+    show_update_alert(&config.as_ref().unwrap().update.last_cvm_version, &current_version);
 
     let args = commands::config::command_config();
     let result = match args.subcommand_name() {

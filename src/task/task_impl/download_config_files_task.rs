@@ -1,8 +1,9 @@
 extern crate strfmt;
 
 use std::collections::HashMap;
+use std::str::FromStr;
 use strfmt::strfmt;
-use crate::config::config::{ConfigFileItem, get_config, get_project_dir};
+use crate::config::config::{Config, ConfigFileItem, get_config, get_project_dir};
 use crate::env::Env;
 use crate::task::task::{Message, Success, Task};
 use crate::task::task_type::TaskType;
@@ -27,7 +28,7 @@ impl Task for DownloadConfigFilesTask {
         let project_dir = get_project_dir();
 
         let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
-        let download_result = download_config_files(&workspace_home, &self.network, &config.config_file_item);
+        let download_result = download_config_files(&workspace_home, &self.network, &config.config_file_item, config);
 
         if let Err(error) = download_result {
             return Err(error);
@@ -45,9 +46,9 @@ impl Task for DownloadConfigFilesTask {
     }
 }
 
-fn download_config_files(workspace_home: &String, network: &String, items: &Vec<ConfigFileItem>) -> Result<Success, Message> {
+fn download_config_files(workspace_home: &String, network: &String, items: &Vec<ConfigFileItem>, config: &Config) -> Result<Success, Message> {
     for item in items {
-        let folder_path = url_build(vec![&workspace_home.as_str(), item.folder.as_str()], false);
+        let folder_path = url_build(vec![&workspace_home.as_str(), Folder::get(Folder::from_str(item.folder_key.as_str()).unwrap(), config)], false);
 
         let mut vars = HashMap::new();
         vars.insert(NETWORK.to_string(), network);
