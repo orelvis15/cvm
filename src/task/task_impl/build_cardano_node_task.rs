@@ -52,7 +52,7 @@ impl Task for BuildCardanoNodeTask {
         };
 
         let cardano_node_file_name = config.binaries.cardano_node.to_string();
-        let cardano_cli_file_name = config.binaries.cardano_node.to_string();
+        let cardano_cli_file_name = config.binaries.cardano_cli.to_string();
 
         task_manager::start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder) }),

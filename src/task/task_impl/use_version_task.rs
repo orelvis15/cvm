@@ -82,7 +82,7 @@ fn copy_file_version(version_folder: String, current_folder: String, file_names:
             Err(error) => {
                 return Err(Message {
                     code: 0,
-                    message: "Error copying the new files".to_string(),
+                    message: format!("Error copying file {}", name),
                     kind: MessageType::Error,
                     task: TaskType::UseVersion.to_string(),
                     stack: vec![error.to_string()],
