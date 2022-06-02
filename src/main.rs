@@ -1,4 +1,3 @@
-extern crate directories;
 extern crate core;
 
 use owo_colors::OwoColorize;

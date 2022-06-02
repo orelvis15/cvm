@@ -1,36 +1,36 @@
 use serde::{Deserialize};
 use std::{env, fs};
-use std::path::Path;
-
-use directories::{ProjectDirs};
 use users::{get_current_uid, get_user_by_uid};
 use crate::task::message_type::MessageType;
-
-use crate::task::task::{Message, Success};
-use crate::utils::download_manager::download;
+use crate::task::task::Message;
+use crate::url_build;
+use crate::utils::download_manager::download_in_path;
 
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/config.toml";
-const QUALIFIER: &str = "com";
-const ORGANIZATION: &str = "orelvis15";
-const APPLICATION: &str = "cvm";
 const FILE_NAME: &str = "config.tom";
+const PROJECT_FOLDER: &str = ".cvm";
 
 pub fn get_config() -> Result<Config, Message> {
-    let project_dir = get_config_dir();
-    if let Err(error) = project_dir {
+    let home_dir = get_home_dir();
+    if let Err(error) = home_dir {
         return Err(error);
     }
 
-    let config_dir = project_dir.unwrap().config_dir().to_str().unwrap().to_string();
+    let project_folder = url_build(vec![home_dir.unwrap().as_str(), PROJECT_FOLDER], false);
 
-    let download_config = download_config(config_dir.clone(), FILE_NAME.to_string());
-    if let Err(error) = download_config {
-        return Err(error);
-    }
+    let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME);
 
-    let config_file = fs::read_to_string(
-        format!("{}/{}", config_dir, FILE_NAME)
-    );
+    if let Err(error) = file_path {
+        return Err(Message {
+            code: 0,
+            message: "File not found".to_string(),
+            kind: MessageType::Error,
+            task: "".to_string(),
+            stack: vec![error.to_string()],
+        });
+    };
+
+    let config_file = fs::read_to_string(format!("{}/{}",file_path.unwrap(), FILE_NAME));
 
     return match config_file {
         Ok(file) => {
@@ -82,79 +82,6 @@ pub fn get_home_dir() -> Result<String, Message> {
 
 pub fn get_project_dir() -> String {
     String::from("/opt")
-}
-
-pub fn download_config(config_folder: String, file_name: String) -> Result<Success, Message> {
-    let download_path = download(&CONFIG_URL.to_string(), &file_name);
-
-    if let Err(error) = download_path {
-        return Err(error);
-    }
-
-    let folder_result = fs::create_dir_all(&config_folder);
-
-    if let Err(error) = folder_result {
-        return Err(Message {
-            code: 0,
-            message: "Error creating folder structure".to_string(),
-            kind: MessageType::Error,
-            task: "".to_string(),
-            stack: vec![error.to_string()],
-        });
-    }
-
-    let config_file = format!("{}/{}", &config_folder, file_name);
-    let file = Path::new(&config_file);
-    if file.exists() {
-        fs::remove_file(file).expect("Error deleting config file");
-    }
-
-    let result = fs::copy(download_path.unwrap(), &config_file);
-
-    if result.is_err() {
-        return Err(Message {
-            code: 0,
-            message: "Error download configurations files".to_string(),
-            kind: MessageType::Error,
-            task: "".to_string(),
-            stack: vec![result.err().unwrap().to_string()],
-        });
-    }
-    Ok(Success {})
-}
-
-pub fn get_config_dir() -> Result<ProjectDirs, Message> {
-    if let Some(proj_dirs) = ProjectDirs::from(
-        QUALIFIER,
-        ORGANIZATION,
-        APPLICATION,
-    ) {
-        let config_dir = proj_dirs.config_dir();
-
-        if !config_dir.exists() {
-            let folder_result = fs::create_dir_all(config_dir);
-
-            if let Err(error) = folder_result {
-                return Err(Message {
-                    code: 0,
-                    message: "Error creating folder structure".to_string(),
-                    kind: MessageType::Error,
-                    task: "".to_string(),
-                    stack: vec![error.to_string()],
-                });
-            }
-        }
-
-        Ok(proj_dirs)
-    } else {
-        Err(Message {
-            code: 0,
-            message: "Not found config directory".to_string(),
-            kind: MessageType::Error,
-            task: "".to_string(),
-            stack: vec![],
-        })
-    }
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -136,7 +136,6 @@ pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String
         });
     }
 
-
     let write_result = file.write_all(&content.unwrap());
 
     if let Err(error) = write_result {
