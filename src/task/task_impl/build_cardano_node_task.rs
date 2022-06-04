@@ -1,8 +1,11 @@
+#![allow(dead_code, unused_variables)]
+
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Message, MessageType, Success, url_build};
+use crate::{Success, url_build};
 use crate::config::config::{get_config, get_home_dir, get_project_dir};
+use crate::task::cvm_error::CvmError;
 use crate::task::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::copy_bin_task::{CopyBinInputData, CopyBinTask};
@@ -15,7 +18,7 @@ pub struct BuildCardanoNodeTask {
 }
 
 impl Task for BuildCardanoNodeTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -39,16 +42,7 @@ impl Task for BuildCardanoNodeTask {
         let cabal_route = url_build(vec![home_dir.as_ref().unwrap().as_str(), &config.init.ghcup_bin_path], false);
 
         if cardano_folder_path.exists() {
-            let remove_result = fs::remove_dir_all(cardano_folder_path);
-            if let Err(error) = remove_result {
-                return Err(Message{
-                    code: 0,
-                    message: "Error deleting folders".to_string(),
-                    kind: MessageType::Error,
-                    task: "".to_string(),
-                    stack: vec![error.to_string()]
-                });
-            }
+            fs::remove_dir_all(cardano_folder_path)?;
         };
 
         let cardano_node_file_name = config.binaries.cardano_node.to_string();
@@ -64,7 +58,7 @@ impl Task for BuildCardanoNodeTask {
         ])
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
         Ok(Success {})
     }
 

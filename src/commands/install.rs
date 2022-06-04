@@ -1,19 +1,17 @@
+#![allow(dead_code, unused_variables)]
+
 use clap::ArgMatches;
 use crate::commands::config::{Args};
 use crate::task::task_manager;
-use crate::task::task::{Message, Success};
+use crate::task::task::Success;
 use crate::task::task_impl::build_cardano_node_task::BuildCardanoNodeTask;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
-use crate::config::config::get_config;
-use crate::task::message_type::MessageType;
+use crate::config::config::Config;
+use crate::{CvmError, Error};
+use crate::task::task_type::TaskType::EmptyTask;
 
-pub fn start(command: &ArgMatches) -> Result<Success, Message> {
+pub fn start(command: &ArgMatches, config: &Config) -> Result<Success, CvmError> {
     let mut version: String = LATEST.to_string();
-
-    let config = get_config();
-    if let Err(error) = config {
-        return Err(error);
-    }
 
     match command.value_of(Args::VERSION.to_string()) {
         Some(value) => {
@@ -21,13 +19,11 @@ pub fn start(command: &ArgMatches) -> Result<Success, Message> {
                 if verify_version(value) || version == LATEST {
                     version = value.to_string()
                 } else {
-                    return Err(Message {
-                        code: 0,
+                    return Err(CvmError::VersionBadFormed (Error{
                         message: "The version is not well formed".to_string(),
-                        kind: MessageType::Error,
-                        task: "".to_string(),
+                        task: EmptyTask("Install command".to_string()),
                         stack: vec![],
-                    });
+                    }));
                 }
             }
         }
@@ -35,7 +31,7 @@ pub fn start(command: &ArgMatches) -> Result<Success, Message> {
     };
 
     if version == LATEST {
-        let last_tag = get_last_tag(config.unwrap().build_cardano_node.cnode_release);
+        let last_tag = get_last_tag(&config.build_cardano_node.cnode_release);
         match last_tag {
             Ok(tag) => version = tag,
             Err(error) => return Err(error)

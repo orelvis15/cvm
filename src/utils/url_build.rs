@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables)]
+
 use std::collections::HashMap;
 use strfmt::strfmt;
 

@@ -1,11 +1,14 @@
-use owo_colors::OwoColorize;
-use crate::task::task::{Message, Success, Task};
-use crate::env::Env;
+#![allow(dead_code, unused_variables)]
 
-pub fn start(task_list: Vec<Box<dyn Task>>) -> Result<Success, Message> {
+use owo_colors::OwoColorize;
+use crate::task::task::{Success, Task};
+use crate::env::Env;
+use crate::task::cvm_error::CvmError;
+
+pub fn start(task_queue: Vec<Box<dyn Task>>) -> Result<Success, CvmError> {
     let mut env: Env = Env::Empty();
 
-    for task in task_list {
+    for task in task_queue {
         match run_task(&task, &mut env) {
             Ok(_) => {
                 println!("{}",format!("the task finished successfully: {}", task.get_type()).green());
@@ -27,12 +30,12 @@ pub fn start(task_list: Vec<Box<dyn Task>>) -> Result<Success, Message> {
     Ok(Success{})
 }
 
-fn run_task(task: &Box<dyn Task>, env: &mut Env) -> Result<Success, Message> {
+fn run_task(task: &Box<dyn Task>, env: &mut Env) -> Result<Success, CvmError> {
     println!("{}",format!("Task starts executing: {}", task.get_type()).yellow());
     task.run(env)
 }
 
-fn check_task(task: &Box<dyn Task>, env: &mut Env) -> Result<Success, Message>{
+fn check_task(task: &Box<dyn Task>, env: &mut Env) -> Result<Success, CvmError>{
     println!("{}",format!("Start checking task: {}", task.get_type()).yellow());
     task.check(env)
 }

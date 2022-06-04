@@ -1,7 +1,8 @@
+#![allow(dead_code, unused_variables)]
+
 use std::str::FromStr;
 use crate::config::config::Config;
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
     ROOT,

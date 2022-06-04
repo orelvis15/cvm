@@ -1,72 +1,28 @@
 use serde::{Deserialize};
 use std::{env, fs};
 use users::{get_current_uid, get_user_by_uid};
-use crate::task::message_type::MessageType;
-use crate::task::task::Message;
-use crate::url_build;
+use crate::{CvmError, url_build};
 use crate::utils::download_manager::download_in_path;
 
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/config.toml";
 const FILE_NAME: &str = "config.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
-pub fn get_config() -> Result<Config, Message> {
+pub fn get_config() -> Result<Config, CvmError> {
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
         return Err(error);
     }
 
     let project_folder = url_build(vec![home_dir.unwrap().as_str(), PROJECT_FOLDER], false);
-
-    let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME);
-
-    if let Err(error) = file_path {
-        return Err(Message {
-            code: 0,
-            message: "File not found".to_string(),
-            kind: MessageType::Error,
-            task: "".to_string(),
-            stack: vec![error.to_string()],
-        });
-    };
-
-    let config_file = fs::read_to_string(format!("{}/{}",file_path.unwrap(), FILE_NAME));
-
-    return match config_file {
-        Ok(file) => {
-            match toml::from_str(&file) {
-                Ok(config) => { Ok(config) }
-                Err(error) => {
-                    Err(Message {
-                        code: 0,
-                        message: "Error try parsing config file".to_string(),
-                        kind: MessageType::Error,
-                        task: "".to_string(),
-                        stack: vec![error.to_string()],
-                    })
-                }
-            }
-        }
-        Err(_) => Err(Message {
-            code: 0,
-            message: "Error try reading config file".to_string(),
-            kind: MessageType::Error,
-            task: "".to_string(),
-            stack: vec![],
-        }),
-    };
+    let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME)?;
+    let file = fs::read_to_string(format!("{}/{}", file_path, FILE_NAME))?;
+    let parse_file = toml::from_str(&file)?;
+    Ok(parse_file)
 }
 
-pub fn get_home_dir() -> Result<String, Message> {
-    let error = Err(Message {
-        code: 0,
-        message: "An error occurred reading the home directory".to_string(),
-        kind: MessageType::Error,
-        task: "".to_string(),
-        stack: vec![],
-    });
-
-    //if user is not root return current user
+//TODO refactor
+pub fn get_home_dir() -> Result<String, CvmError> {
     let user = get_user_by_uid(get_current_uid()).unwrap();
     if user.uid() != 0 {
         return Ok(String::from(format!("/home/{}", user.name().to_str().unwrap())));
@@ -76,8 +32,7 @@ pub fn get_home_dir() -> Result<String, Message> {
     if let Some(sudo_user) = env::var_os("SUDO_USER") {
         return Ok(String::from(format!("/home/{}", sudo_user.to_str().unwrap())));
     }
-
-    error
+    Ok("".to_string())
 }
 
 pub fn get_project_dir() -> String {

@@ -1,26 +1,25 @@
+#![allow(dead_code, unused_variables)]
+
 extern crate rs_release;
+
 use os_info::Type;
 use crate::env::Env;
-use crate::task::task::{Message, Success, Task};
+use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::config::config::{Dependencies, get_config};
-use crate::task::message_type::MessageType;
+use crate::task::cvm_error::{CvmError, Error};
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 
 pub struct InstallDependencesTask {}
 
 #[derive(Debug, Clone)]
-pub struct InstallDependencesOutputData {
-    pub dependences: String,
+pub struct InstallDependenciesOutputData {
+    pub dependencies: String,
 }
 
 impl Task for InstallDependencesTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
-        let config = get_config();
-        if let Err(error) = config {
-            return Err(error);
-        }
-        let config = config.as_ref().unwrap();
+    fn run(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
+        let config = get_config()?;
 
         let dependece = &config.dependencies;
         let dependences_result = get_dependencies_from_os(dependece);
@@ -31,13 +30,11 @@ impl Task for InstallDependencesTask {
                 dependences = String::from(data)
             }
             None => {
-                return Err(Message {
-                    code: 0,
+                return Err(CvmError::GettingDependences(Error {
                     message: "Error getting dependencies".to_string(),
-                    kind: MessageType::Error,
-                    task: self.get_type().to_string(),
+                    task: self.get_type(),
                     stack: vec![],
-                });
+                }));
             }
         }
 
@@ -45,31 +42,29 @@ impl Task for InstallDependencesTask {
 
         match command_input_result {
             Some(input) => {
-                *env = Env::InstallDependences(InstallDependencesOutputData { dependences });
+                *env = Env::InstallDependences(InstallDependenciesOutputData { dependencies: dependences });
 
                 let cmd = RunCommandTask { input_data: input };
                 let mut env_aux: Env = Env::Empty();
                 cmd.run(&mut env_aux)
             }
             None => {
-                return Err(Message {
-                    code: 0,
+                return Err(CvmError::GettingDependences(Error {
                     message: "Error getting dependencies".to_string(),
-                    kind: MessageType::Error,
-                    task: self.get_type().to_string(),
+                    task: self.get_type(),
                     stack: vec![],
-                });
+                }));
             }
         }
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
+    fn check(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
         let dependences: String;
         match env {
             Env::InstallDependences(output) => {
-                dependences = output.clone().dependences;
+                dependences = output.clone().dependencies;
             }
-            _ => return Err(Message { code: 0, message: format!("task type {} is expected", self.get_type()), kind: MessageType::Error, task: "".to_string(), stack: vec![] })
+            _ => return Err(CvmError::TaskType(Error { message: format!("task type {} is expected", self.get_type()), task: self.get_type(), stack: vec![] }))
         }
 
         let command_input_result = get_verify_command_from_os(dependences);

@@ -1,13 +1,15 @@
+#![allow(dead_code, unused_variables)]
+
 use std::fmt;
 use std::fmt::Formatter;
-use crate::task::task_impl::install_dependences_task::InstallDependencesOutputData;
+use crate::task::task_impl::install_dependences_task::InstallDependenciesOutputData;
 use crate::task::task_impl::install_haskell_ghc_task::{InstallHanskellGhcOutputData};
 use crate::task::task_impl::run_command_task::RunCommandOutputData;
 
 pub enum Env{
     Empty(),
     RunCommnad(RunCommandOutputData),
-    InstallDependences(InstallDependencesOutputData),
+    InstallDependences(InstallDependenciesOutputData),
     InstallHaskellGhc(InstallHanskellGhcOutputData)
 }
 

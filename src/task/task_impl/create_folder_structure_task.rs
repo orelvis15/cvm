@@ -1,18 +1,19 @@
+#![allow(dead_code, unused_variables)]
+
 use std::fs;
 use std::path::Path;
 use crate::config::config::{get_config, get_project_dir};
 use crate::env::Env;
+use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
-use crate::task::message_type::MessageType;
-use crate::task::task::{Message, Success, Task};
+use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::url_build;
 
 pub struct CreateFolderStructure {}
 
 impl Task for CreateFolderStructure {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
-
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
         let config = get_config();
@@ -24,50 +25,24 @@ impl Task for CreateFolderStructure {
         let project_dir = get_project_dir();
 
         let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
-        let create_folder_result = fs::create_dir(&workspace_home);
-
-        if let Err(error) = create_folder_result {
-            return Err(Message {
-                code: 0,
-                message: "Error creating folder".to_string(),
-                kind: MessageType::Error,
-                task: "".to_string(),
-                stack: vec![error.to_string()],
-            });
-        }
+        fs::create_dir(&workspace_home)?;
 
         let folders = &config.structure_folder_item;
 
         for folder in folders {
-            let create_folder_result = fs::create_dir(url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false));
-
-            if let Err(error) = create_folder_result {
-                return Err(Message {
-                    code: 0,
-                    message: "Error creating folder".to_string(),
-                    kind: MessageType::Error,
-                    task: "".to_string(),
-                    stack: vec![error.to_string()],
-                });
-            }
+            fs::create_dir(url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false))?;
         }
-        Ok(Success{})
+        Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
-        let config = get_config();
-        if let Err(error) = config {
-            return Err(error);
-        }
-        let config = config.as_ref().unwrap();
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+        let config = get_config()?;
 
-        let error = Message {
-            code: 0,
-            message: "Error creating folder structures".to_string(),
-            kind: MessageType::Error,
-            task: "".to_string(),
+        let error = CvmError::CreateFolderStructure(Error {
+            message: "Error creating folder structure".to_string(),
+            task: self.get_type(),
             stack: vec![],
-        };
+        });
 
         let project_dir = get_project_dir();
 

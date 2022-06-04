@@ -1,8 +1,11 @@
+#![allow(dead_code, unused_variables)]
+
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Message, MessageType, Success, url_build};
+use crate::{Success, url_build};
 use crate::config::config::{get_config, get_home_dir, get_project_dir};
+use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
@@ -12,7 +15,7 @@ use crate::task::task_type::TaskType;
 pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
         let config = get_config();
         if let Err(error) = config {
             return Err(error);
@@ -34,13 +37,11 @@ impl Task for InstallLibsodiumTask {
         if path.exists() {
             let remove_result = fs::remove_dir_all(path);
             if let Err(error) = remove_result {
-                return Err(Message{
-                    code: 0,
+                return Err(CvmError::DeletingFolder(Error {
                     message: "Error deleting folders".to_string(),
-                    kind: MessageType::Error,
-                    task: "".to_string(),
-                    stack: vec![error.to_string()]
-                });
+                    task: self.get_type(),
+                    stack: vec![error.to_string()],
+                }));
             }
         };
 
@@ -54,8 +55,8 @@ impl Task for InstallLibsodiumTask {
         ])
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, Message> {
-        Ok(Success{})
+    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+        Ok(Success {})
     }
 
     fn get_type(self: &Self) -> TaskType {

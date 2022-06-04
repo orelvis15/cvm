@@ -1,16 +1,24 @@
+#![allow(dead_code, unused_variables)]
+
+use std::fs;
+use std::fs::File;
+use std::path::Path;
 use regex::Regex;
-use crate::{Message, MessageType};
 use serde::{Serialize, Deserialize};
+use crate::task::cvm_error::{CvmError, Error};
+use crate::task::task_type::TaskType::EmptyTask;
+use crate::url_build;
 
 pub const LATEST: &str = "latest";
 const USER_AGENT: &str = "cvm";
+const VERSION_FILE: &str = "version";
 
 pub fn verify_version(version: &str) -> bool {
     let regex = Regex::new(r"^(\d+\.)?(\d+\.)?(\*|\d+)$").unwrap();
     regex.is_match(version) || version == LATEST
 }
 
-pub fn get_last_tag(url: String) -> Result<String, Message> {
+pub fn get_last_tag(url: &String) -> Result<String, CvmError> {
     let client = reqwest::blocking::Client::builder().user_agent(USER_AGENT).build();
     if let Ok(client) = client {
         if let Ok(response) = client.get(url).send() {
@@ -20,13 +28,35 @@ pub fn get_last_tag(url: String) -> Result<String, Message> {
             }
         }
     }
-    return Err(Message {
-        code: 0,
+    return Err(CvmError::CheckCardanoVersion(Error {
         message: "Error checking latest cardano node tag".to_string(),
-        kind: MessageType::Error,
-        task: "".to_string(),
-        stack: vec![]
-    });
+        task: EmptyTask("".to_string()),
+        stack: vec![],
+    }));
+}
+
+
+pub fn write_version(current_folder: &String, current_version: &String) {
+    let file_path = url_build(vec![current_folder.as_str(), VERSION_FILE], false);
+    let path = Path::new(file_path.as_str());
+
+    if !path.exists() {
+        let _ = File::create(path);
+    }
+    let _ = fs::write(path, current_version);
+}
+
+pub fn read_version(current_folder: &String) -> String {
+    let file_path = url_build(vec![current_folder.as_str(), VERSION_FILE], false);
+    let path = Path::new(file_path.as_str());
+
+    let value = "".to_string();
+
+    if path.exists() {
+        return fs::read_to_string(path).unwrap_or(value);
+    };
+
+    value
 }
 
 #[derive(Serialize, Deserialize)]

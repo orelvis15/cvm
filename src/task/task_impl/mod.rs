@@ -8,3 +8,4 @@ pub mod build_cardano_node_task;
 pub mod copy_bin_task;
 pub mod use_version_task;
 pub mod check_update_task;
+pub mod empty_task;

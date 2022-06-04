@@ -1,7 +1,8 @@
+#![allow(dead_code, unused_variables)]
+
 use std::fmt;
 use std::fmt::Formatter;
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum MessageType{
     Error,

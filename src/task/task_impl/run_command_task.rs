@@ -1,10 +1,12 @@
+#![allow(dead_code, unused_variables)]
+
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::thread;
 use owo_colors::OwoColorize;
 use crate::env::Env;
-use crate::task::message_type::MessageType;
-use crate::task::task::{Message, Success, Task};
+use crate::task::cvm_error::{CvmError, Error};
+use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 
 pub struct RunCommandTask {
@@ -13,23 +15,21 @@ pub struct RunCommandTask {
 
 pub struct RunCommandOutputData {
     pub tag: String,
-    pub result: Result<Success, Message>,
+    pub result: Result<Success, CvmError>,
 }
 
 impl RunCommandOutputData
 {
-    #[allow(dead_code)]
     fn get_tag(&self) -> &String {
         &self.tag
     }
 
-    #[allow(dead_code)]
     fn get_data(&self) -> &RunCommandOutputData {
         self
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct RunCommandInputData {
     pub command: String,
     pub args: Vec<String>,
@@ -52,11 +52,10 @@ impl RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
         let mut command = build_command(&self.input_data.clone());
 
-        let result = command.stdout(Stdio::piped())
-            .spawn();
+        let result = command.stdout(Stdio::piped()).spawn();
 
         let mut child: Child;
         match result {
@@ -64,46 +63,24 @@ impl Task for RunCommandTask {
                 child = data;
             }
             Err(error) => {
-                return Err(Message {
-                    code: 0,
+                return Err(CvmError::FaileToRunCommand(Error {
                     message: format!("Failed to run command: {}, args: {:?}", self.input_data.command, self.input_data.args),
-                    kind: MessageType::Error,
-                    task: "RunCommandTask".to_string(),
+                    task: self.get_type(),
                     stack: vec![error.to_string()],
-                });
+                }));
             }
         };
 
         watch_log_process(&mut child);
-
-        let result = start_command(self.get_type().to_string(), child);
-        let result_ = result.clone();
-
-        let output = RunCommandOutputData { tag: "".to_string(), result };
-        *env = Env::RunCommnad(output);
-
-        result_
+        start_command(self.get_type().to_string(), child, self)
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, Message> {
-        match env {
-            Env::RunCommnad(output) => {
-                let result = &output.result;
-                match result {
-                    Ok(_) => {
-                        Ok(Success {})
-                    }
-                    Err(error) => {
-                        Err(Message { code: 0, message: "An error occurred while executing a task".to_string(), kind: MessageType::Error, task: String::from(error.clone().task), stack: error.clone().stack })
-                    }
-                }
-            }
-            _ => Err(Message { code: 0, message: format!("task type {} is expected", self.get_type()), kind: MessageType::Error, task: "".to_string(), stack: vec![] })
-        }
+    fn check(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
+        Ok(Success{})
     }
 
     fn get_type(self: &Self) -> TaskType {
-        TaskType::Command
+        TaskType::RunCommand(self.input_data.clone())
     }
 }
 
@@ -144,7 +121,7 @@ fn watch_log_process(child: &mut Child) {
     });
 }
 
-fn start_command(task_type: String, mut child: Child) -> Result<Success, Message> {
+fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<Success, CvmError> {
     let handler = thread::spawn(move || {
         return child.wait();
     });
@@ -154,24 +131,20 @@ fn start_command(task_type: String, mut child: Child) -> Result<Success, Message
             if code.success() {
                 Ok(Success {})
             } else {
-                Err(Message {
-                    code: 0,
+                Err(CvmError::CommandOutputError(Error {
                     message: "The command output an error".to_string(),
-                    kind: MessageType::Error,
-                    task: task_type,
+                    task: _self.get_type(),
                     stack: vec![],
-                })
+                }))
             }
         }
         Err(_) => {
             Err(
-                Message {
-                    code: 0,
+                CvmError::FaileToRunCommand(Error {
                     message: "Failed to run command".to_string(),
-                    kind: MessageType::Error,
-                    task: "".to_string(),
+                    task: _self.get_type(),
                     stack: vec![],
-                })
+                }))
         }
     }
 }
