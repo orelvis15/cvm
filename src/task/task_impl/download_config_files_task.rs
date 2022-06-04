@@ -5,9 +5,9 @@ extern crate strfmt;
 use std::collections::HashMap;
 use std::str::FromStr;
 use strfmt::strfmt;
-use crate::config::config::{Config, ConfigFileItem, get_config, get_project_dir};
+use crate::config::config::{Config, ConfigFileItem, get_project_dir};
 use crate::env::Env;
-use crate::task::task::{ Success, Task};
+use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{url_build};
 use crate::task::cvm_error::CvmError;
@@ -21,9 +21,7 @@ pub struct DownloadConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for DownloadConfigFilesTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
-        let config = get_config()?;
-
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         let project_dir = get_project_dir();
 
         let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
@@ -32,7 +30,7 @@ impl Task for DownloadConfigFilesTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         Ok(Success {})
     }
 

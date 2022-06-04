@@ -4,8 +4,8 @@ use clap::{Arg, ArgMatches, Command};
 const VERSION: &str = "0.0.1";
 
 pub fn command_config() -> ArgMatches {
-    let network = Args::NETWORK.to_string();
-    let version = Args::VERSION.to_string();
+    let network = Args::NETWORK._to_string();
+    let version = Args::VERSION._to_string();
 
     return Command::new("cvm")
         .version(VERSION)
@@ -22,7 +22,7 @@ pub fn command_config() -> ArgMatches {
         .subcommand(Command::new(Commands::INIT.to_string())
             .about("Start the environment to be able to build a Cardano node")
             .args(&[
-                Arg::new(network.as_str())
+                Arg::new(network)
                     .short('n')
                     .long("network")
                     .help("For which network do you want to download the configuration files [MAINNET | TESTNET]")
@@ -30,7 +30,7 @@ pub fn command_config() -> ArgMatches {
             )).subcommand(Command::new(Commands::INSTALL.to_string())
         .about("Build the cardano node and make it available for use")
         .args(&[
-            Arg::new(version.as_str())
+            Arg::new(version)
                 .short('v')
                 .long("version")
                 .help("Version of the cardano node that you want to install")
@@ -38,7 +38,7 @@ pub fn command_config() -> ArgMatches {
         )).subcommand(Command::new(Commands::USE.to_string())
         .about("Change the current cardano-node to the new version")
         .args(&[
-            Arg::new(version.as_str())
+            Arg::new(version)
                 .short('v')
                 .long("version")
                 .help("Version of the cardano node that you want to use")
@@ -46,7 +46,7 @@ pub fn command_config() -> ArgMatches {
         )).subcommand(Command::new(Commands::LIST.to_string())
         .about("List all installed versions of cardano node"))
         .subcommand(Command::new(Commands::UPDATE.to_string())
-        .about("Update to the new version of CVM if it exists"))
+            .about("Update to the new version of CVM if it exists"))
         .get_matches();
 }
 
@@ -59,7 +59,7 @@ pub enum Commands {
     INSTALL,
     USE,
     LIST,
-    UPDATE
+    UPDATE,
 }
 
 impl Display for Commands {
@@ -77,6 +77,15 @@ impl Display for Commands {
 pub enum Args {
     NETWORK,
     VERSION,
+}
+
+impl Args {
+    pub fn _to_string(&self) -> &str {
+        match self {
+            Args::NETWORK => { "network" }
+            Args::VERSION => { "version" }
+        }
+    }
 }
 
 impl Display for Args {

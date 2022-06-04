@@ -121,6 +121,17 @@ impl From<de::Error> for CvmError {
     }
 }
 
+impl From<clap::Error> for CvmError {
+    fn from(error: clap::Error) -> Self {
+        return CvmError::DownloadFile(
+            Error {
+                message: "Error executing command".to_string(),
+                task: TaskType::EmptyTask("Clap error".to_string()),
+                stack: vec![error.to_string()],
+            });
+    }
+}
+
 impl From<io::Error> for CvmError {
     fn from(error: io::Error) -> Self {
         return match error.kind() {

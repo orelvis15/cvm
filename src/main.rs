@@ -1,7 +1,6 @@
 extern crate core;
 
 use owo_colors::OwoColorize;
-use crate::commands::config::Commands;
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::task::Success;
 use crate::task::task_type::TaskType::EmptyTask;
@@ -26,26 +25,21 @@ fn main() {
     show_update_alert(&config.update.last_cvm_version, &current_version);
 
     let args = commands::config::command_config();
-    let result = match args.subcommand_name() {
-        Some("init") => {
-            let subcommand = args.subcommand_matches(Commands::INIT.to_string());
-            commands::init::start(subcommand.unwrap(), &config)
+    let result = match args.subcommand() {
+        Some(("init", matches)) => {
+            commands::init::start(matches, &config)
         }
-        Some("install") => {
-            let subcommand = args.subcommand_matches(Commands::INSTALL.to_string());
-            commands::install::start(subcommand.unwrap(), &config)
+        Some(("install", matches)) => {
+            commands::install::start(matches, &config)
         }
-        Some("use") => {
-            let subcommand = args.subcommand_matches(Commands::USE.to_string());
-            commands::r#use::start(subcommand.unwrap(), &config)
+        Some(("use", matches)) => {
+            commands::r#use::start(matches, &config)
         }
-        Some("list") => {
-            let subcommand = args.subcommand_matches(Commands::LIST.to_string());
-            commands::list::start(subcommand.unwrap(), &config)
+        Some(("list", matches)) => {
+            commands::list::start(matches, &config)
         }
-        Some("update") => {
-            let subcommand = args.subcommand_matches(Commands::UPDATE.to_string());
-            commands::update::start(subcommand.unwrap(), current_version, &config)
+        Some(("update", matches)) => {
+            commands::update::start(matches, current_version, &config)
         }
         _ => { print_error() }
     };

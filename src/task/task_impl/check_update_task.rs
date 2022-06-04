@@ -7,7 +7,7 @@ use tar::Archive;
 use crate::env::Env;
 use strfmt::strfmt;
 use crate::{Success};
-use crate::config::config::{get_config, get_home_dir, Update};
+use crate::config::config::{Config, get_home_dir, Update};
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -23,10 +23,7 @@ pub struct CheckUpdateData {
 }
 
 impl Task for CheckUpdateTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
-
-        let config = get_config()?;
-
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         if &config.update.last_cvm_version <= &self.input_data.version {
             return Err(CvmError::AlreadyLastUpdate(Error {
                 message: "You already have the latest version".to_string(),
@@ -38,7 +35,7 @@ impl Task for CheckUpdateTask {
         download_and_copy_version(&config.update.last_cvm_version, &config.init.git_assets, &config.update)
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         Ok(Success {})
     }
 

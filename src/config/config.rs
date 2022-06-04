@@ -9,12 +9,8 @@ const FILE_NAME: &str = "config.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
 pub fn get_config() -> Result<Config, CvmError> {
-    let home_dir = get_home_dir();
-    if let Err(error) = home_dir {
-        return Err(error);
-    }
-
-    let project_folder = url_build(vec![home_dir.unwrap().as_str(), PROJECT_FOLDER], false);
+    let home_dir = get_home_dir()?;
+    let project_folder = url_build(vec![home_dir.as_str(), PROJECT_FOLDER], false);
     let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME)?;
     let file = fs::read_to_string(format!("{}/{}", file_path, FILE_NAME))?;
     let parse_file = toml::from_str(&file)?;

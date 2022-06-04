@@ -6,7 +6,7 @@ use os_info::Type;
 use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::config::config::{Dependencies, get_config};
+use crate::config::config::{Config, Dependencies};
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 
@@ -18,9 +18,7 @@ pub struct InstallDependenciesOutputData {
 }
 
 impl Task for InstallDependencesTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
-        let config = get_config()?;
-
+    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         let dependece = &config.dependencies;
         let dependences_result = get_dependencies_from_os(dependece);
         let dependences: String;
@@ -46,7 +44,7 @@ impl Task for InstallDependencesTask {
 
                 let cmd = RunCommandTask { input_data: input };
                 let mut env_aux: Env = Env::Empty();
-                cmd.run(&mut env_aux)
+                cmd.run(&mut env_aux, config)
             }
             None => {
                 return Err(CvmError::GettingDependences(Error {
@@ -58,7 +56,7 @@ impl Task for InstallDependencesTask {
         }
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
+    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         let dependences: String;
         match env {
             Env::InstallDependences(output) => {
@@ -72,7 +70,7 @@ impl Task for InstallDependencesTask {
         match command_input_result {
             Some(input) => {
                 let cmd = RunCommandTask { input_data: input };
-                cmd.run(env)
+                cmd.run(env, config)
             }
             None => {
                 Ok(Success {})

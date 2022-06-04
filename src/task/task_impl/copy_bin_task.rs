@@ -5,7 +5,7 @@ use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Success, url_build};
-use crate::config::config::{get_config, get_project_dir};
+use crate::config::config::{Config, get_project_dir};
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
 use crate::task::task::Task;
@@ -23,12 +23,7 @@ pub struct CopyBinInputData {
 }
 
 impl Task for CopyBinTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
-        let config = get_config();
-        if let Err(error) = config {
-            return Err(error);
-        };
-        let config = config.as_ref().unwrap();
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
 
         let project_dir = get_project_dir();
 
@@ -42,7 +37,7 @@ impl Task for CopyBinTask {
         build_copy_program_to_bin_folder_command(&self.input_data.file_name, &version_folder.to_string(), &self.input_data.origin_path, &self)
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         Ok(Success {})
     }
 

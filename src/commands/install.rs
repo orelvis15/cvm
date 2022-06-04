@@ -2,12 +2,12 @@
 
 use clap::ArgMatches;
 use crate::commands::config::{Args};
-use crate::task::task_manager;
 use crate::task::task::Success;
 use crate::task::task_impl::build_cardano_node_task::BuildCardanoNodeTask;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::Config;
 use crate::{CvmError, Error};
+use crate::task::task_manager::TaskManager;
 use crate::task::task_type::TaskType::EmptyTask;
 
 pub fn start(command: &ArgMatches, config: &Config) -> Result<Success, CvmError> {
@@ -38,7 +38,7 @@ pub fn start(command: &ArgMatches, config: &Config) -> Result<Success, CvmError>
         }
     }
 
-    task_manager::start(vec![
+    TaskManager::start(vec![
         Box::new(BuildCardanoNodeTask { version: version.to_string() }),
-    ])
+    ], config)
 }

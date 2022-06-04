@@ -4,23 +4,18 @@ use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Success, url_build};
-use crate::config::config::{get_config, get_home_dir, get_project_dir};
+use crate::config::config::{Config, get_home_dir, get_project_dir};
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-use crate::task::task_manager;
+use crate::task::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
 
 pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
-        let config = get_config();
-        if let Err(error) = config {
-            return Err(error);
-        }
-        let config = config.as_ref().unwrap();
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
@@ -45,17 +40,17 @@ impl Task for InstallLibsodiumTask {
             }
         };
 
-        task_manager::start(vec![
+        TaskManager::start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), folder) }),
             Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()) }),
             Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone(), config.init.libsodium_autogen_file.clone()) }),
             Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone(), config.init.libsodium_config_file.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()) }),
             Box::new(RunCommandTask { input_data: build_make_install_repo_command(libsodium_folder.clone()) }),
-        ])
+        ], config)
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         Ok(Success {})
     }
 

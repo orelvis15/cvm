@@ -4,6 +4,7 @@ use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::thread;
 use owo_colors::OwoColorize;
+use crate::config::config::Config;
 use crate::env::Env;
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::task::{Success, Task};
@@ -52,7 +53,7 @@ impl RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
-    fn run(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
+    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         let mut command = build_command(&self.input_data.clone());
 
         let result = command.stdout(Stdio::piped()).spawn();
@@ -75,7 +76,7 @@ impl Task for RunCommandTask {
         start_command(self.get_type().to_string(), child, self)
     }
 
-    fn check(self: &Self, env: &mut Env) -> Result<Success, CvmError> {
+    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         Ok(Success{})
     }
 

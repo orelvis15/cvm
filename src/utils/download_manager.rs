@@ -6,6 +6,7 @@ use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
 use crate::config::config::get_home_dir;
 use crate::task::cvm_error::CvmError;
+use crate::url_build;
 
 pub fn download(url: &String, name: &str) -> Result<String, CvmError> {
     let home_dir = get_home_dir()?;
@@ -29,7 +30,7 @@ pub fn download(url: &String, name: &str) -> Result<String, CvmError> {
 }
 
 pub fn download_in_path(url: &String, path: String, name: &str) -> Result<String, CvmError> {
-    let file_path = format!("{}/{}", path, name);
+    let file_path = url_build(vec![path.as_str(), name], false);
 
     let response = reqwest::blocking::get(url)?;
 

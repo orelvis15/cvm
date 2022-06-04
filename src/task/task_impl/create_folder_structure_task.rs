@@ -2,7 +2,7 @@
 
 use std::fs;
 use std::path::Path;
-use crate::config::config::{get_config, get_project_dir};
+use crate::config::config::{Config, get_project_dir};
 use crate::env::Env;
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
@@ -13,14 +13,8 @@ use crate::url_build;
 pub struct CreateFolderStructure {}
 
 impl Task for CreateFolderStructure {
-    fn run(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         sudo::escalate_if_needed().expect("Super user permissions are required");
-
-        let config = get_config();
-        if let Err(error) = config {
-            return Err(error);
-        }
-        let config = config.as_ref().unwrap();
 
         let project_dir = get_project_dir();
 
@@ -35,9 +29,7 @@ impl Task for CreateFolderStructure {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env) -> Result<Success, CvmError> {
-        let config = get_config()?;
-
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         let error = CvmError::CreateFolderStructure(Error {
             message: "Error creating folder structure".to_string(),
             task: self.get_type(),
