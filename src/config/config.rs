@@ -80,6 +80,7 @@ pub struct ConfigFileItem {
     pub url: String,
     pub name: String,
     pub folder_key: String,
+    pub pattern_sed: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
