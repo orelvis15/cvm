@@ -45,6 +45,7 @@ pub struct Config {
     pub build_cardano_node: BuildCardanoNode,
     pub structure_folder_item: Vec<StructureFolderItem>,
     pub binaries: Binaries,
+    pub commands_item: Vec<CommandItem>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -109,6 +110,13 @@ pub struct StructureFolderItem {
     pub key: String,
     pub name: String,
     pub path: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct CommandItem {
+    pub key: String,
+    pub name: String,
+    pub enable: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]

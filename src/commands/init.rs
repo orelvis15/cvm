@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
-use crate::commands::config::{Args};
+use crate::commands::config::Args;
 use crate::config::config::Config;
 use crate::task::cvm_error::CvmError;
 use crate::task::task::{Success};

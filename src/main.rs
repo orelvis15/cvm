@@ -1,6 +1,7 @@
 extern crate core;
 
 use owo_colors::OwoColorize;
+use crate::commands::config::CommandsConfig;
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::task::Success;
 use crate::task::task_type::TaskType::EmptyTask;
@@ -27,21 +28,36 @@ fn main() {
     let args = commands::config::command_config();
     let result = match args.subcommand() {
         Some(("init", matches)) => {
-            commands::init::start(matches, &config)
+            match CommandsConfig::INIT.is_enable(&config.commands_item) {
+                Ok(_) => { commands::init::start(matches, &config) }
+                Err(error) => { Err(error) }
+            }
         }
         Some(("install", matches)) => {
-            commands::install::start(matches, &config)
+            match CommandsConfig::INSTALL.is_enable(&config.commands_item) {
+                Ok(_) => { commands::install::start(matches, &config) }
+                Err(error) => { Err(error) }
+            }
         }
         Some(("use", matches)) => {
-            commands::r#use::start(matches, &config)
+            match CommandsConfig::USE.is_enable(&config.commands_item) {
+                Ok(_) => { commands::r#use::start(matches, &config) }
+                Err(error) => { Err(error) }
+            }
         }
         Some(("list", matches)) => {
-            commands::list::start(matches, &config)
+            match CommandsConfig::LIST.is_enable(&config.commands_item) {
+                Ok(_) => { commands::list::start(matches, &config) }
+                Err(error) => { Err(error) }
+            }
         }
         Some(("update", matches)) => {
-            commands::update::start(matches, current_version, &config)
+            match CommandsConfig::UPDATE.is_enable(&config.commands_item) {
+                Ok(_) => { commands::update::start(matches, current_version, &config) }
+                Err(error) => { Err(error) }
+            }
         }
-        _ => { print_error() }
+        _ => { error_not_found() }
     };
 
     match result {
@@ -54,7 +70,7 @@ fn main() {
     }
 }
 
-fn print_error() -> Result<Success, CvmError> {
+fn error_not_found() -> Result<Success, CvmError> {
     return Err(CvmError::CommandNotFound(Error {
         message: "Command not found".to_string(),
         task: EmptyTask("".to_string()),
