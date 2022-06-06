@@ -94,7 +94,7 @@ impl CvmError {
 
     #[cfg(not(debug_assertions))]
     pub fn print(&self){
-        println!(f, "{}", self.data().message.red())
+        println!("{}", self.data().message.red())
     }
 }
 
