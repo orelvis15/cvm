@@ -46,6 +46,7 @@ pub struct Config {
     pub structure_folder_item: Vec<StructureFolderItem>,
     pub binaries: Binaries,
     pub commands_item: Vec<CommandItem>,
+    pub services_item: Vec<Services>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -125,4 +126,11 @@ pub struct Update {
     pub version_pattern: String,
     pub name_pattern: String,
     pub file_name: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Services {
+    pub url: String,
+    pub file: String,
+    pub name: String,
 }

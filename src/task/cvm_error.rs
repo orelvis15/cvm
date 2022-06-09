@@ -132,6 +132,17 @@ impl From<clap::Error> for CvmError {
     }
 }
 
+impl From<tinytemplate::error::Error> for CvmError {
+    fn from(error: tinytemplate::error::Error) -> Self {
+        return CvmError::DownloadFile(
+            Error {
+                message: "Error trying to parse service file".to_string(),
+                task: TaskType::EmptyTask("TiniTemplate error".to_string()),
+                stack: vec![error.to_string()],
+            });
+    }
+}
+
 impl From<io::Error> for CvmError {
     fn from(error: io::Error) -> Self {
         return match error.kind() {

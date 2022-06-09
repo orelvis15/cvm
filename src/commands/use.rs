@@ -6,6 +6,8 @@ use crate::commands::config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::Config;
 use crate::task::cvm_error::Error;
+use crate::task::task_impl::deploy_system_task::DeploySystemTask;
+use crate::task::task_impl::service_manager_task::{ServicesAction, ServicesManagerTask};
 use crate::task::task_impl::use_version_task::{UserVersionData, UserVersionTask};
 use crate::task::task_manager::TaskManager;
 use crate::task::task_type::TaskType::EmptyTask;
@@ -38,5 +40,8 @@ pub fn start(command: &ArgMatches, config: &Config) -> Result<Success, CvmError>
 
     TaskManager::start(vec![
         Box::new(UserVersionTask { input_data: UserVersionData { version },  }),
+        Box::new(ServicesManagerTask { input_data: ServicesAction::STOP }),
+        Box::new(DeploySystemTask { }),
+        Box::new(ServicesManagerTask { input_data: ServicesAction::START }),
     ], config)
 }

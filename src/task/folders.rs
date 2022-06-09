@@ -23,7 +23,7 @@ impl Folder {
     pub fn to_str(&self) -> &str {
         match self {
             Folder::ROOT => "ROOT",
-            Folder::SCRIPT => "SCRIPT",
+            Folder::SCRIPT => "SCRIPTS",
             Folder::FILES => "FILES",
             Folder::DB => "DB",
             Folder::GUILDDB => "GUILDDB",
@@ -51,7 +51,7 @@ impl FromStr for Folder {
     fn from_str(input: &str) -> Result<Folder, Self::Err> {
         match input.to_uppercase().as_str() {
             "ROOT"  => Ok(Folder::ROOT),
-            "SCRIPT"  => Ok(Folder::SCRIPT),
+            "SCRIPTS"  => Ok(Folder::SCRIPT),
             "FILES"  => Ok(Folder::FILES),
             "DB"  => Ok(Folder::DB),
             "GUILDDB"  => Ok(Folder::GUILDDB),

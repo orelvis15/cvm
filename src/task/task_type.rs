@@ -18,6 +18,8 @@ pub enum TaskType {
     BuildCardanoNode,
     CopyBinFiles(CopyBinInputData),
     UseVersion(UserVersionData),
+    DeploySystem,
+    ServicesManager,
     CheckUpdate(CheckUpdateData),
     EmptyTask(String),
 }
@@ -46,6 +48,8 @@ impl fmt::Display for TaskType {
             TaskType::EmptyTask(data) => {
                 write!(f, "Task: Empty_Task | Data:{}", data)
             }
+            TaskType::DeploySystem => write!(f, "Task: Deploy_System"),
+            TaskType::ServicesManager => write!(f, "Task: Services_Manager"),
         }
     }
 }

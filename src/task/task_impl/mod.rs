@@ -9,3 +9,5 @@ pub mod copy_bin_task;
 pub mod use_version_task;
 pub mod check_update_task;
 pub mod empty_task;
+pub mod deploy_system_task;
+pub mod service_manager_task;
