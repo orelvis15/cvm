@@ -3,15 +3,14 @@
 use clap::ArgMatches;
 use owo_colors::OwoColorize;
 use walkdir::WalkDir;
-use crate::{CvmError, Success, url_build};
+use crate::{CvmError, Success};
 use crate::utils::version_utils::{read_version, verify_version};
-use crate::config::config::{Config, get_project_dir};
+use crate::config::config::Config;
 use crate::task::folders::Folder;
 
 pub fn start(_command: &ArgMatches, config: &Config) -> Result<Success, CvmError> {
-    let project_dir = get_project_dir();
-    let bin_folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::BIN, &config)], false);
-    let current_folder = url_build(vec![bin_folder.as_str(), Folder::get(Folder::CURRENT, &config)], false);
+    let bin_folder = Folder::get_path(Folder::BIN, &config);
+    let current_folder = Folder::get_path(Folder::CURRENT, &config);
 
     let current_version = read_version(&current_folder);
 

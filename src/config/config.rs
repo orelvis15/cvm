@@ -31,10 +31,6 @@ pub fn get_home_dir() -> Result<String, CvmError> {
     Ok("".to_string())
 }
 
-pub fn get_project_dir() -> String {
-    String::from("/opt")
-}
-
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub general: General,
@@ -51,8 +47,7 @@ pub struct Config {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Binaries {
-    pub cardano_node: String,
-    pub cardano_cli: String,
+    pub files: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

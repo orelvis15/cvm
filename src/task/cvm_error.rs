@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables)]
 
-use std::{io};
+use std::io;
 use std::fmt::Debug;
 use std::io::ErrorKind;
 use owo_colors::OwoColorize;

@@ -63,7 +63,9 @@ fn create_service_file(template: &String, service_name: &String, service_file_do
     let service = url_build(vec!["/etc/systemd/system/", service_name.as_str()], false);
     let service_path = Path::new(service.as_str());
 
-    if !service_path.exists() || !check_if_files_is_same(service_path, Path::new(service_file_download)).unwrap_or(false){
+    let files_is_same = check_if_files_is_same(service_path, Path::new(service_file_download)).unwrap_or(false);
+
+    if !service_path.exists() || (service_path.exists() && !files_is_same){
         let mut file = File::create(service_path)?;
         file.write_all(template.as_bytes())?;
     }

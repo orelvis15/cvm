@@ -37,7 +37,7 @@ impl fmt::Display for TaskType {
             TaskType::InstallLibsodium => write!(f, "Task: Install_Libsodium_Task"),
             TaskType::BuildCardanoNode => write!(f, "Task: Build_Cardano_Node_Task"),
             TaskType::CopyBinFiles(data) => {
-                write!(f, "Task: Copy_Bin_File_Task Path: {} | FileName: {} | Version: {}", data.origin_path, data.file_name, data.version)
+                write!(f, "Task: Copy_Bin_File_Task Path: {} | FileName: {:?} | Version: {}", data.origin_path, data.files_names, data.version)
             }
             TaskType::UseVersion(data) => {
                 write!(f, "Task: Use_Version_Task | version: {}", data.version)

@@ -1,7 +1,10 @@
 #![allow(dead_code, unused_variables)]
 
+use std::collections::HashMap;
 use std::str::FromStr;
-use crate::config::config::Config;
+use crate::config::config::{Config, StructureFolderItem};
+use crate::task::folders::Folder::*;
+use strfmt::strfmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
@@ -20,49 +23,81 @@ pub enum Folder {
 }
 
 impl Folder {
-    pub fn to_str(&self) -> &str {
-        match self {
-            Folder::ROOT => "ROOT",
-            Folder::SCRIPT => "SCRIPTS",
-            Folder::FILES => "FILES",
-            Folder::DB => "DB",
-            Folder::GUILDDB => "GUILDDB",
-            Folder::SOCKETS => "SOCKETS",
-            Folder::PRIV => "PRIV",
-            Folder::TMP => "TMP",
-            Folder::LOGS => "LOGS",
-            Folder::BIN => "BIN",
-            Folder::GIT => "GIT",
-            Folder::CURRENT => "CURRENT",
+    pub fn get_path(key: Folder, config: &Config) -> String {
+        let path = vec![];
+        let mut path_result = Folder::find_folder_path(&key, config, path);
+        path_result.reverse();
+        return Folder::build_url(path_result, false);
+    }
+
+    pub fn get_folder_root(config: &Config) -> String {
+        let root_folder = Folder::get_folder_item(&ROOT, &config);
+        return Folder::build_url(vec![Folder::project_folder().to_string(), root_folder.name.clone()], false);
+    }
+
+    pub fn find_folder_path<'a>(item: &'a Folder, config: &'a Config, mut path: Vec<String>) -> Vec<String> {
+        let item_struct = Folder::get_folder_item(item, config);
+        if item_struct.path == "." {
+            let root_path = Folder::get_folder_root(&config);
+            path.push(root_path);
+            return path;
+        } else {
+            let parent = Folder::from_str(item_struct.path.as_str()).unwrap_or(ROOT);
+            path.push(item_struct.name.to_string());
+            return Folder::find_folder_path(&parent, &config, path);
         }
     }
 
-    // Return folder name in config file for key passed for parameter
-    pub fn get(key: Folder, config: &Config) -> &str {
-        let folders = &config.structure_folder_item;
-        folders.iter().find(|folder| folder.key == key.to_str()).unwrap().name.as_str()
+    pub fn get_folder_item<'a>(item: &'a Folder, config: &'a Config) -> &'a StructureFolderItem {
+        for folder in &config.structure_folder_item {
+            if Folder::from_str(folder.key.as_str()).unwrap().eq(&item) {
+                return folder;
+            }
+        }
+        &config.structure_folder_item.get(0).unwrap()
+    }
+
+    pub fn project_folder() -> &'static str {
+        "/opt"
+    }
+
+    pub fn build_url(args: Vec<String>, last_slash: bool) -> String {
+        let mut patter = String::new();
+        let mut args_map: HashMap<String, String> = HashMap::new();
+
+        for (i, arg) in args.iter().enumerate() {
+            let _ = &args_map.insert(arg.clone().to_string(), arg.clone().to_string());
+
+            let _ = &patter.push_str("{");
+            let _ = &patter.push_str(&arg);
+            let _ = &patter.push_str("}");
+
+            if i != args.len() - 1 || last_slash {
+                let _ = &patter.push_str("/");
+            }
+        }
+        strfmt(&patter.as_str(), &args_map).unwrap()
     }
 }
 
 impl FromStr for Folder {
-
     type Err = ();
 
     fn from_str(input: &str) -> Result<Folder, Self::Err> {
         match input.to_uppercase().as_str() {
-            "ROOT"  => Ok(Folder::ROOT),
-            "SCRIPTS"  => Ok(Folder::SCRIPT),
-            "FILES"  => Ok(Folder::FILES),
-            "DB"  => Ok(Folder::DB),
-            "GUILDDB"  => Ok(Folder::GUILDDB),
-            "SOCKETS"  => Ok(Folder::SOCKETS),
-            "PRIV"  => Ok(Folder::PRIV),
-            "TMP"  => Ok(Folder::TMP),
-            "LOGS"  => Ok(Folder::LOGS),
-            "BIN"  => Ok(Folder::BIN),
-            "GIT"  => Ok(Folder::GIT),
-            "CURRENT"  => Ok(Folder::CURRENT),
-            _ => Ok(Folder::ROOT) // this case never execute
+            "ROOT" => Ok(ROOT),
+            "SCRIPTS" => Ok(SCRIPT),
+            "FILES" => Ok(FILES),
+            "DB" => Ok(DB),
+            "GUILDDB" => Ok(GUILDDB),
+            "SOCKETS" => Ok(SOCKETS),
+            "PRIV" => Ok(PRIV),
+            "TMP" => Ok(TMP),
+            "LOGS" => Ok(LOGS),
+            "BIN" => Ok(BIN),
+            "GIT" => Ok(GIT),
+            "CURRENT" => Ok(CURRENT),
+            _ => Ok(ROOT) // this case never execute
         }
     }
 }

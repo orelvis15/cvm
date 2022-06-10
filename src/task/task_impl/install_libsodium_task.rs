@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Success, url_build};
-use crate::config::config::{Config, get_home_dir, get_project_dir};
+use crate::config::config::{Config, get_home_dir};
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
 use crate::task::task::Task;
@@ -22,10 +22,8 @@ impl Task for InstallLibsodiumTask {
             return Err(error);
         }
 
-        let project_dir = get_project_dir();
-
         let repo = &config.init.libsodium_repository;
-        let folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::GIT, &config)], false);
+        let folder = Folder::get_path(Folder::GIT, &config);
         let libsodium_folder = url_build(vec![folder.as_str(), &config.init.libsodium_folder], false);
         let path = Path::new(libsodium_folder.as_str());
 

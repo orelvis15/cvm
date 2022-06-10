@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Success, url_build};
-use crate::config::config::{Config, get_project_dir};
+use crate::config::config::Config;
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
 use crate::task::task::Task;
@@ -25,12 +25,10 @@ impl Task for UserVersionTask {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
-        let project_dir = get_project_dir();
-
-        let bin_folder = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config), Folder::get(Folder::BIN, &config)], false);
+        let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![bin_folder.as_str(), &self.input_data.version.as_str()], false);
         let version_folder_path = Path::new(version_folder.as_str());
-        let current_folder = url_build(vec![bin_folder.as_str(), Folder::get(Folder::CURRENT, &config)], false);
+        let current_folder = Folder::get_path(Folder::CURRENT, &config);
         let current_folder_path = Path::new(current_folder.as_str());
 
         if !version_folder_path.exists() {
@@ -53,7 +51,7 @@ impl Task for UserVersionTask {
             }
         };
 
-        copy_file_version(&version_folder, &current_folder, vec![&config.binaries.cardano_node, &config.binaries.cardano_cli], self)?;
+        copy_file_version(&version_folder, &current_folder, &config.binaries.files, self)?;
         write_version(&current_folder, &self.input_data.version);
         Ok(Success {})
     }
@@ -67,10 +65,10 @@ impl Task for UserVersionTask {
     }
 }
 
-fn copy_file_version(version_folder: &String, current_folder: &String, file_names: Vec<&str>, _self: &UserVersionTask) -> Result<Success, CvmError> {
-    for name in file_names {
-        let file = url_build(vec![version_folder.as_str(), name], false);
-        let file_out = url_build(vec![current_folder.as_str(), name], false);
+fn copy_file_version(version_folder: &String, current_folder: &String, files_names: &Vec<String>, _self: &UserVersionTask) -> Result<Success, CvmError> {
+    for name in files_names {
+        let file = url_build(vec![version_folder.as_str(), name.as_str()], false);
+        let file_out = url_build(vec![current_folder.as_str(), name.as_str()], false);
         let copy_result = fs::copy(file, file_out);
 
         match copy_result {

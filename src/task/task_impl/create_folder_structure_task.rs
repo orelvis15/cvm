@@ -2,7 +2,7 @@
 
 use std::fs;
 use std::path::Path;
-use crate::config::config::{Config, get_project_dir};
+use crate::config::config::Config;
 use crate::env::Env;
 use crate::task::cvm_error::{CvmError, Error};
 use crate::task::folders::Folder;
@@ -16,9 +16,7 @@ impl Task for CreateFolderStructure {
     fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
-        let project_dir = get_project_dir();
-
-        let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
+        let workspace_home = Folder::get_path(Folder::ROOT, &config);
         fs::create_dir(&workspace_home)?;
 
         let folders = &config.structure_folder_item;
@@ -36,9 +34,7 @@ impl Task for CreateFolderStructure {
             stack: vec![],
         });
 
-        let project_dir = get_project_dir();
-
-        let workspace_home = url_build(vec![project_dir.as_str(), Folder::get(Folder::ROOT, &config)], false);
+        let workspace_home = Folder::get_path(Folder::ROOT, &config);
         if !Path::new(&workspace_home).is_dir() { return Err(error.clone()); }
 
         let folders = &config.structure_folder_item;

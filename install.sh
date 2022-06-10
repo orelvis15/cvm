@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [[ $(id -u) == 0 ]] ; then echo "Rlease don't run as root" ; exit 1 ; fi
+
 repo="https://api.github.com/repos/orelvis15/cvm/releases/latest"
 env="https://raw.githubusercontent.com/orelvis15/cvm/master/env"
 
