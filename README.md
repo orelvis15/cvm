@@ -78,7 +78,8 @@ cvm -l
 
 ## Use versions
 
-Start using the version passed by parameters.
+Start using the version passed by parameters. 
+This command creates the relevant services for the operation of the cardano node
 
 `
 cvm use -v x.x.x
@@ -86,4 +87,15 @@ cvm use -v x.x.x
 or
 `
 cvm use --version x.x.x
+`
+
+## Start or Stop node
+
+To start or stop the cardano node use
+`
+cvm start
+`
+or
+`
+cvm stop
 `
