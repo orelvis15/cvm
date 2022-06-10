@@ -1,8 +1,8 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
-use crate::commands::command::Command;
-use crate::commands::config::Args;
+use crate::terminal::subcommand::Command;
+use crate::terminal::config::Args;
 use crate::config::config::Config;
 use crate::error::error::Message;
 use crate::task::task::Success;

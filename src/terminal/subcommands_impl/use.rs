@@ -2,7 +2,7 @@
 
 use clap::{ArgMatches};
 use crate::{Command, Message, Success};
-use crate::commands::config::Args;
+use crate::terminal::config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::Config;
 use crate::error::error::Error;

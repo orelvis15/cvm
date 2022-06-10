@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
-use crate::commands::config::{Args};
+use crate::terminal::config::{Args};
 use crate::task::task::Success;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::Config;

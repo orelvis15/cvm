@@ -1,15 +1,16 @@
 extern crate core;
 
 use owo_colors::OwoColorize;
-use crate::commands::config::CommandsConfig;
-use error::error::{Message, Error};
-use crate::commands::command::Command;
-use crate::commands::init::Init;
-use crate::commands::install::Install;
-use crate::commands::list::List;
-use crate::commands::r#use::Use;
-use crate::commands::start::Start;
-use crate::commands::stop::Stop;
+use crate::terminal::config::CommandsConfig;
+use error::error::{Error, Message};
+use terminal::subcommands_impl;
+use crate::terminal::subcommand::Command;
+use terminal::subcommands_impl::init::Init;
+use terminal::subcommands_impl::install::Install;
+use terminal::subcommands_impl::list::List;
+use terminal::subcommands_impl::::Use;
+use terminal::subcommands_impl::start::Start;
+use terminal::subcommands_impl::stop::Stop;
 use crate::task::task::Success;
 use crate::task::task_type::TaskType::EmptyTask;
 use crate::utils::url_build::url_build;
@@ -17,14 +18,14 @@ use crate::utils::url_build::url_build;
 mod task;
 mod config;
 mod env;
-mod commands;
+mod terminal;
 mod utils;
 mod task_manager;
 mod error;
 
 fn main() {
     let config = config::config::get_config();
-    let current_version = commands::config::get_version();
+    let current_version = terminal::config::get_version();
 
     if let Err(error) = &config {
         error.print();
@@ -34,7 +35,7 @@ fn main() {
 
     show_update_alert(&config.update.last_cvm_version, &current_version);
 
-    let args = commands::config::command_config();
+    let args = terminal::config::command_config();
     let result = match args.subcommand() {
         Some(("init", matches)) => {
             match CommandsConfig::INIT.is_enable(&config.commands_item) {
@@ -62,7 +63,7 @@ fn main() {
         }
         Some(("update", matches)) => {
             match CommandsConfig::UPDATE.is_enable(&config.commands_item) {
-                Ok(_) => { commands::update::start(matches, current_version, &config) }
+                Ok(_) => { subcommands_impl::update::start(matches, current_version, &config) }
                 Err(error) => { Err(error) }
             }
         }
