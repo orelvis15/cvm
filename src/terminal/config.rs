@@ -3,7 +3,7 @@ use clap::{Arg, ArgMatches, Command};
 use crate::config::config::CommandItem;
 use crate::{Message, EmptyTask, Error, Success};
 
-const VERSION: &str = "0.0.1";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn command_config() -> ArgMatches {
     let network = Args::NETWORK._to_string();
@@ -54,10 +54,6 @@ pub fn command_config() -> ArgMatches {
         .subcommand(Command::new(CommandsConfig::STOP.to_string())
             .about("Stop cardano node services"))
         .get_matches();
-}
-
-pub fn get_version() -> String {
-    VERSION.to_string()
 }
 
 pub enum CommandsConfig {

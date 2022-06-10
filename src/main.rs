@@ -8,9 +8,10 @@ use crate::terminal::subcommand::Command;
 use terminal::subcommands_impl::init::Init;
 use terminal::subcommands_impl::install::Install;
 use terminal::subcommands_impl::list::List;
-use terminal::subcommands_impl::::Use;
 use terminal::subcommands_impl::start::Start;
 use terminal::subcommands_impl::stop::Stop;
+use crate::subcommands_impl::r#use::Use;
+use crate::subcommands_impl::update::Update;
 use crate::task::task::Success;
 use crate::task::task_type::TaskType::EmptyTask;
 use crate::utils::url_build::url_build;
@@ -23,9 +24,11 @@ mod utils;
 mod task_manager;
 mod error;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
+    println!("{}", VERSION);
     let config = config::config::get_config();
-    let current_version = terminal::config::get_version();
 
     if let Err(error) = &config {
         error.print();
@@ -33,7 +36,7 @@ fn main() {
     }
     let config = config.unwrap();
 
-    show_update_alert(&config.update.last_cvm_version, &current_version);
+    show_update_alert(&config.update.last_cvm_version, &VERSION.to_string());
 
     let args = terminal::config::command_config();
     let result = match args.subcommand() {
@@ -63,7 +66,7 @@ fn main() {
         }
         Some(("update", matches)) => {
             match CommandsConfig::UPDATE.is_enable(&config.commands_item) {
-                Ok(_) => { subcommands_impl::update::start(matches, current_version, &config) }
+                Ok(_) => { Update::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
