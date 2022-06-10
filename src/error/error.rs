@@ -21,7 +21,7 @@ impl Error {
 }
 
 #[derive(Debug, Clone)]
-pub enum CvmError {
+pub enum Message {
     //Tasks Errors
     ErrorRunTask(Error),
     TaskType(Error),
@@ -56,33 +56,33 @@ pub enum CvmError {
     Generic(Error),
 }
 
-impl CvmError {
+impl Message {
     pub fn data(&self) -> &Error {
         match self {
-            CvmError::ErrorRunTask(this) => { &this }
-            CvmError::TaskType(this) => { &this }
-            CvmError::AlreadyLastUpdate(this) => { &this }
-            CvmError::ErrorUpdate(this) => { &this }
-            CvmError::CreateFolderStructure(this) => { &this }
-            CvmError::BinNotFound(this) => { &this }
-            CvmError::GettingDependences(this) => { &this }
-            CvmError::VersionInstaller(this) => { &this }
-            CvmError::VersionBadFormed(this) => { &this }
-            CvmError::CheckCardanoVersion(this) => { &this }
-            CvmError::FileNotFound(this) => { &this }
-            CvmError::FolderNotFound(this) => { &this }
-            CvmError::ParsingFile(this) => { &this }
-            CvmError::DownloadFile(this) => { &this }
-            CvmError::CreateFolder(this) => { &this }
-            CvmError::WriteFile(this) => { &this }
-            CvmError::PermissionDenied(this) => { &this }
-            CvmError::DeletingFolder(this) => { &this }
-            CvmError::Copy(this) => { &this }
-            CvmError::CommandNotFound(this) => { &this }
-            CvmError::FaileToRunCommand(this) => { &this }
-            CvmError::CommandOutputError(this) => { &this }
-            CvmError::Generic(this) => { &this }
-            CvmError::OpenFile(this) => { &this }
+            Message::ErrorRunTask(this) => { &this }
+            Message::TaskType(this) => { &this }
+            Message::AlreadyLastUpdate(this) => { &this }
+            Message::ErrorUpdate(this) => { &this }
+            Message::CreateFolderStructure(this) => { &this }
+            Message::BinNotFound(this) => { &this }
+            Message::GettingDependences(this) => { &this }
+            Message::VersionInstaller(this) => { &this }
+            Message::VersionBadFormed(this) => { &this }
+            Message::CheckCardanoVersion(this) => { &this }
+            Message::FileNotFound(this) => { &this }
+            Message::FolderNotFound(this) => { &this }
+            Message::ParsingFile(this) => { &this }
+            Message::DownloadFile(this) => { &this }
+            Message::CreateFolder(this) => { &this }
+            Message::WriteFile(this) => { &this }
+            Message::PermissionDenied(this) => { &this }
+            Message::DeletingFolder(this) => { &this }
+            Message::Copy(this) => { &this }
+            Message::CommandNotFound(this) => { &this }
+            Message::FaileToRunCommand(this) => { &this }
+            Message::CommandOutputError(this) => { &this }
+            Message::Generic(this) => { &this }
+            Message::OpenFile(this) => { &this }
         }
     }
 
@@ -98,10 +98,10 @@ impl CvmError {
     }
 }
 
-impl From<reqwest::Error> for CvmError {
+impl From<reqwest::Error> for Message {
     fn from(error: reqwest::Error) -> Self {
         let data = format!("{:?}", error.url());
-        return CvmError::DownloadFile(
+        return Message::DownloadFile(
             Error {
                 message: "Error download file".to_string(),
                 task: TaskType::EmptyTask(data),
@@ -110,9 +110,9 @@ impl From<reqwest::Error> for CvmError {
     }
 }
 
-impl From<de::Error> for CvmError {
+impl From<de::Error> for Message {
     fn from(error: de::Error) -> Self {
-        return CvmError::DownloadFile(
+        return Message::DownloadFile(
             Error {
                 message: "Error try parsing config file".to_string(),
                 task: TaskType::EmptyTask("".to_string()),
@@ -121,9 +121,9 @@ impl From<de::Error> for CvmError {
     }
 }
 
-impl From<clap::Error> for CvmError {
+impl From<clap::Error> for Message {
     fn from(error: clap::Error) -> Self {
-        return CvmError::DownloadFile(
+        return Message::DownloadFile(
             Error {
                 message: "Error executing command".to_string(),
                 task: TaskType::EmptyTask("Clap error".to_string()),
@@ -132,9 +132,9 @@ impl From<clap::Error> for CvmError {
     }
 }
 
-impl From<tinytemplate::error::Error> for CvmError {
+impl From<tinytemplate::error::Error> for Message {
     fn from(error: tinytemplate::error::Error) -> Self {
-        return CvmError::DownloadFile(
+        return Message::DownloadFile(
             Error {
                 message: "Error trying to parse service file".to_string(),
                 task: TaskType::EmptyTask("TiniTemplate error".to_string()),
@@ -143,11 +143,11 @@ impl From<tinytemplate::error::Error> for CvmError {
     }
 }
 
-impl From<io::Error> for CvmError {
+impl From<io::Error> for Message {
     fn from(error: io::Error) -> Self {
         return match error.kind() {
             ErrorKind::NotFound => {
-                CvmError::FileNotFound(
+                Message::FileNotFound(
                     Error {
                         message: "File not found".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
@@ -155,7 +155,7 @@ impl From<io::Error> for CvmError {
                     })
             }
             ErrorKind::PermissionDenied => {
-                CvmError::PermissionDenied(
+                Message::PermissionDenied(
                     Error {
                         message: "Error permission denied".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
@@ -163,7 +163,7 @@ impl From<io::Error> for CvmError {
                     })
             }
             ErrorKind::Interrupted => {
-                CvmError::WriteFile(
+                Message::WriteFile(
                     Error {
                         message: "Error writing file".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
@@ -171,7 +171,7 @@ impl From<io::Error> for CvmError {
                     })
             }
             ErrorKind::AlreadyExists => {
-                CvmError::WriteFile(
+                Message::WriteFile(
                     Error {
                         message: "The element already exists".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
@@ -179,7 +179,7 @@ impl From<io::Error> for CvmError {
                     })
             }
             _ => {
-                CvmError::Generic(
+                Message::Generic(
                     Error {
                         message: "A problem has occurred :(".to_string(),
                         task: TaskType::EmptyTask("".to_string()),

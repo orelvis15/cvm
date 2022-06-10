@@ -5,17 +5,17 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Success, url_build};
 use crate::config::config::{Config, get_home_dir};
-use crate::task::cvm_error::{CvmError, Error};
-use crate::task::folders::Folder;
+use crate::error::error::{Message, Error};
+use crate::utils::folders::Folder;
 use crate::task::task::Task;
-use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-use crate::task::task_manager::TaskManager;
+use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
 
 pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
@@ -24,13 +24,13 @@ impl Task for InstallLibsodiumTask {
 
         let repo = &config.init.libsodium_repository;
         let folder = Folder::get_path(Folder::GIT, &config);
-        let libsodium_folder = url_build(vec![folder.as_str(), &config.init.libsodium_folder], false);
+        let libsodium_folder = url_build(vec![&folder, &config.init.libsodium_folder], false);
         let path = Path::new(libsodium_folder.as_str());
 
         if path.exists() {
             let remove_result = fs::remove_dir_all(path);
             if let Err(error) = remove_result {
-                return Err(CvmError::DeletingFolder(Error {
+                return Err(Message::DeletingFolder(Error {
                     message: "Error deleting folders".to_string(),
                     task: self.get_type(),
                     stack: vec![error.to_string()],
@@ -48,7 +48,7 @@ impl Task for InstallLibsodiumTask {
         ], config)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
         Ok(Success {})
     }
 

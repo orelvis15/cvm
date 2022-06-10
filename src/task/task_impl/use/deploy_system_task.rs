@@ -9,13 +9,13 @@ use tinytemplate::TinyTemplate;
 use crate::env::Env;
 use crate::{Success, url_build};
 use crate::config::config::{Config, Services};
-use crate::task::cvm_error::CvmError;
+use crate::error::error::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
 use serde::Serialize;
-use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-use crate::task::task_manager::TaskManager;
+use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task_manager::task_manager::TaskManager;
 
 pub struct DeploySystemTask {}
 
@@ -25,7 +25,7 @@ pub struct DeploySystemTask {}
 /// - Permisos de administrador
 
 impl Task for DeploySystemTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -38,7 +38,7 @@ impl Task for DeploySystemTask {
         ], config)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
         Ok(Success {})
     }
 
@@ -47,7 +47,7 @@ impl Task for DeploySystemTask {
     }
 }
 
-fn create_service(service: &Services) -> Result<Success, CvmError> {
+fn create_service(service: &Services) -> Result<Success, Message> {
     let service_file_download = download(&format!("{}{}", &service.url, &service.file), &service.file)?;
     let file_string = fs::read_to_string(&service_file_download)?;
 
@@ -55,7 +55,7 @@ fn create_service(service: &Services) -> Result<Success, CvmError> {
     create_service_file(&template, &service.file, &service_file_download)
 }
 
-fn create_template(name: &str, file_string: &str) -> Result<String, CvmError> {
+fn create_template(name: &str, file_string: &str) -> Result<String, Message> {
     let mut template = TinyTemplate::new();
     template.add_template(name, file_string)?;
     let context = TemplateContext { user: "root".to_string() };
@@ -63,8 +63,8 @@ fn create_template(name: &str, file_string: &str) -> Result<String, CvmError> {
     Ok(text)
 }
 
-fn create_service_file(template: &String, service_name: &String, service_file_download: &String) -> Result<Success, CvmError> {
-    let service = url_build(vec!["/etc/systemd/system/", service_name.as_str()], false);
+fn create_service_file(template: &String, service_name: &String, service_file_download: &String) -> Result<Success, Message> {
+    let service = url_build(vec![&"/etc/systemd/system/".to_string(), service_name], false);
     let service_path = Path::new(service.as_str());
 
     let files_is_same = check_if_files_is_same(service_path, Path::new(service_file_download)).unwrap_or(false);
@@ -76,7 +76,7 @@ fn create_service_file(template: &String, service_name: &String, service_file_do
     Ok(Success {})
 }
 
-fn check_if_files_is_same(service_path: &Path, service_file_download: &Path) -> Result<bool, CvmError, > {
+fn check_if_files_is_same(service_path: &Path, service_file_download: &Path) -> Result<bool, Message, > {
     let mut system_file = File::open(service_path)?;
     let mut download_file = File::open(service_file_download)?;
     Ok(diff_files(&mut system_file, &mut download_file))

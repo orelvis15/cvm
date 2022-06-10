@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 use clap::{Arg, ArgMatches, Command};
 use crate::config::config::CommandItem;
-use crate::{CvmError, EmptyTask, Error, Success};
+use crate::{Message, EmptyTask, Error, Success};
 
 const VERSION: &str = "0.0.1";
 
@@ -97,7 +97,7 @@ impl CommandsConfig {
         }
     }
 
-    pub fn is_enable(&self, commands_list: &Vec<CommandItem>) -> Result<Success, CvmError> {
+    pub fn is_enable(&self, commands_list: &Vec<CommandItem>) -> Result<Success, Message> {
         let is_enable = commands_list.iter().find(|cmd| {
             &cmd.key == &self.get_key().to_string()
         }).unwrap().enable;
@@ -106,7 +106,7 @@ impl CommandsConfig {
            return Ok(Success{})
         };
 
-        Err(CvmError::CommandNotFound(Error {
+        Err(Message::CommandNotFound(Error {
             message: "The command has been temporarily disabled to avoid errors".to_string(),
             task: EmptyTask("".to_string()),
             stack: vec![],

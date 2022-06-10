@@ -6,7 +6,7 @@ use std::thread;
 use owo_colors::OwoColorize;
 use crate::config::config::Config;
 use crate::env::Env;
-use crate::task::cvm_error::{CvmError, Error};
+use crate::error::error::{Message, Error};
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 
@@ -16,7 +16,7 @@ pub struct RunCommandTask {
 
 pub struct RunCommandOutputData {
     pub tag: String,
-    pub result: Result<Success, CvmError>,
+    pub result: Result<Success, Message>,
 }
 
 impl RunCommandOutputData
@@ -53,7 +53,7 @@ impl RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
-    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
         let result = command.stdout(Stdio::piped()).spawn();
@@ -64,7 +64,7 @@ impl Task for RunCommandTask {
                 child = data;
             }
             Err(error) => {
-                return Err(CvmError::FaileToRunCommand(Error {
+                return Err(Message::FaileToRunCommand(Error {
                     message: format!("Failed to run command: {}, args: {:?}", self.input_data.command, self.input_data.args),
                     task: self.get_type(),
                     stack: vec![error.to_string()],
@@ -76,7 +76,7 @@ impl Task for RunCommandTask {
         start_command(self.get_type().to_string(), child, self)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
         Ok(Success{})
     }
 
@@ -122,7 +122,7 @@ fn watch_log_process(child: &mut Child) {
     });
 }
 
-fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<Success, CvmError> {
+fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<Success, Message> {
     let handler = thread::spawn(move || {
         return child.wait();
     });
@@ -132,7 +132,7 @@ fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) ->
             if code.success() {
                 Ok(Success {})
             } else {
-                Err(CvmError::CommandOutputError(Error {
+                Err(Message::CommandOutputError(Error {
                     message: "The command output an error".to_string(),
                     task: _self.get_type(),
                     stack: vec![],
@@ -141,7 +141,7 @@ fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) ->
         }
         Err(_) => {
             Err(
-                CvmError::FaileToRunCommand(Error {
+                Message::FaileToRunCommand(Error {
                     message: "Failed to run command".to_string(),
                     task: _self.get_type(),
                     stack: vec![],

@@ -5,12 +5,12 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Success, url_build};
 use crate::config::config::{Config, get_home_dir};
-use crate::task::cvm_error::CvmError;
-use crate::task::folders::Folder;
+use crate::error::error::Message;
+use crate::utils::folders::Folder;
 use crate::task::task::Task;
-use crate::task::task_impl::copy_bin_task::{CopyBinInputData, CopyBinTask};
-use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-use crate::task::task_manager::TaskManager;
+use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
+use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
 
 pub struct BuildCardanoNodeTask {
@@ -18,7 +18,7 @@ pub struct BuildCardanoNodeTask {
 }
 
 impl Task for BuildCardanoNodeTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -26,9 +26,9 @@ impl Task for BuildCardanoNodeTask {
 
         let repo = &config.build_cardano_node.cnode_repository;
         let git_folder = Folder::get_path(Folder::GIT, &config);
-        let cardano_folder = url_build(vec![git_folder.as_str(), &config.build_cardano_node.cnode_repository_name], false);
+        let cardano_folder = url_build(vec![&git_folder, &config.build_cardano_node.cnode_repository_name], false);
         let cardano_folder_path = Path::new(cardano_folder.as_str());
-        let cabal_route = url_build(vec![home_dir.as_str(), &config.init.ghcup_bin_path], false);
+        let cabal_route = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
 
         if cardano_folder_path.exists() {
             fs::remove_dir_all(cardano_folder_path)?;
@@ -43,7 +43,7 @@ impl Task for BuildCardanoNodeTask {
         ], config)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
         Ok(Success {})
     }
 
@@ -73,5 +73,5 @@ fn build_run_cabal_command(cabal_path: String, folder_path: String, files: &Vec<
     for file in files {
         args.push(file.to_string());
     }
-    RunCommandInputData { command: url_build(vec![cabal_path.as_str(), Cmd::Cabal.as_string().as_str()], false), args, current_dir: folder_path }
+    RunCommandInputData { command: url_build(vec![&cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: folder_path }
 }

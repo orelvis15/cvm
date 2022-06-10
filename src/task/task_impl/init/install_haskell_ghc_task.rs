@@ -2,10 +2,10 @@
 
 use crate::config::config::{Config, get_home_dir, Init};
 use crate::env::Env;
-use crate::task::cvm_error::CvmError;
+use crate::error::error::Message;
 use crate::task::task::{Success, Task};
-use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
-use crate::task::task_manager::TaskManager;
+use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
 
@@ -17,7 +17,7 @@ pub struct InstallHanskellGhcOutputData {
 }
 
 impl Task for InstallHanskellGhcTask {
-    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
         let home_dir = get_home_dir()?;
 
         let uri = download_install_ghc_file(&config.init)?;
@@ -35,7 +35,7 @@ impl Task for InstallHanskellGhcTask {
         ], config)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
         Ok(Success{})
     }
 
@@ -44,7 +44,7 @@ impl Task for InstallHanskellGhcTask {
     }
 }
 
-fn download_install_ghc_file(init: &Init) -> Result<String, CvmError> {
+fn download_install_ghc_file(init: &Init) -> Result<String, Message> {
     download(&init.ghcup_url, init.install_ghc_file.as_str())
 }
 

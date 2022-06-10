@@ -8,7 +8,7 @@ use crate::env::Env;
 use strfmt::strfmt;
 use crate::{Success};
 use crate::config::config::{Config, get_home_dir, Update};
-use crate::task::cvm_error::{CvmError, Error};
+use crate::error::error::{Message, Error};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
@@ -23,9 +23,9 @@ pub struct CheckUpdateData {
 }
 
 impl Task for CheckUpdateTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
         if &config.update.last_cvm_version <= &self.input_data.version {
-            return Err(CvmError::AlreadyLastUpdate(Error {
+            return Err(Message::AlreadyLastUpdate(Error {
                 message: "You already have the latest version".to_string(),
                 task: self.get_type(),
                 stack: vec![],
@@ -35,7 +35,7 @@ impl Task for CheckUpdateTask {
         download_and_copy_version(&config.update.last_cvm_version, &config.init.git_assets, &config.update)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
         Ok(Success {})
     }
 
@@ -44,7 +44,7 @@ impl Task for CheckUpdateTask {
     }
 }
 
-fn download_and_copy_version(version: &String, base_url: &String, update_data: &Update) -> Result<Success, CvmError> {
+fn download_and_copy_version(version: &String, base_url: &String, update_data: &Update) -> Result<Success, Message> {
     let home_dir = get_home_dir();
     if let Err(error) = home_dir {
         return Err(error);
@@ -67,7 +67,7 @@ fn download_and_copy_version(version: &String, base_url: &String, update_data: &
     decompress(download_path, home_dir.unwrap())
 }
 
-fn decompress(file_uri: String, home_dir: String) -> Result<Success, CvmError> {
+fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message> {
     let file = File::open(file_uri)?;
     let tar = GzDecoder::new(file);
     let mut archive = Archive::new(tar);

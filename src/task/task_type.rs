@@ -2,10 +2,10 @@
 
 use std::fmt;
 use std::fmt::Formatter;
-use crate::task::task_impl::check_update_task::CheckUpdateData;
-use crate::task::task_impl::copy_bin_task::CopyBinInputData;
-use crate::task::task_impl::run_command_task::{RunCommandInputData};
-use crate::task::task_impl::use_version_task::UserVersionData;
+use crate::task::task_impl::commons::run_command_task::RunCommandInputData;
+use crate::task::task_impl::install::copy_bin_task::CopyBinInputData;
+use crate::task::task_impl::r#use::use_version_task::UserVersionData;
+use crate::task::task_impl::update::check_update_task::CheckUpdateData;
 
 #[derive(Debug, Clone)]
 pub enum TaskType {

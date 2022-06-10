@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use strfmt::strfmt;
 
-pub fn url_build(args: Vec<&str>, last_slash: bool) -> String {
+pub fn url_build(args: Vec<&String>, last_slash: bool) -> String {
     let mut patter = String::new();
     let mut args_map: HashMap<String, String> = HashMap::new();
 

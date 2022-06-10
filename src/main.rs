@@ -2,7 +2,14 @@ extern crate core;
 
 use owo_colors::OwoColorize;
 use crate::commands::config::CommandsConfig;
-use crate::task::cvm_error::{CvmError, Error};
+use error::error::{Message, Error};
+use crate::commands::command::Command;
+use crate::commands::init::Init;
+use crate::commands::install::Install;
+use crate::commands::list::List;
+use crate::commands::r#use::Use;
+use crate::commands::start::Start;
+use crate::commands::stop::Stop;
 use crate::task::task::Success;
 use crate::task::task_type::TaskType::EmptyTask;
 use crate::utils::url_build::url_build;
@@ -12,6 +19,8 @@ mod config;
 mod env;
 mod commands;
 mod utils;
+mod task_manager;
+mod error;
 
 fn main() {
     let config = config::config::get_config();
@@ -29,25 +38,25 @@ fn main() {
     let result = match args.subcommand() {
         Some(("init", matches)) => {
             match CommandsConfig::INIT.is_enable(&config.commands_item) {
-                Ok(_) => { commands::init::start(matches, &config) }
+                Ok(_) => { Init::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
         Some(("install", matches)) => {
             match CommandsConfig::INSTALL.is_enable(&config.commands_item) {
-                Ok(_) => { commands::install::start(matches, &config) }
+                Ok(_) => { Install::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
         Some(("use", matches)) => {
             match CommandsConfig::USE.is_enable(&config.commands_item) {
-                Ok(_) => { commands::r#use::start(matches, &config) }
+                Ok(_) => { Use::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
         Some(("list", matches)) => {
             match CommandsConfig::LIST.is_enable(&config.commands_item) {
-                Ok(_) => { commands::list::start(matches, &config) }
+                Ok(_) => { List::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
@@ -59,13 +68,13 @@ fn main() {
         }
         Some(("start", matches)) => {
             match CommandsConfig::START.is_enable(&config.commands_item) {
-                Ok(_) => { commands::start::start(matches, &config) }
+                Ok(_) => { Start::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
         Some(("stop", matches)) => {
             match CommandsConfig::STOP.is_enable(&config.commands_item) {
-                Ok(_) => { commands::stop::start(matches, &config) }
+                Ok(_) => { Stop::start(matches, &config) }
                 Err(error) => { Err(error) }
             }
         }
@@ -82,8 +91,8 @@ fn main() {
     }
 }
 
-fn error_not_found() -> Result<Success, CvmError> {
-    return Err(CvmError::CommandNotFound(Error {
+fn error_not_found() -> Result<Success, Message> {
+    return Err(Message::CommandNotFound(Error {
         message: "Command not found".to_string(),
         task: EmptyTask("".to_string()),
         stack: vec![],

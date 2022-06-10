@@ -4,8 +4,8 @@ use std::fs;
 use std::path::Path;
 use crate::config::config::Config;
 use crate::env::Env;
-use crate::task::cvm_error::{CvmError, Error};
-use crate::task::folders::Folder;
+use crate::error::error::{Message, Error};
+use crate::utils::folders::Folder;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::url_build;
@@ -13,7 +13,7 @@ use crate::url_build;
 pub struct CreateFolderStructure {}
 
 impl Task for CreateFolderStructure {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
         let workspace_home = Folder::get_path(Folder::ROOT, &config);
@@ -22,13 +22,13 @@ impl Task for CreateFolderStructure {
         let folders = &config.structure_folder_item;
 
         for folder in folders {
-            fs::create_dir(url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false))?;
+            fs::create_dir(url_build(vec![&workspace_home, &folder.name], false))?;
         }
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
-        let error = CvmError::CreateFolderStructure(Error {
+    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+        let error = Message::CreateFolderStructure(Error {
             message: "Error creating folder structure".to_string(),
             task: self.get_type(),
             stack: vec![],
@@ -40,7 +40,7 @@ impl Task for CreateFolderStructure {
         let folders = &config.structure_folder_item;
 
         for folder in folders {
-            let dir = url_build(vec![&workspace_home.as_str(), folder.name.as_str()], false);
+            let dir = url_build(vec![&workspace_home, &folder.name], false);
             if !Path::new(dir.as_str()).is_dir() { return Err(error.clone()); }
         }
 

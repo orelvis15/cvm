@@ -4,12 +4,12 @@ use owo_colors::OwoColorize;
 use crate::config::config::Config;
 use crate::task::task::{Success, Task};
 use crate::env::Env;
-use crate::task::cvm_error::CvmError;
+use crate::error::error::Message;
 
 pub struct TaskManager {}
 
 impl TaskManager {
-    pub fn start(task_queue: Vec<Box<dyn Task>>, config: &Config) -> Result<Success, CvmError> {
+    pub fn start(task_queue: Vec<Box<dyn Task>>, config: &Config) -> Result<Success, Message> {
 
         let mut env: Env = Env::Empty();
 
@@ -36,12 +36,12 @@ impl TaskManager {
     }
 }
 
-fn run_task(task: &Box<dyn Task>, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+fn run_task(task: &Box<dyn Task>, env: &mut Env, config: &Config) -> Result<Success, Message> {
     println!("{}", format!("Task starts executing: {}", task.get_type()).yellow());
     task.run(env, config)
 }
 
-fn check_task(task: &Box<dyn Task>, env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+fn check_task(task: &Box<dyn Task>, env: &mut Env, config: &Config) -> Result<Success, Message> {
     println!("{}", format!("Start checking task: {}", task.get_type()).yellow());
     task.check(env, config)
 }

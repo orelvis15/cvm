@@ -1,10 +1,9 @@
 #![allow(dead_code, unused_variables)]
 
-use std::collections::HashMap;
 use std::str::FromStr;
 use crate::config::config::{Config, StructureFolderItem};
-use crate::task::folders::Folder::*;
-use strfmt::strfmt;
+use crate::utils::folders::Folder::*;
+use crate::url_build;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
@@ -27,12 +26,13 @@ impl Folder {
         let path = vec![];
         let mut path_result = Folder::find_folder_path(&key, config, path);
         path_result.reverse();
-        return Folder::build_url(path_result, false);
+        let path_str: Vec<&String> = path_result.iter().map(|s| s as &String).collect();
+        return url_build(path_str, false);
     }
 
     pub fn get_folder_root(config: &Config) -> String {
         let root_folder = Folder::get_folder_item(&ROOT, &config);
-        return Folder::build_url(vec![Folder::project_folder().to_string(), root_folder.name.clone()], false);
+        return url_build(vec![&Folder::project_folder().to_string(), &root_folder.name], false);
     }
 
     pub fn find_folder_path<'a>(item: &'a Folder, config: &'a Config, mut path: Vec<String>) -> Vec<String> {
@@ -59,24 +59,6 @@ impl Folder {
 
     pub fn project_folder() -> &'static str {
         "/opt"
-    }
-
-    pub fn build_url(args: Vec<String>, last_slash: bool) -> String {
-        let mut patter = String::new();
-        let mut args_map: HashMap<String, String> = HashMap::new();
-
-        for (i, arg) in args.iter().enumerate() {
-            let _ = &args_map.insert(arg.clone().to_string(), arg.clone().to_string());
-
-            let _ = &patter.push_str("{");
-            let _ = &patter.push_str(&arg);
-            let _ = &patter.push_str("}");
-
-            if i != args.len() - 1 || last_slash {
-                let _ = &patter.push_str("/");
-            }
-        }
-        strfmt(&patter.as_str(), &args_map).unwrap()
     }
 }
 

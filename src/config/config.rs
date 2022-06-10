@@ -1,24 +1,24 @@
 use serde::{Deserialize};
 use std::{env, fs};
 use users::{get_current_uid, get_user_by_uid};
-use crate::{CvmError, url_build};
+use crate::{Message, url_build};
 use crate::utils::download_manager::download_in_path;
 
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/config.toml";
 const FILE_NAME: &str = "config.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
-pub fn get_config() -> Result<Config, CvmError> {
+pub fn get_config() -> Result<Config, Message> {
     let home_dir = get_home_dir()?;
-    let project_folder = url_build(vec![home_dir.as_str(), PROJECT_FOLDER], false);
-    let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME)?;
+    let project_folder = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string()], false);
+    let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME.to_string())?;
     let file = fs::read_to_string(format!("{}/{}", file_path, FILE_NAME))?;
     let parse_file = toml::from_str(&file)?;
     Ok(parse_file)
 }
 
 //TODO refactor
-pub fn get_home_dir() -> Result<String, CvmError> {
+pub fn get_home_dir() -> Result<String, Message> {
     let user = get_user_by_uid(get_current_uid()).unwrap();
     if user.uid() != 0 {
         return Ok(String::from(format!("/home/{}", user.name().to_str().unwrap())));
