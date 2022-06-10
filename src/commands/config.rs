@@ -49,6 +49,10 @@ pub fn command_config() -> ArgMatches {
         .about("List all installed versions of cardano node"))
         .subcommand(Command::new(CommandsConfig::UPDATE.to_string())
             .about("Update to the new version of CVM if it exists"))
+        .subcommand(Command::new(CommandsConfig::START.to_string())
+            .about("Start cardano node services"))
+        .subcommand(Command::new(CommandsConfig::STOP.to_string())
+            .about("Stop cardano node services"))
         .get_matches();
 }
 
@@ -62,6 +66,8 @@ pub enum CommandsConfig {
     USE,
     LIST,
     UPDATE,
+    START,
+    STOP,
 }
 
 impl Display for CommandsConfig {
@@ -72,6 +78,8 @@ impl Display for CommandsConfig {
             CommandsConfig::USE => write!(f, "use"),
             CommandsConfig::LIST => write!(f, "list"),
             CommandsConfig::UPDATE => write!(f, "update"),
+            CommandsConfig::START => write!(f, "start"),
+            CommandsConfig::STOP => write!(f, "stop"),
         }
     }
 }
@@ -84,6 +92,8 @@ impl CommandsConfig {
             CommandsConfig::USE => { "USE" }
             CommandsConfig::LIST => { "LIST" }
             CommandsConfig::UPDATE => { "UPDATE" }
+            CommandsConfig::START => { "START" }
+            CommandsConfig::STOP => { "STOP" }
         }
     }
 

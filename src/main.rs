@@ -57,6 +57,18 @@ fn main() {
                 Err(error) => { Err(error) }
             }
         }
+        Some(("start", matches)) => {
+            match CommandsConfig::START.is_enable(&config.commands_item) {
+                Ok(_) => { commands::start::start(matches, &config) }
+                Err(error) => { Err(error) }
+            }
+        }
+        Some(("stop", matches)) => {
+            match CommandsConfig::STOP.is_enable(&config.commands_item) {
+                Ok(_) => { commands::stop::start(matches, &config) }
+                Err(error) => { Err(error) }
+            }
+        }
         _ => { error_not_found() }
     };
 
