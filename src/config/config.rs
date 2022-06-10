@@ -105,7 +105,7 @@ pub struct BuildCardanoNode {
 pub struct StructureFolderItem {
     pub key: String,
     pub name: String,
-    pub path: String,
+    pub parent: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]

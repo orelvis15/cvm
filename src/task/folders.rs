@@ -37,12 +37,12 @@ impl Folder {
 
     pub fn find_folder_path<'a>(item: &'a Folder, config: &'a Config, mut path: Vec<String>) -> Vec<String> {
         let item_struct = Folder::get_folder_item(item, config);
-        if item_struct.path == "." {
+        if item_struct.parent == "." {
             let root_path = Folder::get_folder_root(&config);
             path.push(root_path);
             return path;
         } else {
-            let parent = Folder::from_str(item_struct.path.as_str()).unwrap_or(ROOT);
+            let parent = Folder::from_str(item_struct.parent.as_str()).unwrap_or(ROOT);
             path.push(item_struct.name.to_string());
             return Folder::find_folder_path(&parent, &config, path);
         }

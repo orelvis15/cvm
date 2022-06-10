@@ -39,9 +39,9 @@ pub fn start(command: &ArgMatches, config: &Config) -> Result<Success, CvmError>
     };
 
     TaskManager::start(vec![
-        Box::new(UserVersionTask { input_data: UserVersionData { version },  }),
         Box::new(ServicesManagerTask { input_data: ServicesAction::STOP }),
+        Box::new(UserVersionTask { input_data: UserVersionData { version }}),
         Box::new(DeploySystemTask { }),
-        Box::new(ServicesManagerTask { input_data: ServicesAction::START }),
+        //Box::new(ServicesManagerTask { input_data: ServicesAction::START }),
     ], config)
 }

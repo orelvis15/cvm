@@ -14,6 +14,8 @@ use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
 use serde::Serialize;
+use crate::task::task_impl::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task::task_manager::TaskManager;
 
 pub struct DeploySystemTask {}
 
@@ -24,14 +26,16 @@ pub struct DeploySystemTask {}
 
 impl Task for DeploySystemTask {
     fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
+
         sudo::escalate_if_needed().expect("Super user permissions are required");
+
         for services in &config.services_item {
-            let service_exist = systemctl::exists(&services.name).unwrap_or(false);
-            if !service_exist {
-                create_service(&services)?;
-            }
+            create_service(&services)?;
         }
-        Ok(Success {})
+
+        TaskManager::start(vec![
+            Box::new(RunCommandTask { input_data: build_reset_daemon_command() }),
+        ], config)
     }
 
     fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, CvmError> {
@@ -72,10 +76,15 @@ fn create_service_file(template: &String, service_name: &String, service_file_do
     Ok(Success {})
 }
 
-fn check_if_files_is_same(service_path: &Path, service_file_download: &Path) -> Result<bool, CvmError, >{
+fn check_if_files_is_same(service_path: &Path, service_file_download: &Path) -> Result<bool, CvmError, > {
     let mut system_file = File::open(service_path)?;
     let mut download_file = File::open(service_file_download)?;
     Ok(diff_files(&mut system_file, &mut download_file))
+}
+
+fn build_reset_daemon_command() -> RunCommandInputData {
+    let args = vec![Cmd::DaemonReload.as_string()];
+    RunCommandInputData { command: Cmd::Systemctl.as_string(), args, current_dir: "".to_string() }
 }
 
 #[derive(Serialize)]
