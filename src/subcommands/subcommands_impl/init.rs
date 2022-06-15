@@ -3,7 +3,7 @@
 use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
-use crate::config::config::Config;
+use crate::config::config::{Config, get_home_dir};
 use crate::error::error::Message;
 use crate::task::task::Success;
 use crate::task::task_impl::init::create_folder_structure_task::CreateFolderStructure;
@@ -25,6 +25,7 @@ impl Command for Init {
 
         let mut network = MAINNET;
 
+        sudo::with_env(&["HOME", get_home_dir()]).expect("Super user permissions are required");
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
         match command.get_one::<String>(Args::NETWORK._to_string()) {
