@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Success, url_build};
+use crate::{Success, Term, url_build};
 use crate::config::config::Config;
 use crate::error::error::{Message, Error};
 use crate::utils::folders::Folder;
@@ -15,13 +15,13 @@ pub struct UserVersionTask {
     pub input_data: UserVersionData,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct UserVersionData {
     pub version: String,
 }
 
 impl Task for UserVersionTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -56,7 +56,7 @@ impl Task for UserVersionTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

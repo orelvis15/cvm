@@ -8,26 +8,31 @@ use crate::error::error::{Message, Error};
 use crate::utils::folders::Folder;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::url_build;
+use crate::{Term, url_build};
 
 pub struct CreateFolderStructure {}
 
 impl Task for CreateFolderStructure {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
-        sudo::escalate_if_needed().expect("Super user permissions are required");
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
         let workspace_home = Folder::get_path(Folder::ROOT, &config);
-        fs::create_dir(&workspace_home)?;
+
+        if !Path::new(&workspace_home).exists() {
+            fs::create_dir(&workspace_home)?;
+        }
 
         let folders = &config.structure_folder_item;
 
         for folder in folders {
-            fs::create_dir(url_build(vec![&workspace_home, &folder.name], false))?;
+            let path = url_build(vec![&workspace_home, &folder.name], false);
+            if !Path::new(&path).exists() {
+                fs::create_dir(path)?;
+            }
         }
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         let error = Message::CreateFolderStructure(Error {
             message: "Error creating folder structure".to_string(),
             task: self.get_type(),

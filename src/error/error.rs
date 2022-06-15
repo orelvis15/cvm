@@ -53,6 +53,9 @@ pub enum Message {
     FaileToRunCommand(Error),
     CommandOutputError(Error),
 
+    //arguments
+    ParseArg(Error),
+
     Generic(Error),
 }
 
@@ -83,6 +86,7 @@ impl Message {
             Message::CommandOutputError(this) => { &this }
             Message::Generic(this) => { &this }
             Message::OpenFile(this) => { &this }
+            Message::ParseArg(this) => {&this}
         }
     }
 

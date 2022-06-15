@@ -8,7 +8,7 @@ use crate::url_build;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
     ROOT,
-    SCRIPT,
+    SCRIPTS,
     FILES,
     DB,
     GUILDDB,
@@ -68,7 +68,7 @@ impl FromStr for Folder {
     fn from_str(input: &str) -> Result<Folder, Self::Err> {
         match input.to_uppercase().as_str() {
             "ROOT" => Ok(ROOT),
-            "SCRIPTS" => Ok(SCRIPT),
+            "SCRIPTS" => Ok(SCRIPTS),
             "FILES" => Ok(FILES),
             "DB" => Ok(DB),
             "GUILDDB" => Ok(GUILDDB),

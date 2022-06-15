@@ -1,22 +1,26 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
-use crate::terminal::config::{Args};
+use crate::subcommands::config::{Args};
 use crate::task::task::Success;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::Config;
-use crate::{Message, Error, Command};
+use crate::{Message, Error, Command, Term};
 use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType::EmptyTask;
+use crate::term::log_level::LogLevel::L1;
 
 pub struct Install{}
 
 impl Command for Install {
-    fn start(command: &ArgMatches, config: &Config) -> Result<Success, Message> {
+    fn start(command: &ArgMatches, config: &Config,term: &mut Term) -> Result<Success, Message> {
+
+        sudo::escalate_if_needed().expect("Super user permissions are required");
+
         let mut version: String = LATEST.to_string();
 
-        match command.value_of(Args::VERSION.to_string()) {
+        match command.get_one::<String>(Args::VERSION._to_string()) {
             Some(value) => {
                 if !value.is_empty() {
                     if verify_version(value) || version == LATEST {
@@ -41,8 +45,8 @@ impl Command for Install {
             }
         }
 
-        TaskManager::start(vec![
+        TaskManager{}.start(vec![
             Box::new(BuildCardanoNodeTask { version: version.to_string() }),
-        ], config)
+        ], config, term, L1)
     }
 }

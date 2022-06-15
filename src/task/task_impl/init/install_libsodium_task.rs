@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Success, url_build};
+use crate::{Success, Term, url_build};
 use crate::config::config::{Config, get_home_dir};
 use crate::error::error::{Message, Error};
 use crate::utils::folders::Folder;
@@ -11,11 +11,12 @@ use crate::task::task::Task;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
+use crate::term::log_level::LogLevel::L2;
 
 pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
@@ -38,17 +39,17 @@ impl Task for InstallLibsodiumTask {
             }
         };
 
-        TaskManager::start(vec![
-            Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), folder) }),
-            Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()) }),
-            Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone(), config.init.libsodium_autogen_file.clone()) }),
-            Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone(), config.init.libsodium_config_file.clone()) }),
-            Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()) }),
-            Box::new(RunCommandTask { input_data: build_make_install_repo_command(libsodium_folder.clone()) }),
-        ], config)
+        TaskManager{}.start(vec![
+            Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), folder), command_description: "Cloning the Libsodium repository".to_string() }),
+            Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()), command_description: "Switching to the specified commit".to_string() }),
+            Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone(), config.init.libsodium_autogen_file.clone()), command_description: "Running autogen executable".to_string() }),
+            Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone(), config.init.libsodium_config_file.clone()), command_description: "Configuring the installation".to_string() }),
+            Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()), command_description: "Compiling Libsodium".to_string() }),
+            Box::new(RunCommandTask { input_data: build_make_install_repo_command(libsodium_folder.clone()), command_description: "Installing Libsodium".to_string() }),
+        ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

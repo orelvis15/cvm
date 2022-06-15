@@ -9,9 +9,11 @@ use crate::env::Env;
 use crate::error::error::{Message, Error};
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
+use crate::Term;
 
 pub struct RunCommandTask {
     pub input_data: RunCommandInputData,
+    pub command_description: String
 }
 
 pub struct RunCommandOutputData {
@@ -19,18 +21,16 @@ pub struct RunCommandOutputData {
     pub result: Result<Success, Message>,
 }
 
-impl RunCommandOutputData
-{
+impl RunCommandOutputData {
     fn get_tag(&self) -> &String {
         &self.tag
     }
-
     fn get_data(&self) -> &RunCommandOutputData {
         self
     }
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct RunCommandInputData {
     pub command: String,
     pub args: Vec<String>,
@@ -53,12 +53,12 @@ impl RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
-    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
-        let result = command.stdout(Stdio::piped()).spawn();
+        let result = command.stdout(Stdio::null()).spawn();
 
-        let mut child: Child;
+        let child: Child;
         match result {
             Ok(data) => {
                 child = data;
@@ -71,22 +71,24 @@ impl Task for RunCommandTask {
                 }));
             }
         };
-
-        watch_log_process(&mut child);
+        //watch_log_process(&mut child);
         start_command(self.get_type().to_string(), child, self)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success{})
     }
 
     fn get_type(self: &Self) -> TaskType {
-        TaskType::RunCommand(self.input_data.clone())
+        TaskType::RunCommand(self.input_data.clone(), self.command_description.clone())
     }
 }
 
 pub fn build_command(input: &RunCommandInputData) -> Command {
     let mut cmd = Command::new(&input.command);
+
+    cmd.stdout(Stdio::null());
+    cmd.stderr(Stdio::null());
 
     for arg in &input.args {
         cmd.arg(arg);
@@ -123,11 +125,10 @@ fn watch_log_process(child: &mut Child) {
 }
 
 fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<Success, Message> {
-    let handler = thread::spawn(move || {
-        return child.wait();
-    });
 
-    match handler.join().unwrap() {
+    let handler = child.wait();
+
+    match handler {
         Ok(code) => {
             if code.success() {
                 Ok(Success {})

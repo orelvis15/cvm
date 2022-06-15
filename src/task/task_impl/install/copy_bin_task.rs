@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
-use crate::{Success, url_build};
+use crate::{Success, Term, url_build};
 use crate::config::config::Config;
 use crate::error::error::{Message, Error};
 use crate::utils::folders::Folder;
@@ -15,7 +15,7 @@ pub struct CopyBinTask {
     pub input_data: CopyBinInputData,
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct CopyBinInputData {
     pub files_names: Vec<String>,
     pub origin_path: String,
@@ -23,7 +23,7 @@ pub struct CopyBinInputData {
 }
 
 impl Task for CopyBinTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
@@ -35,7 +35,7 @@ impl Task for CopyBinTask {
         build_copy_program_to_bin_folder_command(&self.input_data.files_names, &version_folder.to_string(), &self.input_data.origin_path, &self)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

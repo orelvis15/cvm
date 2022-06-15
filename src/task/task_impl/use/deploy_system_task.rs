@@ -7,7 +7,7 @@ use std::path::Path;
 use file_diff::diff_files;
 use tinytemplate::TinyTemplate;
 use crate::env::Env;
-use crate::{Success, url_build};
+use crate::{Success, Term, url_build};
 use crate::config::config::{Config, Services};
 use crate::error::error::Message;
 use crate::task::task::Task;
@@ -16,6 +16,7 @@ use crate::utils::download_manager::download;
 use serde::Serialize;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
+use crate::term::log_level::LogLevel::L2;
 
 pub struct DeploySystemTask {}
 
@@ -25,7 +26,7 @@ pub struct DeploySystemTask {}
 /// - Permisos de administrador
 
 impl Task for DeploySystemTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -33,12 +34,12 @@ impl Task for DeploySystemTask {
             create_service(&services)?;
         }
 
-        TaskManager::start(vec![
-            Box::new(RunCommandTask { input_data: build_reset_daemon_command() }),
-        ], config)
+        TaskManager{}.start(vec![
+            Box::new(RunCommandTask { input_data: build_reset_daemon_command(), command_description: "Reset systemctl daemon".to_string() }),
+        ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

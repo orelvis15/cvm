@@ -4,7 +4,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use crate::task::task_impl::commons::run_command_task::RunCommandOutputData;
 use crate::task::task_impl::init::install_dependences_task::InstallDependenciesOutputData;
-use crate::task::task_impl::init::install_haskell_ghc_task::InstallHanskellGhcOutputData;
+use crate::task::task_impl::init::install_ghcup_task::InstallHanskellGhcOutputData;
 
 pub enum Env{
     Empty(),

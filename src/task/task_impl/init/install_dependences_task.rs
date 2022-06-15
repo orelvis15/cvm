@@ -9,6 +9,7 @@ use crate::task::task_type::TaskType;
 use crate::config::config::{Config, Dependencies};
 use crate::error::error::{Message, Error};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::Term;
 
 pub struct InstallDependencesTask {}
 
@@ -18,7 +19,7 @@ pub struct InstallDependenciesOutputData {
 }
 
 impl Task for InstallDependencesTask {
-    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         let dependece = &config.dependencies;
         let dependences_result = get_dependencies_from_os(dependece);
         let dependences: String;
@@ -42,9 +43,9 @@ impl Task for InstallDependencesTask {
             Some(input) => {
                 *env = Env::InstallDependences(InstallDependenciesOutputData { dependencies: dependences });
 
-                let cmd = RunCommandTask { input_data: input };
+                let cmd = RunCommandTask { input_data: input, command_description: "Installing the necessary dependencies".to_string() };
                 let mut env_aux: Env = Env::Empty();
-                cmd.run(&mut env_aux, config)
+                cmd.run(&mut env_aux, config, term)
             }
             None => {
                 return Err(Message::GettingDependences(Error {
@@ -56,32 +57,8 @@ impl Task for InstallDependencesTask {
         }
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
-        let dependences: String;
-        match env {
-            Env::InstallDependences(output) => {
-                dependences = output.clone().dependencies;
-            }
-            _ => return Err(Message::TaskType(Error { message: format!("task type {} is expected", self.get_type()), task: self.get_type(), stack: vec![] }))
-        }
-
-        let command_input_result = get_verify_command_from_os(dependences);
-
-        match command_input_result {
-            Some(input) => {
-                let cmd = RunCommandTask { input_data: input };
-                cmd.run(env, config)
-            }
-            None => {
-                Ok(Success {})
-                /*return Result::Err(Error {
-                    code: 0,
-                    message: "Error verify dependencies".to_string(),
-                    task: self.task_type.to_string(),
-                    stack: vec![],
-                });*/
-            }
-        }
+    fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+        Ok(Success{})
     }
 
     fn get_type(self: &Self) -> TaskType {

@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Success, url_build};
+use crate::{Success, Term, url_build};
 use crate::config::config::{Config, get_home_dir};
 use crate::error::error::Message;
 use crate::utils::folders::Folder;
@@ -12,13 +12,14 @@ use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTa
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
+use crate::term::log_level::LogLevel::L2;
 
 pub struct BuildCardanoNodeTask {
     pub version: String,
 }
 
 impl Task for BuildCardanoNodeTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -34,16 +35,16 @@ impl Task for BuildCardanoNodeTask {
             fs::remove_dir_all(cardano_folder_path)?;
         };
 
-        TaskManager::start(vec![
-            Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder) }),
-            Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()) }),
-            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()) }),
-            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone(), &config.binaries.files) }),
+        TaskManager{}.start(vec![
+            Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
+            Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
+            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: "Switching to the specified version".to_string() }),
+            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone(), &config.binaries.files), command_description: "Build cardano node".to_string() }),
             Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
-        ], config)
+        ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

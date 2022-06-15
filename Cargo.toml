@@ -6,7 +6,7 @@ authors = ["Orelvis Lago Vasallo"]
 description = "CLI for version control in cardano pools"
 
 [dependencies]
-clap = { version = "3.1.18", features = ["derive", "yaml"] }
+clap = { version = "3.2.1", features = ["derive", "yaml"] }
 reqwest = { version = "0.11.10", features = ["json", "blocking", "rustls-tls"] , default-features = false}
 tokio = { version = "1", features = ["full"] }
 os_info = "3"
@@ -25,3 +25,5 @@ users = "0.11.0"
 systemctl = "0.1.6"
 tinytemplate = "1.2.1"
 file_diff = "1.0.0"
+crossterm = "0.23.2"
+lazy_static = "1.4.0"

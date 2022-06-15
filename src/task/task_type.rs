@@ -7,11 +7,11 @@ use crate::task::task_impl::install::copy_bin_task::CopyBinInputData;
 use crate::task::task_impl::r#use::use_version_task::UserVersionData;
 use crate::task::task_impl::update::check_update_task::CheckUpdateData;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum TaskType {
-    RunCommand(RunCommandInputData),
+    RunCommand(RunCommandInputData, String),
     InstallDependences,
-    InstallHaskellGsh,
+    InstallGhcup,
     CreateFolderStructure,
     DownloadConfigFiles,
     InstallLibsodium,
@@ -24,14 +24,34 @@ pub enum TaskType {
     EmptyTask(String),
 }
 
+impl TaskType {
+    pub fn print(&self) -> String {
+        match &self {
+            TaskType::RunCommand(data, description) => { description.to_string() }
+            TaskType::InstallDependences => { "Installing necessary dependencies".to_string() }
+            TaskType::InstallGhcup => { "Install ghcup".to_string() }
+            TaskType::CreateFolderStructure => { "Creating folder structure".to_string() }
+            TaskType::DownloadConfigFiles => { "Downloading scripts and configuration files".to_string() }
+            TaskType::InstallLibsodium => { "Installing libsodium".to_string() }
+            TaskType::BuildCardanoNode => { "Compiling cardano node".to_string() }
+            TaskType::CopyBinFiles(_) => { "Copying generated binary files".to_string() }
+            TaskType::UseVersion(_) => { "Switching to the version".to_string() }
+            TaskType::DeploySystem => { "Deploying cardano node as a service".to_string() }
+            TaskType::ServicesManager => { "".to_string() }
+            TaskType::CheckUpdate(_) => { "Checking new update".to_string() }
+            TaskType::EmptyTask(text) => { text.to_string() }
+        }
+    }
+}
+
 impl fmt::Display for TaskType {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            TaskType::RunCommand(data) => {
+            TaskType::RunCommand(data, description) => {
                 write!(f, "Task: Run_Command_Task | command: {} | Dir: {}", format!("{} {:?}", data.command, data.args), data.current_dir)
             }
             TaskType::InstallDependences => write!(f, "Task: Install_Dependencies_Task"),
-            TaskType::InstallHaskellGsh => write!(f, "Task: Install_Haskell_Gsh_Task"),
+            TaskType::InstallGhcup => write!(f, "Task: Install_Haskell_Gsh_Task"),
             TaskType::CreateFolderStructure => write!(f, "Task: Create_Folder_Structure_Task"),
             TaskType::DownloadConfigFiles => write!(f, "Task: Download_Config_File_Task"),
             TaskType::InstallLibsodium => write!(f, "Task: Install_Libsodium_Task"),

@@ -6,7 +6,7 @@ use flate2::read::GzDecoder;
 use tar::Archive;
 use crate::env::Env;
 use strfmt::strfmt;
-use crate::{Success};
+use crate::{Success, Term};
 use crate::config::config::{Config, get_home_dir, Update};
 use crate::error::error::{Message, Error};
 use crate::task::task::Task;
@@ -17,13 +17,13 @@ pub struct CheckUpdateTask {
     pub input_data: CheckUpdateData,
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct CheckUpdateData {
     pub version: String,
 }
 
 impl Task for CheckUpdateTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         if &config.update.last_cvm_version <= &self.input_data.version {
             return Err(Message::AlreadyLastUpdate(Error {
                 message: "You already have the latest version".to_string(),
@@ -35,7 +35,7 @@ impl Task for CheckUpdateTask {
         download_and_copy_version(&config.update.last_cvm_version, &config.init.git_assets, &config.update)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

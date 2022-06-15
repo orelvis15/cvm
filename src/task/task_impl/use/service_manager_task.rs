@@ -2,7 +2,7 @@
 
 use std::process::ExitStatus;
 use crate::env::Env;
-use crate::Success;
+use crate::{Success, Term};
 use crate::config::config::Config;
 use crate::error::error::Message;
 use crate::task::task::Task;
@@ -13,15 +13,15 @@ pub struct ServicesManagerTask {
 }
 
 impl Task for ServicesManagerTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
-        sudo::escalate_if_needed().expect("Super user permissions are required");
+    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+
         for services in &config.services_item {
             exec_action(&self.input_data, services.name.as_str())?;
         }
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

@@ -7,6 +7,8 @@ use crate::task::task::{Success, Task};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
+use crate::Term;
+use crate::term::log_level::LogLevel::L2;
 use crate::utils::download_manager::download;
 
 pub struct InstallHanskellGhcTask {}
@@ -17,30 +19,29 @@ pub struct InstallHanskellGhcOutputData {
 }
 
 impl Task for InstallHanskellGhcTask {
-    fn run(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         let home_dir = get_home_dir()?;
-
         let uri = download_install_ghc_file(&config.init)?;
 
         let mut ghcup_dir = String::from(home_dir);
         ghcup_dir.push_str(format!("/{}", &config.init.ghcup_bin_path).as_str());
 
-        TaskManager::start(vec![
-            Box::new(RunCommandTask { input_data: build_sed_install_file_command(&uri, &config.init.ghcup_pattern_sed) }),
-            Box::new(RunCommandTask { input_data: build_install_command(uri) }),
-            Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version) }),
-            Box::new(RunCommandTask { input_data: build_set_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version) }),
-            Box::new(RunCommandTask { input_data: build_install_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version) }),
-            Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version) }),
-        ], config)
+        TaskManager{}.start(vec![
+            Box::new(RunCommandTask { input_data: build_sed_install_file_command(&uri, &config.init.ghcup_pattern_sed), command_description: "Editing ghcup installation file".to_string() }),
+            Box::new(RunCommandTask { input_data: build_install_command(uri), command_description: "Installing ghcup".to_string() }),
+            Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version), command_description: "Installing ghc".to_string() }),
+            Box::new(RunCommandTask { input_data: build_set_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version), command_description: "Changing to the corresponding version of ghc".to_string() }),
+            Box::new(RunCommandTask { input_data: build_install_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version), command_description: "Installing cabal".to_string() }),
+            Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version), command_description: "Changing to the corresponding version of ghc".to_string() }),
+        ], config, term, L2)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config) -> Result<Success, Message> {
+    fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         Ok(Success{})
     }
 
     fn get_type(self: &Self) -> TaskType {
-        TaskType::InstallHaskellGsh
+        TaskType::InstallGhcup
     }
 }
 
@@ -54,7 +55,7 @@ fn build_sed_install_file_command(uri: &String, pattern: &String) -> RunCommandI
 }
 
 fn build_install_command(uri: String) -> RunCommandInputData {
-    let args = vec![uri];
+    let args = vec![uri, "&>/dev/null".to_string()];
     RunCommandInputData { command: Cmd::Bash.as_string(), args, ..Default::default() }
 }
 
