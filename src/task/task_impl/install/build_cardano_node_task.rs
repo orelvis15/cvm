@@ -39,7 +39,7 @@ impl Task for BuildCardanoNodeTask {
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: "Switching to the specified version".to_string() }),
-            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone(), &config.binaries.files), command_description: "Build cardano node".to_string() }),
+            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone()), command_description: "Build cardano node".to_string() }),
             Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
         ], config, term, L2)
     }
@@ -69,10 +69,7 @@ fn build_checkout_version_command(version: String, path: String) -> RunCommandIn
     RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
 }
 
-fn build_run_cabal_command(cabal_path: String, folder_path: String, files: &Vec<String>) -> RunCommandInputData {
-    let mut args:Vec<String> = vec![Cmd::Build.as_string()];
-    for file in files {
-        args.push(file.to_string());
-    }
+fn build_run_cabal_command(cabal_path: String, folder_path: String) -> RunCommandInputData {
+    let args:Vec<String> = vec![Cmd::Build.as_string(), Cmd::All.as_string()];
     RunCommandInputData { command: url_build(vec![&cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: folder_path }
 }

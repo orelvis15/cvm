@@ -171,6 +171,7 @@ pub enum Cmd {
     Make,
     Fetch,
     Build,
+    All,
     Systemctl,
     DaemonReload,
 }
@@ -199,6 +200,7 @@ impl Cmd {
             Cmd::Build => "build".to_string(),
             Cmd::Systemctl => {"systemctl".to_string()}
             Cmd::DaemonReload => {"daemon-reload".to_string()}
+            Cmd::All => {"all".to_string()}
         }
     }
 }

@@ -6,7 +6,7 @@ use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::config::Config;
-use crate::error::error::{Message, Error};
+use crate::error::error::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -24,10 +24,10 @@ pub struct CopyBinInputData {
 
 impl Task for CopyBinTask {
     fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
         let version_folder_path = Path::new(version_folder.as_str());
+
         if !version_folder_path.exists() {
             fs::create_dir_all(version_folder_path)?;
         };
@@ -50,13 +50,8 @@ fn build_copy_program_to_bin_folder_command(file_names: &Vec<String>, destinatio
         for file_name in file_names {
             if entry.file_name().to_str().unwrap() == file_name && entry.path().is_file() {
                 fs::copy(entry.path(), format!("{}/{}", destination_path, file_name))?;
-                return Ok(Success {});
             }
         }
     }
-    return Err(Message::BinNotFound(Error {
-        message: "Cardano executable not found".to_string(),
-        task: _self.get_type(),
-        stack: vec![],
-    }));
+    Ok(Success {})
 }

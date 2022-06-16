@@ -69,18 +69,11 @@ fn copy_file_version(version_folder: &String, current_folder: &String, files_nam
     for name in files_names {
         let file = url_build(vec![version_folder, name], false);
         let file_out = url_build(vec![current_folder, name], false);
-        let copy_result = fs::copy(file, file_out);
 
-        match copy_result {
-            Ok(_) => continue,
-            Err(error) => {
-                return Err(Message::Copy(Error {
-                    message: format!("Error copying file {}", name),
-                    task: _self.get_type(),
-                    stack: vec![error.to_string()],
-                }));
-            }
-        }
+        if !Path::new(&file).exists() { continue;}
+
+        let _ = fs::copy(&file, &file_out);
+
     }
     Ok(Success {})
 }
