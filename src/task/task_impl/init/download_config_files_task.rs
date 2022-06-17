@@ -65,9 +65,7 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
             apply_pattern_sed(url_build(vec![&folder_path, &item.name], false), &item.pattern_sed, config, term)?;
         }
 
-        println!("{}  -  {}", item.folder_key, Folder::SCRIPTS.to_string());
         if item.folder_key == Folder::SCRIPTS.to_string() {
-            println!("{}", &file_path);
             fs::set_permissions(&file_path, fs::Permissions::from_mode(0o755))?;
         }
     }
