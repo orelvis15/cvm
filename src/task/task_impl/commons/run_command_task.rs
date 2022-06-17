@@ -91,7 +91,7 @@ fn read_stdout(mut command: Command) -> Command{
 }
 
 #[cfg(not(debug_assertions))]
-fn read_stdout(command: &mut Command) -> Command{
+fn read_stdout(mut command: Command) -> Command{
     command.stdout(Stdio::null());
     command.stderr(Stdio::null());
     command
@@ -119,6 +119,9 @@ fn watch_log_process(child: &mut Child) {
         }
     });
 }
+
+#[cfg(not(debug_assertions))]
+fn watch_log_process(child: &mut Child) {}
 
 fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<Success, Message> {
 
