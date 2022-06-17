@@ -8,7 +8,7 @@ use crate::env::Env;
 use strfmt::strfmt;
 use crate::{Success, Term};
 use crate::config::config::{Config, get_home_dir, Update};
-use crate::error::error::{Message, Error};
+use crate::error::message::{Message, Error};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;

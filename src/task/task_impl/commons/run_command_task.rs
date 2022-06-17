@@ -3,10 +3,9 @@
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::thread;
-use owo_colors::OwoColorize;
 use crate::config::config::Config;
 use crate::env::Env;
-use crate::error::error::{Message, Error};
+use crate::error::message::{Message, Error};
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::Term;
@@ -37,28 +36,13 @@ pub struct RunCommandInputData {
     pub current_dir: String,
 }
 
-impl RunCommandInputData {
-    #[allow(dead_code)]
-    pub fn to_string(self: Self) -> String {
-        let mut command = String::new();
-        command.push_str(self.command.as_str());
-        command.push_str(" ");
-
-        for arg in self.args {
-            command.push_str(arg.as_str());
-            command.push_str(" ");
-        }
-        format!("Command: {}\nCurrent dir: {}", command, self.current_dir).blue().to_string()
-    }
-}
-
 impl Task for RunCommandTask {
     fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
-        let result = command.stdout(Stdio::null()).spawn();
+        let result = command.spawn();
 
-        let child: Child;
+        let mut child: Child;
         match result {
             Ok(data) => {
                 child = data;
@@ -71,7 +55,7 @@ impl Task for RunCommandTask {
                 }));
             }
         };
-        //watch_log_process(&mut child);
+        watch_log_process(&mut child);
         start_command(self.get_type().to_string(), child, self)
     }
 
@@ -85,10 +69,8 @@ impl Task for RunCommandTask {
 }
 
 pub fn build_command(input: &RunCommandInputData) -> Command {
-    let mut cmd = Command::new(&input.command);
-
-    cmd.stdout(Stdio::null());
-    cmd.stderr(Stdio::null());
+    let cmd = Command::new(&input.command);
+    let mut cmd = read_stdout(cmd);
 
     for arg in &input.args {
         cmd.arg(arg);
@@ -101,9 +83,23 @@ pub fn build_command(input: &RunCommandInputData) -> Command {
     return cmd;
 }
 
+#[cfg(debug_assertions)]
+fn read_stdout(mut command: Command) -> Command{
+    command.stdout(Stdio::piped());
+    command.stderr(Stdio::piped());
+    command
+}
+
+#[cfg(not(debug_assertions))]
+fn read_stdout(command: &mut Command) -> Command{
+    command.stdout(Stdio::null());
+    command.stderr(Stdio::null());
+    command
+}
+
+#[cfg(debug_assertions)]
 fn watch_log_process(child: &mut Child) {
     let stdout = child.stdout.take().unwrap();
-
     thread::spawn(move || {
         let mut f = BufReader::new(stdout);
         loop {
@@ -174,6 +170,7 @@ pub enum Cmd {
     All,
     Systemctl,
     DaemonReload,
+    Update,
 }
 
 impl Cmd {
@@ -201,6 +198,7 @@ impl Cmd {
             Cmd::Systemctl => {"systemctl".to_string()}
             Cmd::DaemonReload => {"daemon-reload".to_string()}
             Cmd::All => {"all".to_string()}
+            Cmd::Update => {"update".to_string()}
         }
     }
 }

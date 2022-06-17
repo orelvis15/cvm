@@ -9,7 +9,7 @@ use tinytemplate::TinyTemplate;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::config::{Config, Services};
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;

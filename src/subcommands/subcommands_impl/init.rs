@@ -4,7 +4,7 @@ use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
 use crate::config::config::{Config, get_home_dir};
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::task::task::Success;
 use crate::task::task_impl::init::create_folder_structure_task::CreateFolderStructure;
 use crate::task::task_impl::init::download_config_files_task::DownloadConfigFilesTask;

@@ -3,6 +3,8 @@
 extern crate strfmt;
 
 use std::collections::HashMap;
+use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::str::FromStr;
 use strfmt::strfmt;
@@ -11,7 +13,7 @@ use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Term, url_build};
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
@@ -62,6 +64,12 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
         if item.pattern_sed != "" {
             apply_pattern_sed(url_build(vec![&folder_path, &item.name], false), &item.pattern_sed, config, term)?;
         }
+
+        println!("{}  -  {}", item.folder_key, Folder::SCRIPTS.to_string());
+        if item.folder_key == Folder::SCRIPTS.to_string() {
+            println!("{}", &file_path);
+            fs::set_permissions(&file_path, fs::Permissions::from_mode(0o755))?;
+        }
     }
     Ok(Success {})
 }
@@ -70,6 +78,6 @@ fn apply_pattern_sed(file_path: String, pattern: &String, config: &Config, term:
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
     TaskManager{}.start(vec![
         Box::new(RunCommandTask { input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
-            command_description: "Editing configuration files".to_string() }),
+            command_description: "".to_string() }),
     ], config, term, L2)
 }

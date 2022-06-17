@@ -6,7 +6,7 @@ use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::config::Config;
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;

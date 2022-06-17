@@ -60,6 +60,13 @@ impl Folder {
     pub fn project_folder() -> &'static str {
         "/opt"
     }
+
+    pub fn to_string(&self) -> String {
+        match &self {
+            SCRIPTS => {"SCRIPTS".to_string()}
+            _ => {"".to_string()}
+        }
+    }
 }
 
 impl FromStr for Folder {

@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use crate::config::config::Config;
 use crate::env::Env;
-use crate::error::error::{Message, Error};
+use crate::error::message::{Message, Error};
 use crate::utils::folders::Folder;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;

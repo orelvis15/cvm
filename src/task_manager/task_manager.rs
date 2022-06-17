@@ -3,7 +3,7 @@
 use crate::config::config::Config;
 use crate::task::task::{Success, Task};
 use crate::env::Env;
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::Term;
 use crate::term::log_level::LogLevel;
 

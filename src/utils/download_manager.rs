@@ -5,7 +5,7 @@ use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
 use crate::config::config::get_home_dir;
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::url_build;
 
 pub fn download(url: &String, name: &str) -> Result<String, Message> {

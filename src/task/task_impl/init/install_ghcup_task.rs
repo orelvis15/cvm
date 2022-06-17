@@ -2,7 +2,7 @@
 
 use crate::config::config::{Config, get_home_dir, Init};
 use crate::env::Env;
-use crate::error::error::Message;
+use crate::error::message::Message;
 use crate::task::task::{Success, Task};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
@@ -32,7 +32,7 @@ impl Task for InstallHanskellGhcTask {
             Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version), command_description: "Installing ghc".to_string() }),
             Box::new(RunCommandTask { input_data: build_set_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version), command_description: "Changing to the corresponding version of ghc".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version), command_description: "Installing cabal".to_string() }),
-            Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version), command_description: "Changing to the corresponding version of ghc".to_string() }),
+            Box::new(RunCommandTask { input_data: build_set_cabal_version_command(ghcup_dir.clone(), &config.init.haskell_cabal_version), command_description: "Changing to the corresponding version of cabal".to_string() }),
         ], config, term, L2)
     }
 

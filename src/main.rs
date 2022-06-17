@@ -4,7 +4,7 @@ use std::io::stdout;
 use crossterm::style::Stylize;
 use owo_colors::OwoColorize;
 use crate::subcommands::config::CommandsConfig;
-use error::error::{Error, Message};
+use error::message::{Error, Message};
 use subcommands::subcommands_impl;
 use crate::subcommands::subcommand::Command;
 use subcommands::subcommands_impl::init::Init;

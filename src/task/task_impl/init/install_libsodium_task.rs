@@ -5,7 +5,7 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::config::{Config, get_home_dir};
-use crate::error::error::{Message, Error};
+use crate::error::message::{Message, Error};
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
