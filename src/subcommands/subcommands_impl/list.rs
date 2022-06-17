@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
+use fs_extra::dir::get_size;
 use owo_colors::OwoColorize;
 use walkdir::WalkDir;
 use crate::{Command, Message, Success, Term};
@@ -24,13 +25,21 @@ impl Command for List{
             let entry = entry.unwrap();
             let name = entry.file_name().to_str().unwrap().to_string();
             if entry.path().is_dir() && verify_version(name.as_str()) {
+
+                let size = get_size(entry.path()).unwrap() / 1024 / 1024;
+                let size_format = format!("{} MB", size);
+
                 if name != current_version {
-                    println!("{}", name.red());
+                    print(format!("{}  {}", name.red(), size_format.red()));
                 } else {
-                    println!("{}{}", "-> ".yellow(), name.green());
+                    print(format!("{}{}  {}", "-> ".yellow(), name.green(), size_format.green()));
                 }
             };
         }
         Ok(Success {})
     }
+}
+
+fn print(message: String){
+    println!("{}", message);
 }

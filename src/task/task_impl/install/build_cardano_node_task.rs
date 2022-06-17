@@ -38,9 +38,9 @@ impl Task for BuildCardanoNodeTask {
         TaskManager{}.start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
-            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: "Switching to the specified version".to_string() }),
+            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version)}),
             Box::new(RunCommandTask { input_data: build_cabal_update_command(&cabal_route), command_description: "Updating cabal packages".to_string() }),
-            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone()), command_description: "Build cardano node".to_string() }),
+            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone()), command_description: "Building cardano node".to_string() }),
             Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
         ], config, term, L2)
     }
