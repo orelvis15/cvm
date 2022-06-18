@@ -174,6 +174,7 @@ pub enum Cmd {
     Systemctl,
     DaemonReload,
     Update,
+    Clean,
 }
 
 impl Cmd {
@@ -202,6 +203,7 @@ impl Cmd {
             Cmd::DaemonReload => {"daemon-reload".to_string()}
             Cmd::All => {"all".to_string()}
             Cmd::Update => {"update".to_string()}
+            Cmd::Clean => {"clean".to_string()}
         }
     }
 }

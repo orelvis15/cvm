@@ -13,9 +13,18 @@ pub const LATEST: &str = "latest";
 const USER_AGENT: &str = "cvm";
 const VERSION_FILE: &str = "version";
 
-pub fn verify_version(version: &str) -> bool {
+pub fn verify_version(version: &str) -> Result<&str, Message> {
     let regex = Regex::new(r"^(\d+\.)?(\d+\.)?(\*|\d+)$").unwrap();
-    regex.is_match(version) || version == LATEST
+    let valid = regex.is_match(version) || version.to_lowercase() == LATEST.to_lowercase();
+    if valid {
+        Ok(version)
+    } else {
+        return Err(Message::VersionBadFormed(Error {
+            message: "The version is not well formed".to_string(),
+            task: EmptyTask("Use Command".to_string()),
+            stack: vec![],
+        }));
+    }
 }
 
 pub fn get_last_tag(url: &String) -> Result<String, Message> {

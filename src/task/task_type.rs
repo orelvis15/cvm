@@ -22,6 +22,7 @@ pub enum TaskType {
     ServicesManager,
     CheckUpdate(CheckUpdateData),
     EmptyTask(String),
+    FolderManager(String),
 }
 
 impl TaskType {
@@ -40,6 +41,7 @@ impl TaskType {
             TaskType::ServicesManager => { "".to_string() }
             TaskType::CheckUpdate(_) => { "Checking new update".to_string() }
             TaskType::EmptyTask(text) => { text.to_string() }
+            TaskType::FolderManager(text) => { text.to_string() }
         }
     }
 }
@@ -70,6 +72,7 @@ impl fmt::Display for TaskType {
             }
             TaskType::DeploySystem => write!(f, "Task: Deploy_System"),
             TaskType::ServicesManager => write!(f, "Task: Services_Manager"),
+            TaskType::FolderManager(_) => write!(f, "Task: Folder_Manager"),
         }
     }
 }

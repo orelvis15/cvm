@@ -72,7 +72,7 @@ fn copy_file_version(version_folder: &String, current_folder: &String, files_nam
 
         if !Path::new(&file).exists() { continue;}
 
-        let _ = fs::copy(&file, &file_out);
+        fs::copy(&file, &file_out)?;
 
     }
     Ok(Success {})

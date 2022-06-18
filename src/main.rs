@@ -12,7 +12,9 @@ use subcommands::subcommands_impl::install::Install;
 use subcommands::subcommands_impl::list::List;
 use subcommands::subcommands_impl::start::Start;
 use subcommands::subcommands_impl::stop::Stop;
+use crate::subcommands_impl::clean::Clean;
 use crate::subcommands_impl::r#use::Use;
+use crate::subcommands_impl::remove::Remove;
 use crate::subcommands_impl::update::Update;
 use crate::task::task::Success;
 use crate::task::task_type::TaskType::EmptyTask;
@@ -65,6 +67,12 @@ fn main() {
                 Ok(_) => { Use::start(matches, &config, &mut term) }
                 Err(error) => { Err(error) }
             }
+        }
+        Some(("remove", matches)) => {
+            Remove::start(matches, &config, &mut term)
+        }
+        Some(("clean", matches)) => {
+            Clean::start(matches, &config, &mut term)
         }
         Some(("list", matches)) => {
             match CommandsConfig::LIST.is_enable(&config.commands_item) {

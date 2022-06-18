@@ -29,23 +29,40 @@ pub fn command_config() -> ArgMatches {
                     .long("network")
                     .help("For which network do you want to download the configuration files [MAINNET | TESTNET]")
                     .takes_value(true)]
-            )).subcommand(Command::new(CommandsConfig::INSTALL.to_string())
+            ))
+        .subcommand(Command::new(CommandsConfig::INSTALL.to_string())
         .about("Build the cardano node and make it available for use")
         .args(&[
             Arg::new(version)
                 .short('v')
                 .long("version")
                 .help("Version of the cardano node that you want to install")
+                .default_value("LATEST")
                 .takes_value(true)]
-        )).subcommand(Command::new(CommandsConfig::USE.to_string())
+        ))
+        .subcommand(Command::new(CommandsConfig::USE.to_string())
         .about("Change the current cardano-node to the new version")
         .args(&[
             Arg::new(version)
                 .short('v')
                 .long("version")
                 .help("Version of the cardano node that you want to use")
+                .default_value("LATEST")
                 .takes_value(true)]
-        )).subcommand(Command::new(CommandsConfig::LIST.to_string())
+        ))
+        .subcommand(Command::new(CommandsConfig::REMOVE.to_string())
+            .about("Remove cardano-node binaries from this version")
+            .args(&[
+                Arg::new(version)
+                    .short('v')
+                    .long("version")
+                    .help("Version of the cardano node that you want to remove")
+                    .default_value("LATEST")
+                    .takes_value(true)]
+            ))
+        .subcommand(Command::new(CommandsConfig::CLEAN.to_string())
+            .about("Remove temporary and build files"))
+        .subcommand(Command::new(CommandsConfig::LIST.to_string())
         .about("List all installed versions of cardano node"))
         .subcommand(Command::new(CommandsConfig::UPDATE.to_string())
             .about("Update to the new version of CVM if it exists"))
@@ -60,10 +77,12 @@ pub enum CommandsConfig {
     INIT,
     INSTALL,
     USE,
+    REMOVE,
     LIST,
     UPDATE,
     START,
     STOP,
+    CLEAN,
 }
 
 impl Display for CommandsConfig {
@@ -72,10 +91,12 @@ impl Display for CommandsConfig {
             CommandsConfig::INIT => write!(f, "init"),
             CommandsConfig::INSTALL => write!(f, "install"),
             CommandsConfig::USE => write!(f, "use"),
+            CommandsConfig::REMOVE => write!(f, "remove"),
             CommandsConfig::LIST => write!(f, "list"),
             CommandsConfig::UPDATE => write!(f, "update"),
             CommandsConfig::START => write!(f, "start"),
             CommandsConfig::STOP => write!(f, "stop"),
+            CommandsConfig::CLEAN => write!(f, "clean"),
         }
     }
 }
@@ -86,10 +107,12 @@ impl CommandsConfig {
             CommandsConfig::INIT => { "INIT" }
             CommandsConfig::INSTALL => { "INSTALL" }
             CommandsConfig::USE => { "USE" }
+            CommandsConfig::REMOVE => {"REMOVE"}
             CommandsConfig::LIST => { "LIST" }
             CommandsConfig::UPDATE => { "UPDATE" }
             CommandsConfig::START => { "START" }
             CommandsConfig::STOP => { "STOP" }
+            CommandsConfig::CLEAN => { "CLEAN" }
         }
     }
 

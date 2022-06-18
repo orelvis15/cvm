@@ -24,7 +24,7 @@ impl Command for List{
         for entry in WalkDir::new(bin_folder) {
             let entry = entry.unwrap();
             let name = entry.file_name().to_str().unwrap().to_string();
-            if entry.path().is_dir() && verify_version(name.as_str()) {
+            if entry.path().is_dir() && verify_version(name.as_str()).is_ok() {
 
                 let size = get_size(entry.path()).unwrap() / 1024 / 1024;
                 let size_format = format!("{} MB", size);

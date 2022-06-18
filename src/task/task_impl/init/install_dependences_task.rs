@@ -11,7 +11,7 @@ use crate::error::message::{Message, Error};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::Term;
 
-pub struct InstallDependencesTask {}
+pub struct  InstallDependencesTask {}
 
 #[derive(Debug, Clone)]
 pub struct InstallDependenciesOutputData {
