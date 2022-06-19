@@ -38,6 +38,7 @@ pub enum Message {
 
     //IO Errors
     FileNotFound(Error),
+    RemoveFile(Error),
     FolderNotFound(Error),
     ParsingFile(Error),
     DownloadFile(Error),
@@ -45,7 +46,7 @@ pub enum Message {
     CreateFolder(Error),
     WriteFile(Error),
     PermissionDenied(Error),
-    DeletingFolder(Error),
+    RemoveFolder(Error),
     Copy(Error),
 
     //Commands Errors
@@ -79,25 +80,26 @@ impl Message {
             Message::CreateFolder(this) => { &this }
             Message::WriteFile(this) => { &this }
             Message::PermissionDenied(this) => { &this }
-            Message::DeletingFolder(this) => { &this }
+            Message::RemoveFolder(this) => { &this }
             Message::Copy(this) => { &this }
             Message::CommandNotFound(this) => { &this }
             Message::FaileToRunCommand(this) => { &this }
             Message::CommandOutputError(this) => { &this }
             Message::Generic(this) => { &this }
             Message::OpenFile(this) => { &this }
-            Message::ParseArg(this) => {&this}
+            Message::ParseArg(this) => { &this }
+            Message::RemoveFile(this) => { &this }
         }
     }
 
     #[cfg(debug_assertions)]
-    pub fn print(&self){
+    pub fn print(&self) {
         let message = format!("Message: {} \n{} \nStack:{:?}", self.data().message, self.data().task, self.data().stack);
         println!("{}", message.red())
     }
 
     #[cfg(not(debug_assertions))]
-    pub fn print(&self){
+    pub fn print(&self) {
         println!("{}", self.data().message.red())
     }
 }

@@ -31,7 +31,7 @@ impl Task for InstallLibsodiumTask {
         if path.exists() {
             let remove_result = fs::remove_dir_all(path);
             if let Err(error) = remove_result {
-                return Err(Message::DeletingFolder(Error {
+                return Err(Message::RemoveFolder(Error {
                     message: "Error deleting folders".to_string(),
                     task: self.get_type(),
                     stack: vec![error.to_string()],

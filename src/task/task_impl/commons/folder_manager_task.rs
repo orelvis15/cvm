@@ -20,16 +20,32 @@ impl Task for FolderManagerTask {
                 create(self, data)
             }
             FolderManagerAction::Remove(data) => {
-                delete(self, data)
+                remove(self, data)
             }
             FolderManagerAction::Clean(data) => {
                 clean(self, data)
+            }
+            FolderManagerAction::Exits(data) => {
+                exits(self, data)
             }
         }
     }
 
     fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-        Ok(Success {})
+        match &self.input_data {
+            FolderManagerAction::Create(data) => {
+                check_create(self, data)
+            }
+            FolderManagerAction::Remove(data) => {
+                check_remove(self, data)
+            }
+            FolderManagerAction::Clean(data) => {
+                check_clean(self, data)
+            }
+            FolderManagerAction::Exits(data) => {
+                check_exits(self, data)
+            }
+        }
     }
 
     fn get_type(self: &Self) -> TaskType {
@@ -37,70 +53,155 @@ impl Task for FolderManagerTask {
     }
 }
 
-fn create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Success, Message>{
+fn create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Success, Message> {
+    for (parent_url, folder_name) in data {
+        let parent_path = Path::new(parent_url);
+        let folder_url = url_build(vec![parent_url, folder_name], false);
+        let folder_path = Path::new(&folder_url);
 
-    for (folder_path, folder_name) in data{
+        if folder_path.exists() {
+            continue;
+        }
 
-        let path = Path::new(folder_path);
-        let full = url_build(vec![folder_path, folder_name], false);
-        let full_path = Path::new(&full);
-
-        if !path.exists() || folder_name.is_empty() || full_path.exists(){
-            return Err(Message::FolderNotFound(Error{
-                message: "Error trying create folder".to_string(),
+        if !parent_path.exists() || folder_name.is_empty() {
+            return Err(Message::CreateFolder(Error {
+                message: format!("Trying create folder {}", folder_path.display()),
                 task: task.get_type(),
-                stack: vec![]
+                stack: vec![],
             }));
         };
 
-        fs::create_dir(full_path)?;
+        fs::create_dir(folder_path)?;
     }
 
-    Ok(Success{})
+    Ok(Success {})
 }
 
-fn delete(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message>{
-    for folder_path in data {
+fn check_create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Success, Message> {
+    for (parent_url, folder_name) in data {
+        let parent_path = Path::new(parent_url);
+        let folder_url = url_build(vec![parent_url, folder_name], false);
+        let folder_path = Path::new(&folder_url);
 
-        let path = Path::new(folder_path);
-        if !path.exists() {
-            return Err(Message::FolderNotFound(Error{
-                message: "Error trying remove folder".to_string(),
+        if !folder_path.exists() {
+            return Err(Message::CreateFolder(Error {
+                message: format!("Trying create folder {}", folder_path.display()),
                 task: task.get_type(),
-                stack: vec![]
+                stack: vec![],
             }));
         };
-
-        fs::remove_dir_all(path)?;
     }
-    Ok(Success{})
+
+    Ok(Success {})
 }
 
-fn clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message>{
-    for folder_path in data {
-        let path = Path::new(folder_path);
-        if !path.exists() {
-            return Err(Message::FolderNotFound(Error{
-                message: "Error trying remove folder".to_string(),
+fn remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
+        let folder_path = Path::new(folder_url);
+        if !folder_path.exists() {
+            return Err(Message::RemoveFolder(Error {
+                message: format!("Trying remove folder {}", folder_path.display()),
                 task: task.get_type(),
-                stack: vec![]
+                stack: vec![],
             }));
         };
 
-        for entry in fs::read_dir(path)? {
-            if entry.as_ref().unwrap().path().is_dir(){
+        fs::remove_dir_all(folder_path)?;
+    }
+
+    Ok(Success {})
+}
+
+fn check_remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
+        let folder_path = Path::new(folder_url);
+        if folder_path.exists() {
+            return Err(Message::RemoveFolder(Error {
+                message: format!("Folder {} could not be removed", folder_path.display()),
+                task: task.get_type(),
+                stack: vec![],
+            }));
+        };
+    }
+
+    Ok(Success {})
+}
+
+fn clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
+        let folder_path = Path::new(folder_url);
+        if !folder_path.exists() {
+            return Err(Message::FolderNotFound(Error {
+                message: format!("Folder {} not exist", folder_path.display()),
+                task: task.get_type(),
+                stack: vec![],
+            }));
+        };
+
+        for entry in fs::read_dir(folder_path)? {
+            if entry.as_ref().unwrap().path().is_dir() {
                 fs::remove_dir_all(entry.as_ref().unwrap().path())?
-            }else {
+            } else {
                 fs::remove_file(entry.as_ref().unwrap().path())?;
             }
         };
     }
-    Ok(Success{})
+
+    Ok(Success {})
+}
+
+fn check_clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
+        let folder_path = Path::new(folder_url);
+
+        if !folder_path.exists() {
+            return Err(Message::FolderNotFound(Error {
+                message: format!("Folder {} not exist", folder_path.display()),
+                task: task.get_type(),
+                stack: vec![],
+            }));
+        };
+
+        if fs::read_dir(folder_path)?.count() == 0 {
+            continue;
+        } else {
+            return Err(Message::FolderNotFound(Error {
+                message: format!("Folder {} is not empty", folder_path.display()),
+                task: task.get_type(),
+                stack: vec![],
+            }));
+        }
+    }
+
+    Ok(Success {})
+}
+
+fn exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
+        let folder_path = Path::new(folder_url);
+        if !folder_path.exists() {
+            return Err(Message::FolderNotFound(Error {
+                message: format!("Error folder {} not found", folder_path.display()),
+                task: task.get_type(),
+                stack: vec![],
+            }));
+        };
+    }
+
+    Ok(Success {})
+}
+
+fn check_exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    Ok(Success {})
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum FolderManagerAction{
-    Create(Vec<(String, String)>), //Path for create, Folder name
-    Remove(Vec<String>), // Folder path
-    Clean(Vec<String>), // Folder path
+pub enum FolderManagerAction {
+    Create(Vec<(String, String)>),
+    //Path for create, Folder name
+    Remove(Vec<String>),
+    // Folder path
+    Clean(Vec<String>),
+    // Folder path
+    Exits(Vec<String>), // Folder path
 }
