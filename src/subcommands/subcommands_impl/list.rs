@@ -14,8 +14,6 @@ pub struct List{}
 impl Command for List{
     fn start(command: &ArgMatches, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
-        sudo::escalate_if_needed().expect("Super user permissions are required");
-
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let current_folder = Folder::get_path(Folder::CURRENT, &config);
 

@@ -18,6 +18,9 @@ impl Command for Install {
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
+
+
+
         let mut version = verify_version(version_arg.as_str())?.to_string();
 
         if version == LATEST {

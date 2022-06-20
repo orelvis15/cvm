@@ -14,8 +14,6 @@ pub struct Clean{}
 impl Command for Clean{
     fn start(command: &ArgMatches, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
-        sudo::escalate_if_needed().expect("Super user permissions are required");
-
         let home_dir = get_home_dir()?;
         let mut ghcup_dir = String::from(home_dir);
         ghcup_dir.push_str(format!("/{}", &config.init.ghcup_bin_path).as_str());

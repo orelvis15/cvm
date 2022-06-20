@@ -21,8 +21,6 @@ pub struct BuildCardanoNodeTask {
 impl Task for BuildCardanoNodeTask {
     fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
 
-        sudo::escalate_if_needed().expect("Super user permissions are required");
-
         let home_dir = get_home_dir()?;
 
         let repo = &config.build_cardano_node.cnode_repository;

@@ -3,14 +3,10 @@ use clap::{Arg, ArgMatches, Command};
 use crate::config::config::CommandItem;
 use crate::{Message, EmptyTask, Error, Success};
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-
 pub fn command_config() -> ArgMatches {
-    let network = Args::NETWORK._to_string();
-    let version = Args::VERSION._to_string();
 
     return Command::new("cvm")
-        .version(VERSION)
+        .version(env!("CARGO_PKG_VERSION"))
         .about("Version manager for cardano node")
         .author("Orelvis L. <orelvis15@gmail.com>")
         .args(&[
@@ -23,47 +19,24 @@ pub fn command_config() -> ArgMatches {
         ])
         .subcommand(Command::new(CommandsConfig::INIT.to_string())
             .about("Start the environment to be able to build a Cardano node")
-            .args(&[
-                Arg::new(network)
-                    .short('n')
-                    .long("network")
-                    .help("For which network do you want to download the configuration files [MAINNET | TESTNET]")
-                    .takes_value(true)]
-            ))
+            .arg(get_arg_network())
+        )
         .subcommand(Command::new(CommandsConfig::INSTALL.to_string())
-        .about("Build the cardano node and make it available for use")
-        .args(&[
-            Arg::new(version)
-                .short('v')
-                .long("version")
-                .help("Version of the cardano node that you want to install")
-                .default_value("LATEST")
-                .takes_value(true)]
-        ))
+            .about("Build the cardano node and make it available for use")
+            .arg(get_arg_version())
+        )
         .subcommand(Command::new(CommandsConfig::USE.to_string())
-        .about("Change the current cardano-node to the new version")
-        .args(&[
-            Arg::new(version)
-                .short('v')
-                .long("version")
-                .help("Version of the cardano node that you want to use")
-                .default_value("LATEST")
-                .takes_value(true)]
-        ))
+            .about("Change the current cardano-node to the new version")
+            .arg(get_arg_version())
+        )
         .subcommand(Command::new(CommandsConfig::REMOVE.to_string())
             .about("Remove cardano-node binaries from this version")
-            .args(&[
-                Arg::new(version)
-                    .short('v')
-                    .long("version")
-                    .help("Version of the cardano node that you want to remove")
-                    .default_value("LATEST")
-                    .takes_value(true)]
-            ))
+            .arg(get_arg_version())
+        )
         .subcommand(Command::new(CommandsConfig::CLEAN.to_string())
             .about("Remove temporary and build files"))
         .subcommand(Command::new(CommandsConfig::LIST.to_string())
-        .about("List all installed versions of cardano node"))
+            .about("List all installed versions of cardano node"))
         .subcommand(Command::new(CommandsConfig::UPDATE.to_string())
             .about("Update to the new version of CVM if it exists"))
         .subcommand(Command::new(CommandsConfig::START.to_string())
@@ -71,6 +44,14 @@ pub fn command_config() -> ArgMatches {
         .subcommand(Command::new(CommandsConfig::STOP.to_string())
             .about("Stop cardano node services"))
         .get_matches();
+}
+
+fn get_arg_version() -> Arg<'static> {
+    Arg::new(Args::VERSION._to_string()).default_value(Args::LATEST._to_string()).takes_value(true)
+}
+
+fn get_arg_network() -> Arg<'static> {
+    Arg::new(Args::NETWORK._to_string()).default_value(Args::LATEST._to_string()).takes_value(true)
 }
 
 pub enum CommandsConfig {
@@ -107,7 +88,7 @@ impl CommandsConfig {
             CommandsConfig::INIT => { "INIT" }
             CommandsConfig::INSTALL => { "INSTALL" }
             CommandsConfig::USE => { "USE" }
-            CommandsConfig::REMOVE => {"REMOVE"}
+            CommandsConfig::REMOVE => { "REMOVE" }
             CommandsConfig::LIST => { "LIST" }
             CommandsConfig::UPDATE => { "UPDATE" }
             CommandsConfig::START => { "START" }
@@ -122,7 +103,7 @@ impl CommandsConfig {
         }).unwrap().enable;
 
         if is_enable {
-           return Ok(Success{})
+            return Ok(Success {});
         };
 
         Err(Message::CommandNotFound(Error {
@@ -136,6 +117,7 @@ impl CommandsConfig {
 pub enum Args {
     NETWORK,
     VERSION,
+    LATEST,
 }
 
 impl Args {
@@ -143,6 +125,7 @@ impl Args {
         match self {
             Args::NETWORK => { "network" }
             Args::VERSION => { "version" }
+            Args::LATEST => {"latest"}
         }
     }
 }
@@ -151,7 +134,8 @@ impl Display for Args {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Args::NETWORK => write!(f, "network"),
-            Args::VERSION => write!(f, "version")
+            Args::VERSION => write!(f, "version"),
+            Args::LATEST => write!(f, "latest"),
         }
     }
 }

@@ -25,9 +25,6 @@ impl Command for Init {
 
         let mut network = MAINNET;
 
-        sudo::with_env(&["HOME", get_home_dir().unwrap().as_str()]).expect("Super user permissions are required");
-        sudo::escalate_if_needed().expect("Super user permissions are required");
-
         match command.get_one::<String>(Args::NETWORK._to_string()) {
             Some(value) => {
                 if value == TESTNET {
