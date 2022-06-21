@@ -11,7 +11,7 @@ use crate::error::message::{Message, Error};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::Term;
 
-pub struct  InstallDependencesTask {}
+pub struct InstallDependencesTask {}
 
 #[derive(Debug, Clone)]
 pub struct InstallDependenciesOutputData {
@@ -58,7 +58,7 @@ impl Task for InstallDependencesTask {
     }
 
     fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-        Ok(Success{})
+        Ok(Success {})
     }
 
     fn get_type(self: &Self) -> TaskType {
@@ -131,16 +131,14 @@ fn build_ubuntu_debian_install_command(dependences: String) -> RunCommandInputDa
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
     args.insert(0, Cmd::Install.as_string());
     args.insert(0, "-y".to_string());
-    args.insert(0, Cmd::AptGet.as_string());
-    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
+    RunCommandInputData { command: Cmd::AptGet.as_string(), args, ..Default::default() }
 }
 
 fn build_centos_fedora_rhel_install_command(dependences: String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
     args.insert(0, "-y".to_string());
     args.insert(0, Cmd::Install.as_string());
-    args.insert(0, Cmd::Yum.as_string());
-    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
+    RunCommandInputData { command: Cmd::Yum.as_string(), args, ..Default::default() }
 }
 
 fn get_verify_command_from_os(dependences: String) -> Option<RunCommandInputData> {

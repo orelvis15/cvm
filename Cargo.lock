@@ -150,6 +150,7 @@ version = "1.0.0"
 dependencies = [
  "clap",
  "crossterm",
+ "faccess",
  "file_diff",
  "flate2",
  "fs_extra",
@@ -185,6 +186,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9852635589dc9f9ea1b6fe9f05b50ef208c85c834a562f0c6abb1c475736ec2b"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "faccess"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59ae66425802d6a903e268ae1a08b8c38ba143520f227a205edf4e9c7e3e26d5"
+dependencies = [
+ "bitflags",
+ "libc",
+ "winapi",
 ]
 
 [[package]]

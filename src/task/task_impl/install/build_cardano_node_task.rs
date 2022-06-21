@@ -8,6 +8,8 @@ use crate::config::config::{Config, get_home_dir};
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
+use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
+use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
 use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
@@ -20,7 +22,6 @@ pub struct BuildCardanoNodeTask {
 
 impl Task for BuildCardanoNodeTask {
     fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-
         let home_dir = get_home_dir()?;
 
         let repo = &config.build_cardano_node.cnode_repository;
@@ -29,14 +30,12 @@ impl Task for BuildCardanoNodeTask {
         let cardano_folder_path = Path::new(cardano_folder.as_str());
         let cabal_route = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
 
-        if cardano_folder_path.exists() {
-            fs::remove_dir_all(cardano_folder_path)?;
-        };
-
-        TaskManager{}.start(vec![
+        TaskManager {}.start(vec![
+            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![cardano_folder.to_string()]) }),
+            Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![cardano_folder.clone()]) }),
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
-            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version)}),
+            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version) }),
             Box::new(RunCommandTask { input_data: build_cabal_update_command(&cabal_route), command_description: "Updating cabal packages".to_string() }),
             Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone()), command_description: "Building cardano node".to_string() }),
             Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
@@ -69,11 +68,11 @@ fn build_checkout_version_command(version: String, path: String) -> RunCommandIn
 }
 
 fn build_run_cabal_command(cabal_path: String, folder_path: String) -> RunCommandInputData {
-    let args:Vec<String> = vec![Cmd::Build.as_string(), Cmd::All.as_string()];
+    let args: Vec<String> = vec![Cmd::Build.as_string(), Cmd::All.as_string()];
     RunCommandInputData { command: url_build(vec![&cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: folder_path }
 }
 
 fn build_cabal_update_command(cabal_path: &String) -> RunCommandInputData {
-    let args:Vec<String> = vec![Cmd::Update.as_string()];
+    let args: Vec<String> = vec![Cmd::Update.as_string()];
     RunCommandInputData { command: url_build(vec![cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: "".to_string() }
 }

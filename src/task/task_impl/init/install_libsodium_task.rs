@@ -17,7 +17,6 @@ pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
     fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-
         let home_dir = get_home_dir();
         if let Err(error) = home_dir {
             return Err(error);
@@ -39,7 +38,7 @@ impl Task for InstallLibsodiumTask {
             }
         };
 
-        TaskManager{}.start(vec![
+        TaskManager {}.start(vec![
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), folder), command_description: "Cloning the Libsodium repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()), command_description: "Switching to the specified commit".to_string() }),
             Box::new(RunCommandTask { input_data: build_autogen_repo_command(libsodium_folder.clone(), config.init.libsodium_autogen_file.clone()), command_description: "Running autogen executable".to_string() }),
@@ -83,6 +82,6 @@ fn build_make_repo_command(path: String) -> RunCommandInputData {
 }
 
 fn build_make_install_repo_command(path: String) -> RunCommandInputData {
-    let args = vec![Cmd::Make.as_string(), Cmd::Install.as_string()];
-    RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: path }
+    let args = vec![Cmd::Install.as_string()];
+    RunCommandInputData { command: Cmd::Make.as_string(), args, current_dir: path }
 }

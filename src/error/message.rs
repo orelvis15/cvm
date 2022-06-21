@@ -45,14 +45,24 @@ pub enum Message {
     OpenFile(Error),
     CreateFolder(Error),
     WriteFile(Error),
-    PermissionDenied(Error),
     RemoveFolder(Error),
     Copy(Error),
+
+    //Permission
+    PermissionDenied(Error),
+    NoWritePermission(Error),
+    NoReadPermission(Error),
+    NoExecutionPermission(Error),
+    SettingPermission(Error),
 
     //Commands Errors
     CommandNotFound(Error),
     FaileToRunCommand(Error),
     CommandOutputError(Error),
+
+    //Files - Directories
+    IsDir(Error),
+    IsFile(Error),
 
     //arguments
     ParseArg(Error),
@@ -79,7 +89,6 @@ impl Message {
             Message::DownloadFile(this) => { &this }
             Message::CreateFolder(this) => { &this }
             Message::WriteFile(this) => { &this }
-            Message::PermissionDenied(this) => { &this }
             Message::RemoveFolder(this) => { &this }
             Message::Copy(this) => { &this }
             Message::CommandNotFound(this) => { &this }
@@ -89,6 +98,13 @@ impl Message {
             Message::OpenFile(this) => { &this }
             Message::ParseArg(this) => { &this }
             Message::RemoveFile(this) => { &this }
+            Message::NoWritePermission(this) => { &this }
+            Message::NoReadPermission(this) => { &this }
+            Message::NoExecutionPermission(this) => { &this }
+            Message::IsDir(this) => { &this }
+            Message::IsFile(this) => { &this }
+            Message::PermissionDenied(this) => { &this }
+            Message::SettingPermission(this) => { &this }
         }
     }
 

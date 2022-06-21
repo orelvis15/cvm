@@ -23,6 +23,8 @@ pub enum TaskType {
     CheckUpdate(CheckUpdateData),
     EmptyTask(String),
     FolderManager(String),
+    FileManager(String),
+    Permission(String),
 }
 
 impl TaskType {
@@ -42,6 +44,8 @@ impl TaskType {
             TaskType::CheckUpdate(_) => { "Checking new update".to_string() }
             TaskType::EmptyTask(text) => { text.to_string() }
             TaskType::FolderManager(text) => { text.to_string() }
+            TaskType::Permission(text) => { format!("{} permission", text.to_string()) }
+            TaskType::FileManager(text) => { text.to_string() }
         }
     }
 }
@@ -73,6 +77,8 @@ impl fmt::Display for TaskType {
             TaskType::DeploySystem => write!(f, "Task: Deploy_System"),
             TaskType::ServicesManager => write!(f, "Task: Services_Manager"),
             TaskType::FolderManager(_) => write!(f, "Task: Folder_Manager"),
+            TaskType::Permission(_) =>  write!(f, "Task: Permission"),
+            TaskType::FileManager(_) =>  write!(f, "Task: File_Manager"),
         }
     }
 }
