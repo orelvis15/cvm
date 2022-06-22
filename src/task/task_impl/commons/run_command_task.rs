@@ -174,6 +174,8 @@ pub enum Cmd {
     DaemonReload,
     Update,
     Clean,
+    Help,
+    Sudo,
 }
 
 impl Cmd {
@@ -202,6 +204,8 @@ impl Cmd {
             Cmd::All => {"all".to_string()}
             Cmd::Update => {"update".to_string()}
             Cmd::Clean => {"clean".to_string()}
+            Cmd::Help => {"help".to_string()}
+            Cmd::Sudo => {"sudo".to_string()}
         }
     }
 }

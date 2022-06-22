@@ -1,6 +1,5 @@
 #![allow(dead_code, unused_variables)]
 
-use std::fs;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Success, Term, url_build};

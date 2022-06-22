@@ -25,6 +25,7 @@ pub enum Message {
     //Tasks Errors
     ErrorRunTask(Error),
     TaskType(Error),
+    Libsodium(Error),
 
     //App Features
     AlreadyLastUpdate(Error),
@@ -105,6 +106,7 @@ impl Message {
             Message::IsFile(this) => { &this }
             Message::PermissionDenied(this) => { &this }
             Message::SettingPermission(this) => { &this }
+            Message::Libsodium(this) => { &this }
         }
     }
 

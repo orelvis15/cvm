@@ -86,12 +86,12 @@ fn set_permission(data: &Vec<(String, u32)>) -> Result<Success, Message> {
 fn check_write(paths: &Vec<String>) -> Result<Success, Message> {
     for value in paths {
         let path = Path::new(value);
-        if !path.writable() {
-            return Err(Message::NoWritePermission(Error {
-                message: format!("You don't have write access to the path {}", value),
-                task: TaskType::EmptyTask("".to_string()),
-                stack: vec![],
-            }));
+        if path.is_dir() {
+            let result = check_write_folder(value);
+            if result.is_err() { return result; }
+        } else {
+            let result = check_write_file(value);
+            if result.is_err() { return result; }
         }
     }
     Ok(Success {})
@@ -100,13 +100,65 @@ fn check_write(paths: &Vec<String>) -> Result<Success, Message> {
 fn check_read(paths: &Vec<String>) -> Result<Success, Message> {
     for value in paths {
         let path = Path::new(value);
-        if !path.readable() {
+        if path.is_dir() {
+            let result = check_read_folder(value);
+            if result.is_err() { return result; }
+        } else {
+            let result = check_read_file(value);
+            if result.is_err() { return result; }
+        }
+    }
+    Ok(Success {})
+}
+
+fn check_write_folder(value: &String) -> Result<Success, Message> {
+    let path = Path::new(value);
+    for entry in fs::read_dir(path)? {
+        if !entry.unwrap().path().writable() {
+            return Err(Message::NoWritePermission(Error {
+                message: format!("You don't have write access to the path {}", value),
+                task: TaskType::EmptyTask("".to_string()),
+                stack: vec![],
+            }));
+        }
+    };
+    Ok(Success {})
+}
+
+fn check_write_file(value: &String) -> Result<Success, Message> {
+    let path = Path::new(value);
+    if !path.writable() {
+        return Err(Message::NoWritePermission(Error {
+            message: format!("You don't have write access to the path {}", value),
+            task: TaskType::EmptyTask("".to_string()),
+            stack: vec![],
+        }));
+    }
+    Ok(Success {})
+}
+
+fn check_read_folder(value: &String) -> Result<Success, Message> {
+    let path = Path::new(value);
+    for entry in fs::read_dir(path)? {
+        if !entry.unwrap().path().readable() {
             return Err(Message::NoReadPermission(Error {
                 message: format!("You don't have read access to the path {}", value),
                 task: TaskType::EmptyTask("".to_string()),
                 stack: vec![],
             }));
         }
+    };
+    Ok(Success {})
+}
+
+fn check_read_file(value: &String) -> Result<Success, Message> {
+    let path = Path::new(value);
+    if !path.readable() {
+        return Err(Message::NoReadPermission(Error {
+            message: format!("You don't have read access to the path {}", value),
+            task: TaskType::EmptyTask("".to_string()),
+            stack: vec![],
+        }));
     }
     Ok(Success {})
 }
@@ -115,13 +167,15 @@ fn check_execution(paths: &Vec<String>) -> Result<Success, Message> {
     for value in paths {
         let path = Path::new(value);
         error_is_dir(value)?;
-        if !path.executable() {
-            return Err(Message::NoExecutionPermission(Error {
-                message: format!("You don't have executable access to the path {}", value),
-                task: TaskType::EmptyTask("".to_string()),
-                stack: vec![],
-            }));
-        }
+        for entry in fs::read_dir(path)? {
+            if !entry.unwrap().path().executable() {
+                return Err(Message::NoExecutionPermission(Error {
+                    message: format!("You don't have executable access to the path {}", value),
+                    task: TaskType::EmptyTask("".to_string()),
+                    stack: vec![],
+                }));
+            }
+        };
     }
     Ok(Success {})
 }

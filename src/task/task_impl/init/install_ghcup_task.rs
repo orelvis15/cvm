@@ -7,7 +7,8 @@ use crate::task::task::{Success, Task};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
-use crate::Term;
+use crate::{Term, url_build};
+use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::term::log_level::LogLevel::L2;
 use crate::utils::download_manager::download;
 
@@ -26,7 +27,7 @@ impl Task for InstallHanskellGhcTask {
         let mut ghcup_dir = String::from(home_dir);
         ghcup_dir.push_str(format!("/{}", &config.init.ghcup_bin_path).as_str());
 
-        TaskManager{}.start(vec![
+        TaskManager {}.start(vec![
             Box::new(RunCommandTask { input_data: build_sed_install_file_command(&uri, &config.init.ghcup_pattern_sed), command_description: "Editing ghcup installation file".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_command(uri), command_description: "Installing ghcup".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_ghc_version_command(ghcup_dir.clone(), &config.init.haskell_ghc_version), command_description: "Installing ghc".to_string() }),
@@ -37,7 +38,13 @@ impl Task for InstallHanskellGhcTask {
     }
 
     fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-        Ok(Success{})
+        let home_dir = get_home_dir()?;
+        let cabal_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"cabal".to_string()], false);
+        let ghc_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"ghc".to_string()], false);
+
+        TaskManager {}.start(vec![
+            Box::new(FileManagerTask { input_data: FileManagerAction::Check(vec![cabal_bin_path, ghc_bin_path]) }),
+        ], config, term, L2)
     }
 
     fn get_type(self: &Self) -> TaskType {

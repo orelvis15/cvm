@@ -14,6 +14,7 @@ use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Term, url_build};
 use crate::error::message::Message;
+use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::utils::folders::Folder;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
@@ -33,7 +34,15 @@ impl Task for DownloadConfigFilesTask {
     }
 
     fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-        Ok(Success {})
+        let mut paths = vec![];
+
+        for item in &config.config_file_item {
+            paths.push(Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config));
+        }
+
+        TaskManager {}.start(vec![
+            Box::new(FileManagerTask { input_data: FileManagerAction::Check(paths) }),
+        ], config, term, L2)
     }
 
     fn get_type(self: &Self) -> TaskType {
@@ -74,8 +83,10 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
 
 fn apply_pattern_sed(file_path: String, pattern: &String, config: &Config, term: &mut Term) -> Result<Success, Message> {
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
-    TaskManager{}.start(vec![
-        Box::new(RunCommandTask { input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
-            command_description: "".to_string() }),
+    TaskManager {}.start(vec![
+        Box::new(RunCommandTask {
+            input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
+            command_description: "".to_string(),
+        }),
     ], config, term, L2)
 }

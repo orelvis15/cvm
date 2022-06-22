@@ -30,9 +30,7 @@ impl Task for FileManagerTask {
             FileManagerAction::Remove(data) => {
                 check_remove(self, data)
             }
-            FileManagerAction::Check(data) => {
-                check_exits(self, data)
-            }
+            _ => {Ok(Success{})}
         }
     }
 
@@ -84,10 +82,6 @@ fn exits(task: &FileManagerTask, data: &Vec<String>) -> Result<Success, Message>
             }));
         };
     }
-    Ok(Success{})
-}
-
-fn check_exits(task: &FileManagerTask, data: &Vec<String>) -> Result<Success, Message>{
     Ok(Success{})
 }
 

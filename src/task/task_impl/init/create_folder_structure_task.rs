@@ -31,7 +31,16 @@ impl Task for CreateFolderStructure {
     }
 
     fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-        Ok(Success {})
+
+        let mut folders = vec![];
+
+        for folder in &config.structure_folder_item {
+            folders.push(format!("{}/{}",Folder::get_path(Folder::from_str(folder.parent.as_str()).unwrap(), config), folder.name.to_string()));
+        }
+
+        TaskManager{}.start(vec![
+            Box::new(FolderManagerTask { input_data: FolderManagerAction::Exits(folders) }),
+        ], config, term, L2)
     }
 
     fn get_type(self: &Self) -> TaskType {

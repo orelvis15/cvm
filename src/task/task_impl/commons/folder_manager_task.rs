@@ -99,11 +99,7 @@ fn remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messa
     for folder_url in data {
         let folder_path = Path::new(folder_url);
         if !folder_path.exists() {
-            return Err(Message::RemoveFolder(Error {
-                message: format!("Trying remove folder {}", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
-            }));
+            continue;
         };
 
         fs::remove_dir_all(folder_path)?;
