@@ -7,7 +7,6 @@ use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::config::Config;
 use crate::{Message, Command, Term};
 use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
-use crate::task::task_impl::install::install_libsodium_task::InstallLibsodiumTask;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
 
@@ -28,7 +27,6 @@ impl Command for Install {
         }
 
         TaskManager{}.start(vec![
-            Box::new(InstallLibsodiumTask {}),
             Box::new(BuildCardanoNodeTask { version: version.to_string() }),
         ], config, term, L1)
     }

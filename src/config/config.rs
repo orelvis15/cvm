@@ -99,6 +99,8 @@ pub struct BuildCardanoNode {
     pub cnode_repository: String,
     pub cnode_release: String,
     pub cnode_repository_name: String,
+    pub cnode_ported_libsodium_file_name: String,
+    pub cnode_ported_libsodium_data: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]

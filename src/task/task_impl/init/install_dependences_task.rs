@@ -131,7 +131,8 @@ fn build_ubuntu_debian_install_command(dependences: String) -> RunCommandInputDa
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
     args.insert(0, Cmd::Install.as_string());
     args.insert(0, "-y".to_string());
-    RunCommandInputData { command: Cmd::AptGet.as_string(), args, ..Default::default() }
+    args.insert(0, Cmd::AptGet.as_string());
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
 }
 
 fn build_centos_fedora_rhel_install_command(dependences: String) -> RunCommandInputData {

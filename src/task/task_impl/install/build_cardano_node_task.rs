@@ -7,6 +7,7 @@ use crate::config::config::{Config, get_home_dir};
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
+use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
 use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
@@ -29,10 +30,13 @@ impl Task for BuildCardanoNodeTask {
         let cardano_folder_path = Path::new(cardano_folder.as_str());
         let cabal_route = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
 
+        let libsodium_ported_file = url_build(vec![&cardano_folder, &config.build_cardano_node.cnode_ported_libsodium_file_name], false);
+
         TaskManager {}.start(vec![
-            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![cardano_folder.to_string()]) }),
+            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![git_folder.to_string()]) }),
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![cardano_folder.clone()]) }),
             Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
+            Box::new(FileManagerTask { input_data: FileManagerAction::CreateFileString((libsodium_ported_file.to_string(), config.build_cardano_node.cnode_ported_libsodium_data.clone().to_string()) ) }),
             Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version) }),
             Box::new(RunCommandTask { input_data: build_cabal_update_command(&cabal_route), command_description: "Updating cabal packages".to_string() }),
@@ -72,6 +76,6 @@ fn build_run_cabal_command(cabal_path: String, folder_path: String) -> RunComman
 }
 
 fn build_cabal_update_command(cabal_path: &String) -> RunCommandInputData {
-    let args: Vec<String> = vec![Cmd::Update.as_string()];
-    RunCommandInputData { command: url_build(vec![cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: "".to_string() }
+    let args: Vec<String> = vec![url_build(vec![cabal_path, &Cmd::Cabal.as_string()], false), Cmd::Update.as_string()];
+    RunCommandInputData { command: Cmd::Sudo.as_string() , args, current_dir: "".to_string() }
 }

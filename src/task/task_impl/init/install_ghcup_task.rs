@@ -67,21 +67,21 @@ fn build_install_command(uri: String) -> RunCommandInputData {
 }
 
 fn build_install_ghc_version_command(ghcup_dir: String, version: &String) -> RunCommandInputData {
-    let args = vec![Cmd::Install.as_string(), Cmd::Ghc.as_string(), version.to_string()];
-    RunCommandInputData { command: Cmd::Ghcup.as_string(), args, current_dir: ghcup_dir }
+    let args = vec![Cmd::Ghcup.as_string(), Cmd::Install.as_string(), Cmd::Ghc.as_string(), version.to_string()];
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: ghcup_dir }
 }
 
 fn build_set_ghc_version_command(ghcup_dir: String, version: &String) -> RunCommandInputData {
-    let args = vec![Cmd::Set.as_string(), Cmd::Ghc.as_string(), version.to_string()];
-    RunCommandInputData { command: Cmd::Ghcup.as_string(), args, current_dir: ghcup_dir }
+    let args = vec![Cmd::Ghcup.as_string(), Cmd::Set.as_string(), Cmd::Ghc.as_string(), version.to_string()];
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: ghcup_dir }
 }
 
 fn build_install_cabal_version_command(ghcup_dir: String, version: &String) -> RunCommandInputData {
-    let args = vec![Cmd::Install.as_string(), Cmd::Cabal.as_string(), version.to_string()];
-    RunCommandInputData { command: Cmd::Ghcup.as_string(), args, current_dir: ghcup_dir }
+    let args = vec![Cmd::Ghcup.as_string(), Cmd::Install.as_string(), Cmd::Cabal.as_string(), version.to_string()];
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: ghcup_dir }
 }
 
 fn build_set_cabal_version_command(ghcup_dir: String, version: &String) -> RunCommandInputData {
-    let args = vec![Cmd::Set.as_string(), Cmd::Cabal.as_string(), version.to_string()];
-    RunCommandInputData { command: Cmd::Ghcup.as_string(), args, current_dir: ghcup_dir }
+    let args = vec![Cmd::Ghcup.as_string(), Cmd::Set.as_string(), Cmd::Cabal.as_string(), version.to_string()];
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, current_dir: ghcup_dir }
 }
