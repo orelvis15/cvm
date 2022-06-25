@@ -5,7 +5,7 @@ use std::io::Write;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Error, Success, Term};
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::error::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;

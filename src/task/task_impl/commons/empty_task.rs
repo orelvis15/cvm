@@ -2,7 +2,7 @@
 
 use crate::env::Env;
 use crate::{Message, Success, Term};
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 

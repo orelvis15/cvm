@@ -8,11 +8,12 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::str::FromStr;
 use strfmt::strfmt;
-use crate::config::config::{Config, ConfigFileItem};
+use crate::config::remote_config::{Config, ConfigFileItem};
 use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Term, url_build};
+use crate::config::state_config::add_init_file;
 use crate::error::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::utils::folders::Folder;
@@ -60,6 +61,7 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
         let url = strfmt(item.url.as_str(), &vars);
 
         let file_path = url_build(vec![&folder_path, &item.name.clone()], false);
+
         if Path::new(&file_path).exists() {
             continue;
         }
@@ -77,6 +79,8 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
         if item.folder_key == Folder::SCRIPTS.to_string() {
             fs::set_permissions(&file_path, fs::Permissions::from_mode(0o755))?;
         }
+
+        add_init_file(file_path)?;
     }
     Ok(Success {})
 }

@@ -5,7 +5,7 @@ use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term, url_build};
 use crate::subcommands::config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, read_version, verify_version};
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::r#use::service_manager_task::{ServicesAction, ServicesManagerTask};

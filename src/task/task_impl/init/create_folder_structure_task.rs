@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use std::str::FromStr;
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::env::Env;
 use crate::error::message::Message;
 use crate::utils::folders::Folder;

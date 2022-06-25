@@ -36,6 +36,7 @@ pub enum Message {
     VersionInstaller(Error),
     VersionBadFormed(Error),
     CheckCardanoVersion(Error),
+    UseVersion(Error),
 
     //IO Errors
     FileNotFound(Error),
@@ -107,6 +108,7 @@ impl Message {
             Message::PermissionDenied(this) => { &this }
             Message::SettingPermission(this) => { &this }
             Message::Libsodium(this) => { &this }
+            Message::UseVersion(this) => { &this }
         }
     }
 

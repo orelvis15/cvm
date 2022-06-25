@@ -3,7 +3,7 @@
 use std::path::Path;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::config::{Config, get_home_dir};
+use crate::config::remote_config::{Config, get_home_dir};
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
@@ -41,7 +41,7 @@ impl Task for BuildCardanoNodeTask {
             Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version) }),
             Box::new(RunCommandTask { input_data: build_cabal_update_command(&cabal_route), command_description: "Updating cabal packages".to_string() }),
             Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_route, cardano_folder.clone()), command_description: "Building cardano node".to_string() }),
-            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
+            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
         ], config, term, L2)
     }
 

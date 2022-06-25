@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 use clap::{Arg, ArgMatches, Command};
-use crate::config::config::CommandItem;
+use crate::config::remote_config::CommandItem;
 use crate::{Message, EmptyTask, Error, Success};
 
 pub fn command_config() -> ArgMatches {

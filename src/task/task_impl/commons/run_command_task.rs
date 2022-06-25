@@ -3,7 +3,7 @@
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::thread;
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::env::Env;
 use crate::error::message::{Message, Error};
 use crate::task::task::{Success, Task};

@@ -5,8 +5,9 @@ use fs_extra::dir::get_size;
 use owo_colors::OwoColorize;
 use walkdir::WalkDir;
 use crate::{Command, Message, Success, Term};
-use crate::utils::version_utils::{read_version, verify_version};
-use crate::config::config::Config;
+use crate::utils::version_utils::verify_version;
+use crate::config::remote_config::Config;
+use crate::config::state_config::get_state;
 use crate::utils::folders::Folder;
 
 pub struct List{}
@@ -17,7 +18,7 @@ impl Command for List{
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let current_folder = Folder::get_path(Folder::CURRENT, &config);
 
-        let current_version = read_version(&current_folder);
+        let current_version = get_state()?.r#use.version;
 
         for entry in WalkDir::new(bin_folder) {
             let entry = entry.unwrap();

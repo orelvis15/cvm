@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use std::str::FromStr;
-use crate::config::config::{Config, StructureFolderItem};
+use crate::config::remote_config::{Config, StructureFolderItem};
 use crate::utils::folders::Folder::*;
 use crate::url_build;
 

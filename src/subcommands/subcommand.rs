@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::{Message, Success, Term};
 
 pub trait Command {

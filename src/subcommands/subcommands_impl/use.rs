@@ -4,7 +4,7 @@ use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term};
 use crate::subcommands::config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::task::task_impl::r#use::deploy_system_task::DeploySystemTask;
 use crate::task::task_impl::r#use::service_manager_task::{ServicesAction, ServicesManagerTask};
 use crate::task::task_impl::r#use::use_version_task::{UserVersionData, UserVersionTask};

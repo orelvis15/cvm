@@ -3,7 +3,8 @@
 use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
+use crate::config::state_config::set_init_success;
 use crate::error::message::Message;
 use crate::task::task::Success;
 use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
@@ -34,12 +35,15 @@ impl Command for Init {
             }
             None => {}
         }
+
         TaskManager{}.start(vec![
             Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![Folder::project_folder().to_string()]) }),
             Box::new(InstallDependencesTask {}),
             Box::new(InstallHanskellGhcTask {}),
             Box::new(CreateFolderStructure {}),
             Box::new(DownloadConfigFilesTask { network: network.to_string() }),
-        ], config, term, L1)
+        ], config, term, L1)?;
+
+        set_init_success(true)
     }
 }

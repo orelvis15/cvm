@@ -1,15 +1,17 @@
 #![allow(dead_code, unused_variables)]
 
 use std::fs;
+use std::fs::File;
 use std::path::Path;
+use file_diff::diff_files;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
+use crate::config::state_config::set_version_use;
 use crate::error::message::{Message, Error};
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
-use crate::utils::version_utils::write_version;
 
 pub struct UserVersionTask {
     pub input_data: UserVersionData,
@@ -22,8 +24,6 @@ pub struct UserVersionData {
 
 impl Task for UserVersionTask {
     fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-
-        sudo::escalate_if_needed().expect("Super user permissions are required");
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
@@ -51,13 +51,37 @@ impl Task for UserVersionTask {
             }
         };
 
-        copy_file_version(&version_folder, &current_folder, &config.binaries.files, self)?;
-        write_version(&current_folder, &self.input_data.version);
+        copy_file_version(&version_folder, &current_folder, &config.binaries.required_files, self)?;
+        set_version_use(self.input_data.version.clone())?;
         Ok(Success {})
     }
 
     fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
-        Ok(Success {})
+
+        let bin_folder = Folder::get_path(Folder::BIN, &config);
+        let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
+        let current_folder = Folder::get_path(Folder::CURRENT, &config);
+
+        for entity in fs::read_dir(Path::new(&current_folder))? {
+            if entity.as_ref().unwrap().path().is_file() {
+                let file_name = entity.as_ref().unwrap().file_name().to_str().unwrap().to_string();
+
+                //file in version x.x.x folder
+                let mut version_file = File::open(entity.unwrap().path())?;
+
+                //file in current folder
+                let mut current_file = File::open(Path::new(&url_build(vec![&current_folder.to_string(), &file_name], false)))?;
+
+                if !diff_files(&mut version_file, &mut current_file) {
+                    return Err(Message::UseVersion(Error{
+                        message: "version could not be used".to_string(),
+                        task: TaskType::UseVersion(UserVersionData{ version: self.input_data.version.clone() }),
+                        stack: vec![]
+                    }))
+                }
+            }
+        }
+        Ok(Success{})
     }
 
     fn get_type(self: &Self) -> TaskType {

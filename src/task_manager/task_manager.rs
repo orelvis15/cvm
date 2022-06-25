@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables)]
 
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::task::task::{Success, Task};
 use crate::env::Env;
 use crate::error::message::Message;

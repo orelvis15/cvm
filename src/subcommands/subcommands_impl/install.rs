@@ -4,7 +4,7 @@ use clap::ArgMatches;
 use crate::subcommands::config::{Args};
 use crate::task::task::Success;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
-use crate::config::config::Config;
+use crate::config::remote_config::Config;
 use crate::{Message, Command, Term};
 use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
 use crate::task_manager::task_manager::TaskManager;

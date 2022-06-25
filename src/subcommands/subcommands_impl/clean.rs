@@ -2,7 +2,7 @@
 
 use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term};
-use crate::config::config::{Config, get_home_dir};
+use crate::config::remote_config::{Config, get_home_dir};
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;

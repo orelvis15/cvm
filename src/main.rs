@@ -33,7 +33,7 @@ mod term;
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
-    let config = config::config::get_config();
+    let config = config::remote_config::get_remote_config();
 
     if let Err(error) = &config {
         error.print();

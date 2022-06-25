@@ -4,7 +4,7 @@ use std::io::Write;
 use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
-use crate::config::config::get_home_dir;
+use crate::config::remote_config::get_home_dir;
 use crate::error::message::Message;
 use crate::url_build;
 

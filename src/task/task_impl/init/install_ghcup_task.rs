@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables)]
 
-use crate::config::config::{Config, get_home_dir, Init};
+use crate::config::remote_config::{Config, get_home_dir, Init};
 use crate::env::Env;
 use crate::error::message::Message;
 use crate::task::task::{Success, Task};

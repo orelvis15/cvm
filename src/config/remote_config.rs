@@ -5,10 +5,10 @@ use crate::{Message, url_build};
 use crate::utils::download_manager::download_in_path;
 
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/config.toml";
-const FILE_NAME: &str = "config.tom";
+const FILE_NAME: &str = "config_remote.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
-pub fn get_config() -> Result<Config, Message> {
+pub fn get_remote_config() -> Result<Config, Message> {
     let home_dir = get_home_dir()?;
     let project_folder = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string()], false);
     let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME.to_string())?;
@@ -47,7 +47,8 @@ pub struct Config {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Binaries {
-    pub files: Vec<String>,
+    pub required_files: Vec<String>,
+    pub others_files: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
