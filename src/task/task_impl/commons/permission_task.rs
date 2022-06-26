@@ -90,7 +90,7 @@ fn check_write(paths: &Vec<String>) -> Result<Success, Message> {
             let result = check_write_folder(value);
             if result.is_err() { return result; }
         } else {
-            let result = check_write_file(value);
+            let result = check_write_path(value);
             if result.is_err() { return result; }
         }
     }
@@ -104,7 +104,7 @@ fn check_read(paths: &Vec<String>) -> Result<Success, Message> {
             let result = check_read_folder(value);
             if result.is_err() { return result; }
         } else {
-            let result = check_read_file(value);
+            let result = check_read_path(value);
             if result.is_err() { return result; }
         }
     }
@@ -113,7 +113,9 @@ fn check_read(paths: &Vec<String>) -> Result<Success, Message> {
 
 fn check_write_folder(value: &String) -> Result<Success, Message> {
     let path = Path::new(value);
+    check_write_path(value)?;
     for entry in fs::read_dir(path)? {
+        println!("{:?}", entry);
         if !entry.unwrap().path().writable() {
             return Err(Message::NoWritePermission(Error {
                 message: format!("You don't have write access to the path {}", value),
@@ -125,7 +127,7 @@ fn check_write_folder(value: &String) -> Result<Success, Message> {
     Ok(Success {})
 }
 
-fn check_write_file(value: &String) -> Result<Success, Message> {
+fn check_write_path(value: &String) -> Result<Success, Message> {
     let path = Path::new(value);
     if !path.writable() {
         return Err(Message::NoWritePermission(Error {
@@ -139,6 +141,7 @@ fn check_write_file(value: &String) -> Result<Success, Message> {
 
 fn check_read_folder(value: &String) -> Result<Success, Message> {
     let path = Path::new(value);
+    check_read_path(value)?;
     for entry in fs::read_dir(path)? {
         if !entry.unwrap().path().readable() {
             return Err(Message::NoReadPermission(Error {
@@ -151,7 +154,7 @@ fn check_read_folder(value: &String) -> Result<Success, Message> {
     Ok(Success {})
 }
 
-fn check_read_file(value: &String) -> Result<Success, Message> {
+fn check_read_path(value: &String) -> Result<Success, Message> {
     let path = Path::new(value);
     if !path.readable() {
         return Err(Message::NoReadPermission(Error {

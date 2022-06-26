@@ -46,8 +46,6 @@ or
 
 `cvm init -n testnet`
 
-> Mandatory: it is necessary to add to the `secure_path` the following path `/home/{USER}/.ghcup/bin`, use `sudo visudo` and add it
-
 ## Install cardano node
 
 Build the version of cardano node passed by parameters, by default the latest version is built.
@@ -98,4 +96,32 @@ cvm start
 or
 `
 cvm stop
+`
+
+## Update cvm
+
+`
+cvm update
+`
+
+## Update config
+
+Update configuration files and scripts without removing those that have been manually modified
+
+`
+cvm config update
+`
+
+If you want to force the update of all configuration files and scripts
+
+`
+cvm config update -f
+`
+
+## Clear cache
+
+Clear cache files of cabal, ghc and cardano build
+
+`
+cvm clean
 `
