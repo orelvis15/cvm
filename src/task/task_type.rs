@@ -81,7 +81,7 @@ impl fmt::Display for TaskType {
             TaskType::FolderManager(_) => write!(f, "Task: Folder_Manager"),
             TaskType::Permission(_) =>  write!(f, "Task: Permission"),
             TaskType::FileManager(_) =>  write!(f, "Task: File_Manager"),
-            TaskType::UpdateConfigFiles() => write!(f, "Task: Update_Config_File"),
+            TaskType::UpdateConfigFiles => write!(f, "Task: Update_Config_File"),
         }
     }
 }
