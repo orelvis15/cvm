@@ -3,7 +3,6 @@ extern crate core;
 use std::io::stdout;
 use crossterm::style::Stylize;
 use owo_colors::OwoColorize;
-use crate::subcommands::config::CommandsConfig;
 use error::message::{Error, Message};
 use subcommands::subcommands_impl;
 use crate::subcommands::subcommand::Command;
@@ -13,6 +12,7 @@ use subcommands::subcommands_impl::list::List;
 use subcommands::subcommands_impl::start::Start;
 use subcommands::subcommands_impl::stop::Stop;
 use crate::subcommands_impl::clean::Clean;
+use crate::subcommands_impl::config::Config;
 use crate::subcommands_impl::r#use::Use;
 use crate::subcommands_impl::remove::Remove;
 use crate::subcommands_impl::update::Update;
@@ -49,24 +49,13 @@ fn main() {
 
     let result = match args.subcommand() {
         Some(("init", matches)) => {
-            match CommandsConfig::INIT.is_enable(&config.commands_item) {
-                Ok(_) => {
-                    Init::start(matches, &config, &mut term)
-                }
-                Err(error) => { Err(error) }
-            }
+            Init::start(matches, &config, &mut term)
         }
         Some(("install", matches)) => {
-            match CommandsConfig::INSTALL.is_enable(&config.commands_item) {
-                Ok(_) => { Install::start(matches, &config, &mut term) }
-                Err(error) => { Err(error) }
-            }
+                Install::start(matches, &config, &mut term)
         }
         Some(("use", matches)) => {
-            match CommandsConfig::USE.is_enable(&config.commands_item) {
-                Ok(_) => { Use::start(matches, &config, &mut term) }
-                Err(error) => { Err(error) }
-            }
+                Use::start(matches, &config, &mut term)
         }
         Some(("remove", matches)) => {
             Remove::start(matches, &config, &mut term)
@@ -75,28 +64,19 @@ fn main() {
             Clean::start(matches, &config, &mut term)
         }
         Some(("list", matches)) => {
-            match CommandsConfig::LIST.is_enable(&config.commands_item) {
-                Ok(_) => { List::start(matches, &config, &mut term) }
-                Err(error) => { Err(error) }
-            }
+                List::start(matches, &config, &mut term)
         }
         Some(("update", matches)) => {
-            match CommandsConfig::UPDATE.is_enable(&config.commands_item) {
-                Ok(_) => { Update::start(matches, &config, &mut term) }
-                Err(error) => { Err(error) }
-            }
+                Update::start(matches, &config, &mut term)
         }
         Some(("start", matches)) => {
-            match CommandsConfig::START.is_enable(&config.commands_item) {
-                Ok(_) => { Start::start(matches, &config, &mut term) }
-                Err(error) => { Err(error) }
-            }
+                Start::start(matches, &config, &mut term)
         }
         Some(("stop", matches)) => {
-            match CommandsConfig::STOP.is_enable(&config.commands_item) {
-                Ok(_) => { Stop::start(matches, &config, &mut term) }
-                Err(error) => { Err(error) }
-            }
+                Stop::start(matches, &config, &mut term)
+        }
+        Some(("config", matches)) => {
+                Config::start(matches, &config, &mut term)
         }
         _ => { error_not_found() }
     };

@@ -3,7 +3,7 @@
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::thread;
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::env::Env;
 use crate::error::message::{Message, Error};
 use crate::task::task::{Success, Task};
@@ -37,7 +37,7 @@ pub struct RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
-    fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
         let result = command.spawn();
@@ -59,7 +59,7 @@ impl Task for RunCommandTask {
         start_command(self.get_type().to_string(), child, self)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         Ok(Success{})
     }
 

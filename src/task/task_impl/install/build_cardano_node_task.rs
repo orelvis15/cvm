@@ -3,7 +3,7 @@
 use std::path::Path;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::remote_config::{Config, get_home_dir};
+use crate::config::remote_config::{RemoteConfig, get_home_dir};
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
@@ -21,7 +21,7 @@ pub struct BuildCardanoNodeTask {
 }
 
 impl Task for BuildCardanoNodeTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let home_dir = get_home_dir()?;
 
         let repo = &config.build_cardano_node.cnode_repository;
@@ -45,7 +45,7 @@ impl Task for BuildCardanoNodeTask {
         ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

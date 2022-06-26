@@ -1,10 +1,7 @@
 use std::fmt::{Display, Formatter};
 use clap::{Arg, ArgMatches, Command};
-use crate::config::remote_config::CommandItem;
-use crate::{Message, EmptyTask, Error, Success};
 
 pub fn command_config() -> ArgMatches {
-
     return Command::new("cvm")
         .version(env!("CARGO_PKG_VERSION"))
         .about("Version manager for cardano node")
@@ -30,8 +27,14 @@ pub fn command_config() -> ArgMatches {
             .arg(get_arg_version())
         )
         .subcommand(Command::new(CommandsConfig::REMOVE.to_string())
-            .about("Remove cardano-node binaries from this version")
+            .about("Remove cardano-node binaries from {version}")
             .arg(get_arg_version())
+        )
+        .subcommand(Command::new(CommandsConfig::CONFIG.to_string())
+            .subcommand(Command::new(CommandsConfig::UPDATE.to_string())
+                .about("Update configuration files and scripts to their latest released version as long as they have not been modified by someone")
+                .arg(get_arg_force())
+            )
         )
         .subcommand(Command::new(CommandsConfig::CLEAN.to_string())
             .about("Remove temporary and build files"))
@@ -54,6 +57,13 @@ fn get_arg_network() -> Arg<'static> {
     Arg::new(Args::NETWORK._to_string()).default_value(Args::LATEST._to_string()).takes_value(true)
 }
 
+fn get_arg_force() -> Arg<'static> {
+    Arg::new(Args::FORCE._to_string())
+        .short('f')
+        .long(Args::FORCE._to_string())
+        .help("Force update all configuration files and scripts to their latest released version")
+}
+
 pub enum CommandsConfig {
     INIT,
     INSTALL,
@@ -64,6 +74,7 @@ pub enum CommandsConfig {
     START,
     STOP,
     CLEAN,
+    CONFIG,
 }
 
 impl Display for CommandsConfig {
@@ -78,39 +89,8 @@ impl Display for CommandsConfig {
             CommandsConfig::START => write!(f, "start"),
             CommandsConfig::STOP => write!(f, "stop"),
             CommandsConfig::CLEAN => write!(f, "clean"),
+            CommandsConfig::CONFIG => write!(f, "config"),
         }
-    }
-}
-
-impl CommandsConfig {
-    pub fn get_key(&self) -> &str {
-        match &self {
-            CommandsConfig::INIT => { "INIT" }
-            CommandsConfig::INSTALL => { "INSTALL" }
-            CommandsConfig::USE => { "USE" }
-            CommandsConfig::REMOVE => { "REMOVE" }
-            CommandsConfig::LIST => { "LIST" }
-            CommandsConfig::UPDATE => { "UPDATE" }
-            CommandsConfig::START => { "START" }
-            CommandsConfig::STOP => { "STOP" }
-            CommandsConfig::CLEAN => { "CLEAN" }
-        }
-    }
-
-    pub fn is_enable(&self, commands_list: &Vec<CommandItem>) -> Result<Success, Message> {
-        let is_enable = commands_list.iter().find(|cmd| {
-            &cmd.key == &self.get_key().to_string()
-        }).unwrap().enable;
-
-        if is_enable {
-            return Ok(Success {});
-        };
-
-        Err(Message::CommandNotFound(Error {
-            message: "The command has been temporarily disabled to avoid errors".to_string(),
-            task: EmptyTask("".to_string()),
-            stack: vec![],
-        }))
     }
 }
 
@@ -118,6 +98,7 @@ pub enum Args {
     NETWORK,
     VERSION,
     LATEST,
+    FORCE,
 }
 
 impl Args {
@@ -125,7 +106,8 @@ impl Args {
         match self {
             Args::NETWORK => { "network" }
             Args::VERSION => { "version" }
-            Args::LATEST => {"latest"}
+            Args::LATEST => { "latest" }
+            Args::FORCE => { "force" }
         }
     }
 }
@@ -136,6 +118,7 @@ impl Display for Args {
             Args::NETWORK => write!(f, "network"),
             Args::VERSION => write!(f, "version"),
             Args::LATEST => write!(f, "latest"),
+            Args::FORCE => write!(f, "force"),
         }
     }
 }

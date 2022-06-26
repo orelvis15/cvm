@@ -5,7 +5,7 @@ use std::path::Path;
 use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
@@ -27,7 +27,7 @@ pub struct CopyBinInputData {
 }
 
 impl Task for CopyBinTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
         let version_folder_path = Path::new(version_folder.as_str());
@@ -39,7 +39,7 @@ impl Task for CopyBinTask {
         build_copy_program_to_bin_folder_command(&self.input_data.files_names, &version_folder.to_string(), &self.input_data.origin_path, &self)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
 

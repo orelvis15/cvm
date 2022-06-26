@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use std::str::FromStr;
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::env::Env;
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
@@ -15,7 +15,7 @@ use crate::term::log_level::LogLevel::L2;
 pub struct CreateFolderStructure {}
 
 impl Task for CreateFolderStructure {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let mut folders = vec![];
 
@@ -30,7 +30,7 @@ impl Task for CreateFolderStructure {
         ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let mut folders = vec![];
 

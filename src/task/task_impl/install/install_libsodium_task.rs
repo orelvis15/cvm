@@ -2,7 +2,7 @@
 
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::error::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
@@ -16,7 +16,7 @@ use crate::term::log_level::LogLevel::L2;
 pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let libsodium_repo = &config.init.libsodium_repository;
         let git_folder = Folder::get_path(Folder::GIT, &config);
@@ -33,7 +33,7 @@ impl Task for InstallLibsodiumTask {
         ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let l_lib_a = "/usr/local/lib/libsodium.a".to_string();
         let l_lib_la = "/usr/local/lib/libsodium.la".to_string();

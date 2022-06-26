@@ -6,7 +6,7 @@ use os_info::Type;
 use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::config::remote_config::{Config, Dependencies};
+use crate::config::remote_config::{RemoteConfig, Dependencies};
 use crate::error::message::{Message, Error};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::Term;
@@ -19,7 +19,7 @@ pub struct InstallDependenciesOutputData {
 }
 
 impl Task for InstallDependencesTask {
-    fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let dependece = &config.dependencies;
         let dependences_result = get_dependencies_from_os(dependece);
         let dependences: String;
@@ -57,7 +57,7 @@ impl Task for InstallDependencesTask {
         }
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

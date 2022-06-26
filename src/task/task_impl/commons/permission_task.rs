@@ -6,7 +6,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Error, Success, Term};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::error::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -17,7 +17,7 @@ pub struct PermissionTask {
 }
 
 impl Task for PermissionTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         match &self.input_data {
             PermissionAction::CheckWrite(data) => {
                 check_write(data)
@@ -34,7 +34,7 @@ impl Task for PermissionTask {
         }
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         match &self.input_data {
             PermissionAction::SetFilesPermission(data) => {
                 for (value, mode) in data {

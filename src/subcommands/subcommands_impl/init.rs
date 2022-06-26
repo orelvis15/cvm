@@ -3,7 +3,7 @@
 use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_init_success;
 use crate::error::message::Message;
 use crate::task::task::Success;
@@ -23,7 +23,7 @@ const TESTNET: &str = "testnet";
 pub struct Init{}
 
 impl Command for Init {
-    fn start<'a>(command: &'a ArgMatches, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn start<'a>(command: &'a ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let mut network = MAINNET;
 

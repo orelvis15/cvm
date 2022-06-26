@@ -3,7 +3,7 @@
 use std::process::ExitStatus;
 use crate::env::Env;
 use crate::{Success, Term};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::error::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -13,7 +13,7 @@ pub struct ServicesManagerTask {
 }
 
 impl Task for ServicesManagerTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         for services in &config.services_item {
             exec_action(&self.input_data, services.name.as_str())?;
@@ -21,7 +21,7 @@ impl Task for ServicesManagerTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

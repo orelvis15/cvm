@@ -6,7 +6,7 @@ use std::path::Path;
 use file_diff::diff_files;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_version_use;
 use crate::error::message::{Message, Error};
 use crate::utils::folders::Folder;
@@ -23,7 +23,7 @@ pub struct UserVersionData {
 }
 
 impl Task for UserVersionTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
@@ -56,7 +56,7 @@ impl Task for UserVersionTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);

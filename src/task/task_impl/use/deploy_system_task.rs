@@ -8,7 +8,7 @@ use file_diff::diff_files;
 use tinytemplate::TinyTemplate;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::remote_config::{Config, Services};
+use crate::config::remote_config::{RemoteConfig, Services};
 use crate::error::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -26,7 +26,7 @@ pub struct DeploySystemTask {}
 /// - Permisos de administrador
 
 impl Task for DeploySystemTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
@@ -39,7 +39,7 @@ impl Task for DeploySystemTask {
         ], config, term, L2)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         Ok(Success {})
     }
 

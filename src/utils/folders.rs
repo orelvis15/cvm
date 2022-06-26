@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use std::str::FromStr;
-use crate::config::remote_config::{Config, StructureFolderItem};
+use crate::config::remote_config::{RemoteConfig, StructureFolderItem};
 use crate::utils::folders::Folder::*;
 use crate::url_build;
 
@@ -22,7 +22,7 @@ pub enum Folder {
 }
 
 impl Folder {
-    pub fn get_path(key: Folder, config: &Config) -> String {
+    pub fn get_path(key: Folder, config: &RemoteConfig) -> String {
         let path = vec![];
         let mut path_result = Folder::find_folder_path(&key, config, path);
         path_result.reverse();
@@ -30,12 +30,12 @@ impl Folder {
         return url_build(path_str, false);
     }
 
-    pub fn get_folder_root(config: &Config) -> String {
+    pub fn get_folder_root(config: &RemoteConfig) -> String {
         let root_folder = Folder::get_folder_item(&ROOT, &config);
         return url_build(vec![&Folder::project_folder().to_string(), &root_folder.name], false);
     }
 
-    pub fn find_folder_path<'a>(item: &'a Folder, config: &'a Config, mut path: Vec<String>) -> Vec<String> {
+    pub fn find_folder_path<'a>(item: &'a Folder, config: &'a RemoteConfig, mut path: Vec<String>) -> Vec<String> {
         let item_struct = Folder::get_folder_item(item, config);
         if item_struct.parent == "." {
             let root_path = Folder::get_folder_root(&config);
@@ -48,7 +48,7 @@ impl Folder {
         }
     }
 
-    pub fn get_folder_item<'a>(item: &'a Folder, config: &'a Config) -> &'a StructureFolderItem {
+    pub fn get_folder_item<'a>(item: &'a Folder, config: &'a RemoteConfig) -> &'a StructureFolderItem {
         for folder in &config.structure_folder_item {
             if Folder::from_str(folder.key.as_str()).unwrap().eq(&item) {
                 return folder;

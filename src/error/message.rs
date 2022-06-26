@@ -37,6 +37,7 @@ pub enum Message {
     VersionBadFormed(Error),
     CheckCardanoVersion(Error),
     UseVersion(Error),
+    UpdateConfigFile(Error),
 
     //IO Errors
     FileNotFound(Error),
@@ -109,6 +110,7 @@ impl Message {
             Message::SettingPermission(this) => { &this }
             Message::Libsodium(this) => { &this }
             Message::UseVersion(this) => { &this }
+            Message::UpdateConfigFile(this) => { &this }
         }
     }
 

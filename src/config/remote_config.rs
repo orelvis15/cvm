@@ -8,7 +8,7 @@ const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config
 const FILE_NAME: &str = "config_remote.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
-pub fn get_remote_config() -> Result<Config, Message> {
+pub fn get_remote_config() -> Result<RemoteConfig, Message> {
     let home_dir = get_home_dir()?;
     let project_folder = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string()], false);
     let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME.to_string())?;
@@ -32,7 +32,7 @@ pub fn get_home_dir() -> Result<String, Message> {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct Config {
+pub struct RemoteConfig {
     pub general: General,
     pub update: Update,
     pub init: Init,
@@ -41,7 +41,6 @@ pub struct Config {
     pub build_cardano_node: BuildCardanoNode,
     pub structure_folder_item: Vec<StructureFolderItem>,
     pub binaries: Binaries,
-    pub commands_item: Vec<CommandItem>,
     pub services_item: Vec<Services>,
 }
 
@@ -109,13 +108,6 @@ pub struct StructureFolderItem {
     pub key: String,
     pub name: String,
     pub parent: String,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct CommandItem {
-    pub key: String,
-    pub name: String,
-    pub enable: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]

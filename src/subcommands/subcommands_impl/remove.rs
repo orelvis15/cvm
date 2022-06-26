@@ -5,7 +5,7 @@ use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term, url_build};
 use crate::subcommands::config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, read_version, verify_version};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::r#use::service_manager_task::{ServicesAction, ServicesManagerTask};
@@ -16,7 +16,7 @@ use crate::utils::folders::Folder;
 pub struct Remove {}
 
 impl Command for Remove {
-    fn start(command: &ArgMatches, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();

@@ -2,7 +2,7 @@
 
 use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term};
-use crate::config::remote_config::{Config, get_home_dir};
+use crate::config::remote_config::{RemoteConfig, get_home_dir};
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
@@ -12,7 +12,7 @@ use crate::utils::folders::Folder;
 pub struct Clean{}
 
 impl Command for Clean{
-    fn start(command: &ArgMatches, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let home_dir = get_home_dir()?;
         let mut ghcup_dir = String::from(home_dir);

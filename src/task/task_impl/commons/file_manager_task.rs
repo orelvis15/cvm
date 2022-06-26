@@ -5,7 +5,7 @@ use std::io::Write;
 use std::path::Path;
 use crate::env::Env;
 use crate::{Error, Success, Term};
-use crate::config::remote_config::Config;
+use crate::config::remote_config::RemoteConfig;
 use crate::error::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -15,7 +15,7 @@ pub struct FileManagerTask {
 }
 
 impl Task for FileManagerTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         match &self.input_data {
             FileManagerAction::Remove(data) => {
                 remove(self, data)
@@ -29,7 +29,7 @@ impl Task for FileManagerTask {
         }
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         match &self.input_data {
             FileManagerAction::Remove(data) => {
                 check_remove(self, data)

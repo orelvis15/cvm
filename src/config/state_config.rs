@@ -24,7 +24,56 @@ pub fn get_state() -> Result<State, Message> {
     Ok(parse_file)
 }
 
-pub fn set_state(state: State) -> Result<Success, Message> {
+pub fn add_init_file(file_uri: &String) -> Result<Success, Message> {
+    let mut state = get_state()?;
+    let file_path = Path::new(&file_uri);
+    let file_name = file_path.file_name().unwrap().to_str().unwrap().to_string();
+
+    let hash = sha256::digest_file(file_path)?;
+    state.init.files_item.push(ConfigFiles { name: file_name.clone(), hash });
+
+    set_state(state)?;
+    Ok(Success {})
+}
+
+pub fn update_init_files(file_uri: &String) -> Result<Success, Message> {
+    let mut state = get_state()?;
+    let file_path = Path::new(&file_uri);
+    let file_name = file_path.file_name().unwrap().to_str().unwrap().to_string();
+
+    state.init.files_item.iter()
+        .position(|item| item.name == file_name)
+        .map(|index| state.init.files_item.remove(index));
+
+    let hash = sha256::digest_file(file_path)?;
+    state.init.files_item.push(ConfigFiles { name: file_name.clone(), hash });
+
+    set_state(state)?;
+    Ok(Success {})
+}
+
+pub fn set_init_success(value: bool) -> Result<Success, Message> {
+    let mut state = get_state()?;
+    state.init.success = value;
+    set_state(state)?;
+    Ok(Success {})
+}
+
+pub fn set_init_network(value: String) -> Result<Success, Message> {
+    let mut state = get_state()?;
+    state.init.network = value;
+    set_state(state)?;
+    Ok(Success {})
+}
+
+pub fn set_version_use(version: String) -> Result<Success, Message> {
+    let mut state = get_state()?;
+    state.r#use = Use { version };
+    set_state(state)?;
+    Ok(Success {})
+}
+
+fn set_state(state: State) -> Result<Success, Message> {
     let home_dir = get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
     let mut file = File::options().truncate(true).write(true).open(file_path)?;
@@ -33,35 +82,10 @@ pub fn set_state(state: State) -> Result<Success, Message> {
     Ok(Success {})
 }
 
-pub fn add_init_file(path: String) -> Result<Success, Message> {
-    let mut state = get_state()?;
-
-    let file_path = Path::new(&path);
-    let hash = sha256::digest_file(file_path)?;
-    state.init.files_item.push(ConfigFiles{ name: file_path.file_name().unwrap().to_str().unwrap().to_string(), hash });
-
-    set_state(state)?;
-    Ok(Success{})
-}
-
-pub fn set_init_success(value: bool) -> Result<Success, Message> {
-    let mut state = get_state()?;
-    state.init.success = value;
-    set_state(state)?;
-    Ok(Success{})
-}
-
-pub fn set_version_use(version: String) -> Result<Success, Message> {
-    let mut state = get_state()?;
-    state.r#use = Use{ version };
-    set_state(state)?;
-    Ok(Success{})
-}
-
 fn create_state_file() -> Result<Success, Message> {
     let home_dir = get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
-    let state = State { init: Init { success: false, files_item: vec![] }, r#use: Use { version: "".to_string() } };
+    let state = State { init: Init { network: "mainnet".to_string(), success: false, files_item: vec![] }, r#use: Use { version: "".to_string() } };
     let toml_str = toml::to_string(&state).unwrap();
     let mut file = File::create(Path::new(file_path.as_str()))?;
     file.write_all(toml_str.as_bytes())?;
@@ -81,6 +105,7 @@ pub struct Use {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Init {
+    pub network: String,
     pub success: bool,
     pub files_item: Vec<ConfigFiles>,
 }

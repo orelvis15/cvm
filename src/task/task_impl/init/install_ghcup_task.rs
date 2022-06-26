@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables)]
 
-use crate::config::remote_config::{Config, get_home_dir, Init};
+use crate::config::remote_config::{RemoteConfig, get_home_dir, Init};
 use crate::env::Env;
 use crate::error::message::Message;
 use crate::task::task::{Success, Task};
@@ -20,7 +20,7 @@ pub struct InstallHanskellGhcOutputData {
 }
 
 impl Task for InstallHanskellGhcTask {
-    fn run(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let home_dir = get_home_dir()?;
         let uri = download_install_ghc_file(&config.init)?;
 
@@ -37,7 +37,7 @@ impl Task for InstallHanskellGhcTask {
         ], config, term, L2)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let home_dir = get_home_dir()?;
         let cabal_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"cabal".to_string()], false);
         let ghc_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"ghc".to_string()], false);

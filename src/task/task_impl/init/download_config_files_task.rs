@@ -8,7 +8,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::str::FromStr;
 use strfmt::strfmt;
-use crate::config::remote_config::{Config, ConfigFileItem};
+use crate::config::remote_config::{RemoteConfig, ConfigFileItem};
 use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
@@ -29,12 +29,12 @@ pub struct DownloadConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for DownloadConfigFilesTask {
-    fn run(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         download_config_files(&self.network, &config.config_file_item, &config, term)?;
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &Config, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let mut paths = vec![];
 
         for item in &config.config_file_item {
@@ -51,7 +51,7 @@ impl Task for DownloadConfigFilesTask {
     }
 }
 
-fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: &Config, term: &mut Term) -> Result<Success, Message> {
+fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
     for item in items {
         let folder_path = Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config);
 
@@ -80,12 +80,12 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
             fs::set_permissions(&file_path, fs::Permissions::from_mode(0o755))?;
         }
 
-        add_init_file(file_path)?;
+        add_init_file(&file_path)?;
     }
     Ok(Success {})
 }
 
-fn apply_pattern_sed(file_path: String, pattern: &String, config: &Config, term: &mut Term) -> Result<Success, Message> {
+fn apply_pattern_sed(file_path: String, pattern: &String, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
     TaskManager {}.start(vec![
         Box::new(RunCommandTask {
