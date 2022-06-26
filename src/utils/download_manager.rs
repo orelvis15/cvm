@@ -4,12 +4,12 @@ use std::io::Write;
 use std::fs;
 use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
-use crate::config::remote_config::get_home_dir;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::url_build;
+use crate::utils::folders::Folder;
 
 pub fn download(url: &String, name: &str) -> Result<String, Message> {
-    let home_dir = get_home_dir()?;
+    let home_dir = Folder::get_home_dir()?;
 
     let dir_tmp_main = format!("{}/.cvm/tmp/", home_dir);
 

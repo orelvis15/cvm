@@ -14,7 +14,7 @@ use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Error, Term, url_build};
 use crate::config::state_config::{get_state, update_init_files};
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::utils::folders::Folder;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};

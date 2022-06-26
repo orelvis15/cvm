@@ -6,13 +6,13 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use crate::{Message, Success, url_build};
-use crate::config::remote_config::get_home_dir;
+use crate::utils::folders::Folder;
 
 const FILE_NAME: &str = "state.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
 pub fn get_state() -> Result<State, Message> {
-    let home_dir = get_home_dir()?;
+    let home_dir = Folder::get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
 
     if !Path::new(file_path.as_str()).exists() {
@@ -74,7 +74,7 @@ pub fn set_version_use(version: String) -> Result<Success, Message> {
 }
 
 fn set_state(state: State) -> Result<Success, Message> {
-    let home_dir = get_home_dir()?;
+    let home_dir = Folder::get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
     let mut file = File::options().truncate(true).write(true).open(file_path)?;
     let toml_str = toml::to_string(&state).unwrap();
@@ -83,7 +83,7 @@ fn set_state(state: State) -> Result<Success, Message> {
 }
 
 fn create_state_file() -> Result<Success, Message> {
-    let home_dir = get_home_dir()?;
+    let home_dir = Folder::get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
     let state = State { init: Init { network: "mainnet".to_string(), success: false, files_item: vec![] }, r#use: Use { version: "".to_string() } };
     let toml_str = toml::to_string(&state).unwrap();

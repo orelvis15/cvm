@@ -14,7 +14,7 @@ use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Term, url_build};
 use crate::config::state_config::add_init_file;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::utils::folders::Folder;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
@@ -30,8 +30,7 @@ const NETWORK: &str = "network";
 
 impl Task for DownloadConfigFilesTask {
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        download_config_files(&self.network, &config.config_file_item, &config, term)?;
-        Ok(Success {})
+        download_config_files(&self.network, &config.config_file_item, &config, term)
     }
 
     fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {

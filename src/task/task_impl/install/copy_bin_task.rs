@@ -6,7 +6,7 @@ use walkdir::WalkDir;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::remote_config::RemoteConfig;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};

@@ -7,7 +7,7 @@ use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::config::remote_config::{RemoteConfig, Dependencies};
-use crate::error::message::{Message, Error};
+use crate::message::message::{Message, Error};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::Term;
 

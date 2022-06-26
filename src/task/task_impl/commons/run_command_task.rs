@@ -5,7 +5,7 @@ use std::process::{Child, Command, Stdio};
 use std::thread;
 use crate::config::remote_config::RemoteConfig;
 use crate::env::Env;
-use crate::error::message::{Message, Error};
+use crate::message::message::{Message, Error};
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::Term;
@@ -133,7 +133,7 @@ fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) ->
                 Ok(Success {})
             } else {
                 Err(Message::CommandOutputError(Error {
-                    message: "The command output an error".to_string(),
+                    message: "The command output an message".to_string(),
                     task: _self.get_type(),
                     stack: vec![],
                 }))

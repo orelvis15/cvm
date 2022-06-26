@@ -4,7 +4,7 @@ use std::process::ExitStatus;
 use crate::env::Env;
 use crate::{Success, Term};
 use crate::config::remote_config::RemoteConfig;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 

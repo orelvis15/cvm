@@ -38,6 +38,7 @@ pub enum Message {
     CheckCardanoVersion(Error),
     UseVersion(Error),
     UpdateConfigFile(Error),
+    ProjectNotInit(Error),
 
     //IO Errors
     FileNotFound(Error),
@@ -111,6 +112,7 @@ impl Message {
             Message::Libsodium(this) => { &this }
             Message::UseVersion(this) => { &this }
             Message::UpdateConfigFile(this) => { &this }
+            Message::ProjectNotInit(this) => { &this }
         }
     }
 
@@ -131,7 +133,7 @@ impl From<reqwest::Error> for Message {
         let data = format!("{:?}", error.url());
         return Message::DownloadFile(
             Error {
-                message: "Error download file".to_string(),
+                message: format!("{} {}", "Error download file", data),
                 task: TaskType::EmptyTask(data),
                 stack: vec![error.to_string()],
             });
@@ -154,7 +156,7 @@ impl From<clap::Error> for Message {
         return Message::DownloadFile(
             Error {
                 message: "Error executing command".to_string(),
-                task: TaskType::EmptyTask("Clap error".to_string()),
+                task: TaskType::EmptyTask("Clap message".to_string()),
                 stack: vec![error.to_string()],
             });
     }
@@ -165,7 +167,7 @@ impl From<tinytemplate::error::Error> for Message {
         return Message::DownloadFile(
             Error {
                 message: "Error trying to parse service file".to_string(),
-                task: TaskType::EmptyTask("TiniTemplate error".to_string()),
+                task: TaskType::EmptyTask("TiniTemplate message".to_string()),
                 stack: vec![error.to_string()],
             });
     }

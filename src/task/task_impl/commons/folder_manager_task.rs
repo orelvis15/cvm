@@ -5,7 +5,7 @@ use std::path::Path;
 use crate::env::Env;
 use crate::{Error, Success, Term, url_build};
 use crate::config::remote_config::RemoteConfig;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 

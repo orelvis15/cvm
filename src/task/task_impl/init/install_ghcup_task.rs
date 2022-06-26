@@ -1,8 +1,8 @@
 #![allow(dead_code, unused_variables)]
 
-use crate::config::remote_config::{RemoteConfig, get_home_dir, Init};
+use crate::config::remote_config::{RemoteConfig, Init};
 use crate::env::Env;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task::{Success, Task};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
@@ -11,6 +11,7 @@ use crate::{Term, url_build};
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::term::log_level::LogLevel::L2;
 use crate::utils::download_manager::download;
+use crate::utils::folders::Folder;
 
 pub struct InstallHanskellGhcTask {}
 
@@ -21,11 +22,9 @@ pub struct InstallHanskellGhcOutputData {
 
 impl Task for InstallHanskellGhcTask {
     fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let home_dir = get_home_dir()?;
+        let home_dir = Folder::get_home_dir()?;
         let uri = download_install_ghc_file(&config.init)?;
-
-        let mut ghcup_dir = String::from(home_dir);
-        ghcup_dir.push_str(format!("/{}", &config.init.ghcup_bin_path).as_str());
+        let ghcup_dir = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
 
         TaskManager {}.start(vec![
             Box::new(RunCommandTask { input_data: build_sed_install_file_command(&uri, &config.init.ghcup_pattern_sed), command_description: "Editing ghcup installation file".to_string() }),
@@ -38,7 +37,7 @@ impl Task for InstallHanskellGhcTask {
     }
 
     fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let home_dir = get_home_dir()?;
+        let home_dir = Folder::get_home_dir()?;
         let cabal_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"cabal".to_string()], false);
         let ghc_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"ghc".to_string()], false);
 

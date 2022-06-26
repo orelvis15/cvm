@@ -1,9 +1,12 @@
 #![allow(dead_code, unused_variables)]
 
+use std::env;
 use std::str::FromStr;
+use users::{get_current_uid, get_user_by_uid};
 use crate::config::remote_config::{RemoteConfig, StructureFolderItem};
 use crate::utils::folders::Folder::*;
-use crate::url_build;
+use crate::{Error, Message, url_build};
+use crate::task::task_type::TaskType;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
@@ -30,12 +33,12 @@ impl Folder {
         return url_build(path_str, false);
     }
 
-    pub fn get_folder_root(config: &RemoteConfig) -> String {
+    fn get_folder_root(config: &RemoteConfig) -> String {
         let root_folder = Folder::get_folder_item(&ROOT, &config);
-        return url_build(vec![&Folder::project_folder().to_string(), &root_folder.name], false);
+        return url_build(vec![&Folder::get_workspaces_dir().to_string(), &root_folder.name], false);
     }
 
-    pub fn find_folder_path<'a>(item: &'a Folder, config: &'a RemoteConfig, mut path: Vec<String>) -> Vec<String> {
+    fn find_folder_path<'a>(item: &'a Folder, config: &'a RemoteConfig, mut path: Vec<String>) -> Vec<String> {
         let item_struct = Folder::get_folder_item(item, config);
         if item_struct.parent == "." {
             let root_path = Folder::get_folder_root(&config);
@@ -57,8 +60,26 @@ impl Folder {
         &config.structure_folder_item.get(0).unwrap()
     }
 
-    pub fn project_folder() -> &'static str {
+    pub fn get_workspaces_dir() -> &'static str {
         "/opt"
+    }
+
+    pub fn get_home_dir() -> Result<String, Message> {
+        let user = get_user_by_uid(get_current_uid()).unwrap();
+        if user.uid() != 0 {
+            return Ok(String::from(format!("/home/{}", user.name().to_str().unwrap())));
+        }
+
+        //if user is root return SUDO_USER var
+        if let Some(sudo_user) = env::var_os("SUDO_USER") {
+            return Ok(String::from(format!("/home/{}", sudo_user.to_str().unwrap())));
+        }
+
+        Err(Message::FolderNotFound(Error{
+            message: "Folder home not valid".to_string(),
+            task: TaskType::EmptyTask("".to_string()),
+            stack: vec![]
+        }))
     }
 
     pub fn to_string(&self) -> String {

@@ -4,7 +4,7 @@ use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
 use crate::config::remote_config::RemoteConfig;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task::Success;
 use crate::task_manager::task_manager::TaskManager;
 use crate::Term;

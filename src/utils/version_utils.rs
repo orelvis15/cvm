@@ -5,7 +5,7 @@ use std::fs::File;
 use std::path::Path;
 use regex::Regex;
 use serde::{Serialize, Deserialize};
-use crate::error::message::{Message, Error};
+use crate::message::message::{Message, Error};
 use crate::task::task_type::TaskType::EmptyTask;
 use crate::url_build;
 

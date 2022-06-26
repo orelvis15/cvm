@@ -1,10 +1,9 @@
 #![allow(dead_code, unused_variables)]
 
-use std::path::Path;
 use crate::env::Env;
 use crate::{Success, Term, url_build};
-use crate::config::remote_config::{RemoteConfig, get_home_dir};
-use crate::error::message::Message;
+use crate::config::remote_config::RemoteConfig;
+use crate::message::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
@@ -22,20 +21,18 @@ pub struct BuildCardanoNodeTask {
 
 impl Task for BuildCardanoNodeTask {
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let home_dir = get_home_dir()?;
+        let home_dir = Folder::get_home_dir()?;
 
-        let repo = &config.build_cardano_node.cnode_repository;
+        let cardano_node_repository = &config.build_cardano_node.cnode_repository;
         let git_folder = Folder::get_path(Folder::GIT, &config);
         let cardano_folder = url_build(vec![&git_folder, &config.build_cardano_node.cnode_repository_name], false);
-        let cardano_folder_path = Path::new(cardano_folder.as_str());
         let cabal_route = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
-
         let libsodium_ported_file = url_build(vec![&cardano_folder, &config.build_cardano_node.cnode_ported_libsodium_file_name], false);
 
         TaskManager {}.start(vec![
             Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![git_folder.to_string()]) }),
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![cardano_folder.clone()]) }),
-            Box::new(RunCommandTask { input_data: build_clone_repo_command(repo.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
+            Box::new(RunCommandTask { input_data: build_clone_repo_command(cardano_node_repository.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
             Box::new(FileManagerTask { input_data: FileManagerAction::CreateFileString((libsodium_ported_file.to_string(), config.build_cardano_node.cnode_ported_libsodium_data.clone().to_string()) ) }),
             Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version) }),

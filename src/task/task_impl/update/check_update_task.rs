@@ -7,11 +7,12 @@ use tar::Archive;
 use crate::env::Env;
 use strfmt::strfmt;
 use crate::{Success, Term};
-use crate::config::remote_config::{RemoteConfig, get_home_dir, Update};
-use crate::error::message::{Message, Error};
+use crate::config::remote_config::{RemoteConfig, Update};
+use crate::message::message::{Message, Error};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
+use crate::utils::folders::Folder;
 
 pub struct CheckUpdateTask {
     pub input_data: CheckUpdateData,
@@ -45,10 +46,7 @@ impl Task for CheckUpdateTask {
 }
 
 fn download_and_copy_version(version: &String, base_url: &String, update_data: &Update) -> Result<Success, Message> {
-    let home_dir = get_home_dir();
-    if let Err(error) = home_dir {
-        return Err(error);
-    }
+    let home_dir = Folder::get_home_dir()?;
 
     let mut version_map = HashMap::new();
     version_map.insert("version".to_string(), version);
@@ -64,7 +62,7 @@ fn download_and_copy_version(version: &String, base_url: &String, update_data: &
 
     let download_path = download(&url, format!("/{}", update_data.file_name).as_str())?;
 
-    decompress(download_path, home_dir.unwrap())
+    decompress(download_path, home_dir)
 }
 
 fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message> {

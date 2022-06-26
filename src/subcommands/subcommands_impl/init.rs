@@ -5,7 +5,7 @@ use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
 use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_init_success;
-use crate::error::message::Message;
+use crate::message::message::Message;
 use crate::task::task::Success;
 use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
 use crate::task::task_impl::init::create_folder_structure_task::CreateFolderStructure;
@@ -37,7 +37,7 @@ impl Command for Init {
         }
 
         TaskManager{}.start(vec![
-            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![Folder::project_folder().to_string()]) }),
+            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![Folder::get_workspaces_dir().to_string()]) }),
             Box::new(InstallDependencesTask {}),
             Box::new(InstallHanskellGhcTask {}),
             Box::new(CreateFolderStructure {}),

@@ -8,7 +8,7 @@ use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_version_use;
-use crate::error::message::{Message, Error};
+use crate::message::message::{Message, Error};
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
