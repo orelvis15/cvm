@@ -41,8 +41,8 @@ impl Command for Init {
             Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![Folder::get_workspaces_dir().to_string()]) }),
             Box::new(InstallDependencesTask {}),
             Box::new(InstallHanskellGhcTask {}),
-            Box::new(Installlibsecp256k1Task {}),
             Box::new(CreateFolderStructure {}),
+            Box::new(Installlibsecp256k1Task {}),
             Box::new(DownloadConfigFilesTask { network: network.to_string() }),
         ], config, term, L1)?;
 
