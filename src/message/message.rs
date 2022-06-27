@@ -39,6 +39,7 @@ pub enum Message {
     UseVersion(Error),
     UpdateConfigFile(Error),
     ProjectNotInit(Error),
+    VersionExist(Error),
 
     //IO Errors
     FileNotFound(Error),
@@ -113,6 +114,7 @@ impl Message {
             Message::UseVersion(this) => { &this }
             Message::UpdateConfigFile(this) => { &this }
             Message::ProjectNotInit(this) => { &this }
+            Message::VersionExist(this) => { &this }
         }
     }
 

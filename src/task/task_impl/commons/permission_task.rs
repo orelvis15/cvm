@@ -115,7 +115,6 @@ fn check_write_folder(value: &String) -> Result<Success, Message> {
     let path = Path::new(value);
     check_write_path(value)?;
     for entry in fs::read_dir(path)? {
-        println!("{:?}", entry);
         if !entry.unwrap().path().writable() {
             return Err(Message::NoWritePermission(Error {
                 message: format!("You don't have write access to the path {}", value),

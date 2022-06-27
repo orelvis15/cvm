@@ -135,7 +135,7 @@ fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) ->
                 Err(Message::CommandOutputError(Error {
                     message: "The command output an message".to_string(),
                     task: _self.get_type(),
-                    stack: vec![],
+                    stack: vec![code.to_string()],
                 }))
             }
         }

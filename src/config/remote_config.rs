@@ -54,6 +54,11 @@ pub struct Init {
     pub libsodium_folder: String,
     pub libsodium_autogen_file: String,
     pub libsodium_config_file: String,
+    pub libsecp256k1_repository: String,
+    pub libsecp256k1_commit: String,
+    pub libsecp256k1_autogen_file: String,
+    pub libsecp256k1_configure_file: String,
+    pub libsecp256k1_folder: String,
     pub haskell_ghc_version: String,
     pub haskell_cabal_version: String,
 }
