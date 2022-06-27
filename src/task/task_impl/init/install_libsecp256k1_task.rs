@@ -56,7 +56,7 @@ fn build_autogen_repo_command(path: String, autogen_file: String) -> RunCommandI
 }
 
 fn build_configure_repo_command(path: String, config_file: String) -> RunCommandInputData {
-    let args = vec![config_file, "--enable-module-schnorrsig".to_string(), "--enable-experimental".to_string()];
+    let args = vec![config_file, "--prefix=/usr".to_string(), "--enable-module-schnorrsig".to_string(), "--enable-experimental".to_string()];
     RunCommandInputData { command: Cmd::Sh.as_string(), args, current_dir: path }
 }
 

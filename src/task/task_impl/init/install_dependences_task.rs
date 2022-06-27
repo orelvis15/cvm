@@ -78,7 +78,7 @@ fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
             let os_release = get_os_release();
             if os_release == "7" {
                 extra_dependences = dependencies.centos_7.join(" ");
-            } else if os_release == "7" {
+            } else if os_release == "8" {
                 extra_dependences = dependencies.centos_8.join(" ");
             }
             Some(format!("{} {}", dependencies.centos.join(" "), extra_dependences))
@@ -88,7 +88,7 @@ fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
             let os_release = get_os_release();
             if os_release == "7" {
                 extra_dependences = dependencies.rhel_7.join(" ");
-            } else if os_release == "7" {
+            } else if os_release == "8" {
                 extra_dependences = dependencies.rhel_8.join(" ");
             }
             Some(format!("{} {}", dependencies.rhel.join(" "), extra_dependences))
@@ -97,13 +97,11 @@ fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
     }
 }
 
-///Arreglar release os
 fn get_os_release() -> String {
     match rs_release::get_os_release() {
         Err(_) => "".to_string(),
         Ok(_os_release) => {
-            "7".to_string()
-            //os_release.get("VERSION_ID").unwrap()
+            _os_release.get("VERSION_ID").unwrap().to_string()
         }
     }
 }
@@ -137,9 +135,11 @@ fn build_ubuntu_debian_install_command(dependences: String) -> RunCommandInputDa
 
 fn build_centos_fedora_rhel_install_command(dependences: String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
+    args.insert(0, "--skip-broken".to_string());
     args.insert(0, "-y".to_string());
     args.insert(0, Cmd::Install.as_string());
-    RunCommandInputData { command: Cmd::Yum.as_string(), args, ..Default::default() }
+    args.insert(0, Cmd::Yum.as_string());
+    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
 }
 
 fn get_verify_command_from_os(dependences: String) -> Option<RunCommandInputData> {
