@@ -40,11 +40,11 @@ Prepare the server to be able to run cardano-node.
 
 `cvm init`
 or
-`cvm init -n mainnet`
+`cvm init mainnet`
 
 ### Prepare pool for testnet
 
-`cvm init -n testnet`
+`cvm init testnet`
 
 ## Install cardano node
 
@@ -53,7 +53,7 @@ Build the version of cardano node passed by parameters, by default the latest ve
 ### build the x.x.x version
 
 `
-cvm install -v x.x.x
+cvm install x.x.x
 `
 
 ### build last version
@@ -80,11 +80,7 @@ Start using the version passed by parameters.
 This command creates the relevant services for the operation of the cardano node
 
 `
-cvm use -v x.x.x
-`
-or
-`
-cvm use --version x.x.x
+cvm use x.x.x
 `
 
 ## Start or Stop node

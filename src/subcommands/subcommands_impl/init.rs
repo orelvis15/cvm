@@ -4,7 +4,7 @@ use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
 use crate::subcommands::config::Args;
 use crate::config::remote_config::RemoteConfig;
-use crate::config::state_config::set_init_success;
+use crate::config::state_config::{set_init_network, set_init_success};
 use crate::message::message::Message;
 use crate::task::task::Success;
 use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
@@ -46,6 +46,7 @@ impl Command for Init {
             Box::new(DownloadConfigFilesTask { network: network.to_string() }),
         ], config, term, L1)?;
 
+        set_init_network(network.to_string())?;
         set_init_success(true)
     }
 }

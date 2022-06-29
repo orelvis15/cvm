@@ -16,6 +16,7 @@ pub enum TaskType {
     DownloadConfigFiles,
     UpdateConfigFiles,
     InstallLibsodium,
+    Libsecp256k1,
     BuildCardanoNode,
     CopyBinFiles(CopyBinInputData),
     UseVersion(UserVersionData),
@@ -48,6 +49,7 @@ impl TaskType {
             TaskType::Permission(text) => { format!("{} permission", text.to_string()) }
             TaskType::FileManager(text) => { text.to_string() }
             TaskType::UpdateConfigFiles => {"Updating configuration files".to_string() }
+            TaskType::Libsecp256k1 => {"Installing libsecp256k1".to_string()}
         }
     }
 }
@@ -82,6 +84,7 @@ impl fmt::Display for TaskType {
             TaskType::Permission(_) =>  write!(f, "Task: Permission"),
             TaskType::FileManager(_) =>  write!(f, "Task: File_Manager"),
             TaskType::UpdateConfigFiles => write!(f, "Task: Update_Config_File"),
+            TaskType::Libsecp256k1 => write!(f, "Task: Libsecp256k1"),
         }
     }
 }
