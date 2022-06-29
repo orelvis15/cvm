@@ -121,3 +121,8 @@ Clear cache files of cabal, ghc and cardano build
 `
 cvm clean
 `
+
+
+## Acknowledgment
+ - Entire [Guild-Operators repository](https://github.com/cardano-community/guild-operators/graphs/contributors) team
+ - [Alexandru Dragnescu](https://www.linkedin.com/in/alexandru-dragnescu-48185483/)
