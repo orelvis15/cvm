@@ -17,6 +17,7 @@ use serde::Serialize;
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
+use crate::utils::user::get_current_user;
 
 pub struct DeploySystemTask {}
 
@@ -59,7 +60,7 @@ fn create_service(service: &Services) -> Result<Success, Message> {
 fn create_template(name: &str, file_string: &str) -> Result<String, Message> {
     let mut template = TinyTemplate::new();
     template.add_template(name, file_string)?;
-    let context = TemplateContext { user: "root".to_string() };
+    let context = TemplateContext { user: get_current_user()?.to_string() };
     let text = template.render(name, &context)?;
     Ok(text)
 }

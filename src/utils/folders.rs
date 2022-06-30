@@ -1,12 +1,10 @@
 #![allow(dead_code, unused_variables)]
 
-use std::env;
 use std::str::FromStr;
-use users::{get_current_uid, get_user_by_uid};
 use crate::config::remote_config::{RemoteConfig, StructureFolderItem};
 use crate::utils::folders::Folder::*;
-use crate::{Error, Message, url_build};
-use crate::task::task_type::TaskType;
+use crate::{Message, url_build};
+use crate::utils::user::get_current_user;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Folder {
@@ -65,27 +63,14 @@ impl Folder {
     }
 
     pub fn get_home_dir() -> Result<String, Message> {
-        let user = get_user_by_uid(get_current_uid()).unwrap();
-        if user.uid() != 0 {
-            return Ok(String::from(format!("/home/{}", user.name().to_str().unwrap())));
-        }
-
-        //if user is root return SUDO_USER var
-        if let Some(sudo_user) = env::var_os("SUDO_USER") {
-            return Ok(String::from(format!("/home/{}", sudo_user.to_str().unwrap())));
-        }
-
-        Err(Message::FolderNotFound(Error{
-            message: "Folder home not valid".to_string(),
-            task: TaskType::EmptyTask("".to_string()),
-            stack: vec![]
-        }))
+        let user = get_current_user()?;
+        Ok(String::from(format!("/home/{}", user)))
     }
 
     pub fn to_string(&self) -> String {
         match &self {
-            SCRIPTS => {"SCRIPTS".to_string()}
-            _ => {"".to_string()}
+            SCRIPTS => { "SCRIPTS".to_string() }
+            _ => { "".to_string() }
         }
     }
 }

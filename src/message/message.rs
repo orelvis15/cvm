@@ -52,6 +52,7 @@ pub enum Message {
     WriteFile(Error),
     RemoveFolder(Error),
     Copy(Error),
+    UserNotFound(Error),
 
     //Permission
     PermissionDenied(Error),
@@ -115,6 +116,7 @@ impl Message {
             Message::UpdateConfigFile(this) => { &this }
             Message::ProjectNotInit(this) => { &this }
             Message::VersionExist(this) => { &this }
+            Message::UserNotFound(this) => { &this }
         }
     }
 
