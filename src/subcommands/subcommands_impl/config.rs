@@ -2,7 +2,7 @@
 
 use clap::ArgMatches;
 use crate::subcommands::subcommand::Command;
-use crate::subcommands::config::Args;
+use crate::subcommands::commands_config::Args;
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Success;

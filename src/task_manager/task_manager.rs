@@ -7,6 +7,7 @@ use crate::message::message::Message;
 use crate::Term;
 use crate::term::log_level::LogLevel;
 
+#[derive(Default)]
 pub struct TaskManager {}
 
 impl TaskManager {
@@ -17,20 +18,21 @@ impl TaskManager {
         task_queue.reverse();
         while !task_queue.is_empty() {
 
-            let task = task_queue.pop().unwrap();
-            term.print_task_message(task.get_type(), &log_level);
+            let mut task = task_queue.pop().unwrap();
+            let prepare = prepare_task(&mut task, &mut env, config, term)?;
 
-            if let Err(error) = run_task(&task, &mut env, config, term) {
-                return Err(error);
-            }
-
-            if let Err(error) = check_task(&task, &mut env, config, term) {
-                return Err(error);
+            if prepare {
+                term.print_task_message(task.get_type(), &log_level);
+                run_task(&task, &mut env, config, term)?;
+                check_task(&task, &mut env, config, term)?;
             }
         }
-
         Ok(Success {})
     }
+}
+
+fn prepare_task(task: &mut Box<dyn Task>, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    task.prepare(env, config, term)
 }
 
 fn run_task(task: &Box<dyn Task>, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {

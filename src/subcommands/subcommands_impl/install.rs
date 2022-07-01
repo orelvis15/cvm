@@ -2,14 +2,14 @@
 
 use std::path::Path;
 use clap::ArgMatches;
-use crate::subcommands::config::{Args};
+use crate::subcommands::commands_config::{Args};
 use crate::task::task::Success;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::remote_config::RemoteConfig;
-use crate::{Message, Command, Term, Error, url_build};
+use crate::{Message, Command, Term, MessageData, url_build};
 use crate::config::state_config::get_state;
+use crate::message::message::MessageKind;
 use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
-use crate::task::task_type::TaskType;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
 use crate::utils::folders::Folder;
@@ -24,10 +24,9 @@ impl Command for Install {
 
         if !get_state()?.init.success {
             return Err(Message::ProjectNotInit(
-                Error {
+                MessageData {
                     message: "The project is still not initialized, please execute the [cvm init] command".to_string(),
-                    task: TaskType::EmptyTask("".to_string()),
-                    stack: vec![],
+                    ..Default::default()
                 }
             ));
         }
@@ -45,10 +44,10 @@ impl Command for Install {
         let version_folder = Path::new(&version_folder);
 
         if version_folder.exists() {
-            return Err(Message::VersionExist(Error{
-                message: format!("the version {ver} is already installed to reinstall it remove it with the command [cvm remove {ver}]", ver = version),
-                task: TaskType::EmptyTask("".to_string()),
-                stack: vec![]
+            return Err(Message::VersionExist(MessageData {
+                message: format!("the version {ver} is already installed to reinstall it firts remove it with the command [cvm remove {ver}]", ver = version),
+                kind: MessageKind::Warning,
+                ..Default::default()
             }))
         }
 

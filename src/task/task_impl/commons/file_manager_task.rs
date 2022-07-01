@@ -4,7 +4,7 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Error, Success, Term};
+use crate::{MessageData, Success, Term};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -15,6 +15,11 @@ pub struct FileManagerTask {
 }
 
 impl Task for FileManagerTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         match &self.input_data {
             FileManagerAction::Remove(data) => {
@@ -56,10 +61,9 @@ fn remove(task: &FileManagerTask, data: &Vec<String>) -> Result<Success, Message
     for file_path in data {
         let path = Path::new(file_path);
         if !path.exists() {
-            return Err(Message::RemoveFile(Error {
+            return Err(Message::RemoveFile(MessageData {
                 message: format!("Error trying remove file {}", path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
 
@@ -72,10 +76,9 @@ fn check_remove(task: &FileManagerTask, data: &Vec<String>) -> Result<Success, M
     for file_path in data {
         let path = Path::new(file_path);
         if path.exists() {
-            return Err(Message::RemoveFile(Error {
+            return Err(Message::RemoveFile(MessageData {
                 message: format!("Error file {} could not be removed", path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
     }
@@ -86,10 +89,9 @@ fn exits(task: &FileManagerTask, data: &Vec<String>) -> Result<Success, Message>
     for file_path in data {
         let path = Path::new(file_path);
         if !path.exists() {
-            return Err(Message::FileNotFound(Error {
+            return Err(Message::FileNotFound(MessageData {
                 message: format!("Error file {} not found", path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
     }

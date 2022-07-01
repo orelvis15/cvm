@@ -27,6 +27,11 @@ pub struct CopyBinInputData {
 }
 
 impl Task for CopyBinTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);

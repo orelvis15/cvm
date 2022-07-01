@@ -20,7 +20,7 @@ impl Command for Clean{
         let git_folder = Folder::get_path(Folder::GIT, &config);
 
 
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(RunCommandTask { input_data: build_cabal_clean_command(ghcup_dir), command_description: "Cleaning cabal cache, package and build temporal files".to_string() }),
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Clean(vec![git_folder]) }),
         ], config, term, L1)

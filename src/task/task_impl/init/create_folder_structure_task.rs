@@ -8,13 +8,22 @@ use crate::utils::folders::Folder;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Term, url_build};
+use crate::config::state_config::{get_task_complete, set_task_complete};
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
 
+#[derive(Default)]
 pub struct CreateFolderStructure {}
 
 impl Task for CreateFolderStructure {
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        if get_task_complete(&self.get_type()) {
+            return Ok(false);
+        };
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let mut folders = vec![];
 
@@ -36,9 +45,13 @@ impl Task for CreateFolderStructure {
             folders.push(url_build(vec![&Folder::get_path(Folder::from_str(folder.parent.as_str()).unwrap(), config), &folder.name.to_string()], false));
         }
 
-        TaskManager {}.start(vec![
+        let result = TaskManager {}.start(vec![
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Exits(folders) }),
-        ], config, term, L2)
+        ], config, term, L2);
+
+        set_task_complete(&self.get_type());
+
+        result
     }
 
     fn get_type(self: &Self) -> TaskType {

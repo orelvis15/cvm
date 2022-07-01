@@ -3,81 +3,97 @@
 use std::io;
 use std::fmt::Debug;
 use std::io::ErrorKind;
-use owo_colors::OwoColorize;
+use crossterm::style::Stylize;
 use toml::de;
 use crate::task::task_type::TaskType;
+use core::default::Default;
 
-#[derive(Debug, Clone)]
-pub struct Error {
+#[derive(Debug, Clone, Default)]
+pub struct MessageData {
     pub message: String,
     pub task: TaskType,
     pub stack: Vec<String>,
+    pub kind: MessageKind,
 }
 
-impl Error {
+impl MessageData {
     pub fn to_string(&self) -> String {
         self.message.to_string()
     }
 }
 
 #[derive(Debug, Clone)]
+pub enum MessageKind {
+    Error,
+    Info,
+    Warning,
+}
+
+impl Default for MessageKind {
+    fn default() -> Self {
+        MessageKind::Error
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum Message {
     //Tasks Errors
-    ErrorRunTask(Error),
-    TaskType(Error),
-    Libsodium(Error),
+    ErrorRunTask(MessageData),
+    TaskType(MessageData),
+    Libsodium(MessageData),
 
     //App Features
-    AlreadyLastUpdate(Error),
-    ErrorUpdate(Error),
-    CreateFolderStructure(Error),
-    BinNotFound(Error),
-    GettingDependences(Error),
-    VersionInstaller(Error),
-    VersionBadFormed(Error),
-    CheckCardanoVersion(Error),
-    UseVersion(Error),
-    UpdateConfigFile(Error),
-    ProjectNotInit(Error),
-    VersionExist(Error),
+    NewUpdate(MessageData),
+    AlreadyLastUpdate(MessageData),
+    ErrorUpdate(MessageData),
+    CreateFolderStructure(MessageData),
+    BinNotFound(MessageData),
+    GettingDependences(MessageData),
+    VersionInstaller(MessageData),
+    VersionBadFormed(MessageData),
+    CheckCardanoVersion(MessageData),
+    UseVersion(MessageData),
+    UpdateConfigFile(MessageData),
+    ProjectNotInit(MessageData),
+    VersionExist(MessageData),
 
     //IO Errors
-    FileNotFound(Error),
-    RemoveFile(Error),
-    FolderNotFound(Error),
-    ParsingFile(Error),
-    DownloadFile(Error),
-    OpenFile(Error),
-    CreateFolder(Error),
-    WriteFile(Error),
-    RemoveFolder(Error),
-    Copy(Error),
-    UserNotFound(Error),
+    FileNotFound(MessageData),
+    RemoveFile(MessageData),
+    FolderNotFound(MessageData),
+    ParsingFile(MessageData),
+    DownloadFile(MessageData),
+    OpenFile(MessageData),
+    CreateFolder(MessageData),
+    WriteFile(MessageData),
+    RemoveFolder(MessageData),
+    Copy(MessageData),
+    UserNotFound(MessageData),
 
     //Permission
-    PermissionDenied(Error),
-    NoWritePermission(Error),
-    NoReadPermission(Error),
-    NoExecutionPermission(Error),
-    SettingPermission(Error),
+    PermissionDenied(MessageData),
+    NoWritePermission(MessageData),
+    NoReadPermission(MessageData),
+    NoExecutionPermission(MessageData),
+    SettingPermission(MessageData),
 
     //Commands Errors
-    CommandNotFound(Error),
-    FaileToRunCommand(Error),
-    CommandOutputError(Error),
+    CommandNotFound(MessageData),
+    FaileToRunCommand(MessageData),
+    CommandOutputError(MessageData),
 
     //Files - Directories
-    IsDir(Error),
-    IsFile(Error),
+    IsDir(MessageData),
+    IsFile(MessageData),
 
     //arguments
-    ParseArg(Error),
+    ParseArg(MessageData),
 
-    Generic(Error),
+    Generic(MessageData),
 }
 
 impl Message {
-    pub fn data(&self) -> &Error {
+    pub fn data(&self) -> &MessageData {
         match self {
             Message::ErrorRunTask(this) => { &this }
             Message::TaskType(this) => { &this }
@@ -117,18 +133,27 @@ impl Message {
             Message::ProjectNotInit(this) => { &this }
             Message::VersionExist(this) => { &this }
             Message::UserNotFound(this) => { &this }
+            Message::NewUpdate(this) => { &this }
         }
     }
 
     #[cfg(debug_assertions)]
     pub fn print(&self) {
         let message = format!("Message: {} \n{} \nStack:{:?}", self.data().message, self.data().task, self.data().stack);
-        println!("{}", message.red())
+        match self.data().kind {
+            MessageKind::Info => { println!("{}", message.blue()) }
+            MessageKind::Warning => { println!("{}", message.yellow()) }
+            _ => { println!("{}", message.red()) }
+        }
     }
 
     #[cfg(not(debug_assertions))]
     pub fn print(&self) {
-        println!("{}", self.data().message.red())
+        match self.data().kind {
+            MessageKind::Info => { println!("{}", self.data().message.blue()) }
+            MessageKind::Warning => { println!("{}", self.data().message.yellow()) }
+            _ => { println!("{}", self.data().message.red()) }
+        }
     }
 }
 
@@ -136,10 +161,11 @@ impl From<reqwest::Error> for Message {
     fn from(error: reqwest::Error) -> Self {
         let data = format!("{:?}", error.url());
         return Message::DownloadFile(
-            Error {
+            MessageData {
                 message: format!("{} {}", "Error download file", data),
                 task: TaskType::EmptyTask(data),
                 stack: vec![error.to_string()],
+                ..Default::default()
             });
     }
 }
@@ -147,10 +173,11 @@ impl From<reqwest::Error> for Message {
 impl From<de::Error> for Message {
     fn from(error: de::Error) -> Self {
         return Message::DownloadFile(
-            Error {
+            MessageData {
                 message: "Error try parsing config file".to_string(),
                 task: TaskType::EmptyTask("".to_string()),
                 stack: vec![error.to_string()],
+                ..Default::default()
             });
     }
 }
@@ -158,10 +185,10 @@ impl From<de::Error> for Message {
 impl From<clap::Error> for Message {
     fn from(error: clap::Error) -> Self {
         return Message::DownloadFile(
-            Error {
+            MessageData {
                 message: "Error executing command".to_string(),
-                task: TaskType::EmptyTask("Clap message".to_string()),
                 stack: vec![error.to_string()],
+                ..Default::default()
             });
     }
 }
@@ -169,10 +196,11 @@ impl From<clap::Error> for Message {
 impl From<tinytemplate::error::Error> for Message {
     fn from(error: tinytemplate::error::Error) -> Self {
         return Message::DownloadFile(
-            Error {
+            MessageData {
                 message: "Error trying to parse service file".to_string(),
                 task: TaskType::EmptyTask("TiniTemplate message".to_string()),
                 stack: vec![error.to_string()],
+                ..Default::default()
             });
     }
 }
@@ -182,42 +210,47 @@ impl From<io::Error> for Message {
         return match error.kind() {
             ErrorKind::NotFound => {
                 Message::FileNotFound(
-                    Error {
+                    MessageData {
                         message: "File not found".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
                         stack: vec![error.to_string()],
+                        ..Default::default()
                     })
             }
             ErrorKind::PermissionDenied => {
                 Message::PermissionDenied(
-                    Error {
+                    MessageData {
                         message: "Error permission denied".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
                         stack: vec![error.to_string()],
+                        ..Default::default()
                     })
             }
             ErrorKind::Interrupted => {
                 Message::WriteFile(
-                    Error {
+                    MessageData {
                         message: "Error writing file".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
                         stack: vec![error.to_string()],
+                        ..Default::default()
                     })
             }
             ErrorKind::AlreadyExists => {
                 Message::WriteFile(
-                    Error {
+                    MessageData {
                         message: "The element already exists".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
                         stack: vec![error.to_string()],
+                        ..Default::default()
                     })
             }
             _ => {
                 Message::Generic(
-                    Error {
+                    MessageData {
                         message: "A problem has occurred :(".to_string(),
                         task: TaskType::EmptyTask("".to_string()),
                         stack: vec![error.to_string()],
+                        ..Default::default()
                     })
             }
         };

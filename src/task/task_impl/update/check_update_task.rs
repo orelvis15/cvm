@@ -8,7 +8,7 @@ use crate::env::Env;
 use strfmt::strfmt;
 use crate::{Success, Term};
 use crate::config::remote_config::{RemoteConfig, Update};
-use crate::message::message::{Message, Error};
+use crate::message::message::{Message, MessageData};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
@@ -24,12 +24,17 @@ pub struct CheckUpdateData {
 }
 
 impl Task for CheckUpdateTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         if &config.update.last_cvm_version <= &self.input_data.version {
-            return Err(Message::AlreadyLastUpdate(Error {
+            return Err(Message::AlreadyLastUpdate(MessageData {
                 message: "You already have the latest version".to_string(),
                 task: self.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
 

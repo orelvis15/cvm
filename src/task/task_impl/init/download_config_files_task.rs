@@ -13,7 +13,7 @@ use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::{Term, url_build};
-use crate::config::state_config::add_init_file;
+use crate::config::state_config::{add_init_file, get_task_complete, set_task_complete};
 use crate::message::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::utils::folders::Folder;
@@ -22,6 +22,7 @@ use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
 use crate::utils::download_manager::download_in_path;
 
+#[derive(Default)]
 pub struct DownloadConfigFilesTask {
     pub network: String,
 }
@@ -29,6 +30,14 @@ pub struct DownloadConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for DownloadConfigFilesTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        if get_task_complete(&self.get_type()) {
+            return Ok(false);
+        };
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         download_config_files(&self.network, &config.config_file_item, &config, term)
     }
@@ -40,9 +49,13 @@ impl Task for DownloadConfigFilesTask {
             paths.push(Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config));
         }
 
-        TaskManager {}.start(vec![
+        let result = TaskManager {}.start(vec![
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(paths) }),
-        ], config, term, L2)
+        ], config, term, L2);
+
+        set_task_complete(&self.get_type());
+
+        result
     }
 
     fn get_type(self: &Self) -> TaskType {

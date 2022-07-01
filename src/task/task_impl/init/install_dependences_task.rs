@@ -7,57 +7,42 @@ use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::config::remote_config::{RemoteConfig, Dependencies};
-use crate::message::message::{Message, Error};
+use crate::config::state_config::{get_task_complete, set_task_complete};
+use crate::message::message::{Message, MessageData};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task_manager::task_manager::TaskManager;
 use crate::Term;
+use crate::term::log_level::LogLevel::L2;
 
-pub struct InstallDependencesTask {}
+#[derive(Default)]
+pub struct InstallDependenciesTask {
+    dependencies: String
+}
 
 #[derive(Debug, Clone)]
 pub struct InstallDependenciesOutputData {
-    pub dependencies: String,
+    dependencies: String,
 }
 
-impl Task for InstallDependencesTask {
+impl Task for InstallDependenciesTask {
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        if get_task_complete(&self.get_type()) {
+            return Ok(false);
+        };
+
+        self.dependencies = get_dependencies_from_os(&config.dependencies)?;
+        Ok(true)
+    }
+
     fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let dependece = &config.dependencies;
-        let dependences_result = get_dependencies_from_os(dependece);
-        let dependences: String;
-
-        match dependences_result {
-            Some(data) => {
-                dependences = String::from(data)
-            }
-            None => {
-                return Err(Message::GettingDependences(Error {
-                    message: "Error getting dependencies".to_string(),
-                    task: self.get_type(),
-                    stack: vec![],
-                }));
-            }
-        }
-
-        let command_input_result = get_install_command_from_os(dependences.clone());
-
-        match command_input_result {
-            Some(input) => {
-                *env = Env::InstallDependences(InstallDependenciesOutputData { dependencies: dependences });
-
-                let cmd = RunCommandTask { input_data: input, command_description: "Installing the necessary dependencies".to_string() };
-                let mut env_aux: Env = Env::Empty();
-                cmd.run(&mut env_aux, config, term)
-            }
-            None => {
-                return Err(Message::GettingDependences(Error {
-                    message: "Error getting dependencies".to_string(),
-                    task: self.get_type(),
-                    stack: vec![],
-                }));
-            }
-        }
+        let command_input_result = get_install_command_from_os(&self.dependencies)?;
+        TaskManager{}.start(vec![
+            Box::new(RunCommandTask { input_data: command_input_result, command_description: "Installing the necessary dependencies".to_string() })
+        ], config, term, L2)
     }
 
     fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+        set_task_complete(&self.get_type());
         Ok(Success {})
     }
 
@@ -66,13 +51,13 @@ impl Task for InstallDependencesTask {
     }
 }
 
-fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
+fn get_dependencies_from_os(dependencies: &Dependencies) -> Result<String, Message> {
     match os_info::get().os_type() {
-        Type::Macos => { Some(dependencies.macos.join(" ")) }
-        Type::Ubuntu => { Some(dependencies.ubuntu.join(" ")) }
-        Type::Debian => { Some(dependencies.debian.join(" ")) }
-        Type::OracleLinux => { Some(dependencies.debian.join(" ")) }
-        Type::Fedora => { Some(dependencies.fedora.join(" ")) }
+        Type::Macos => { Ok(dependencies.macos.join(" ")) }
+        Type::Ubuntu => { Ok(dependencies.ubuntu.join(" ")) }
+        Type::Debian => { Ok(dependencies.debian.join(" ")) }
+        Type::OracleLinux => { Ok(dependencies.debian.join(" ")) }
+        Type::Fedora => { Ok(dependencies.fedora.join(" ")) }
         Type::CentOS => {
             let mut extra_dependences = String::new();
             let os_release = get_os_release();
@@ -81,7 +66,7 @@ fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
             } else if os_release == "8" {
                 extra_dependences = dependencies.centos_8.join(" ");
             }
-            Some(format!("{} {}", dependencies.centos.join(" "), extra_dependences))
+            Ok(format!("{} {}", dependencies.centos.join(" "), extra_dependences))
         }
         Type::Redhat => {
             let mut extra_dependences = String::new();
@@ -91,9 +76,15 @@ fn get_dependencies_from_os(dependencies: &Dependencies) -> Option<String> {
             } else if os_release == "8" {
                 extra_dependences = dependencies.rhel_8.join(" ");
             }
-            Some(format!("{} {}", dependencies.rhel.join(" "), extra_dependences))
+            Ok(format!("{} {}", dependencies.rhel.join(" "), extra_dependences))
         }
-        _ => { None }
+        _ => {
+            return Err(Message::GettingDependences(MessageData {
+                message: "Error getting dependencies".to_string(),
+                task: TaskType::InstallDependences,
+                ..Default::default()
+            }));
+        }
     }
 }
 
@@ -106,35 +97,41 @@ fn get_os_release() -> String {
     }
 }
 
-fn get_install_command_from_os(dependences: String) -> Option<RunCommandInputData> {
+fn get_install_command_from_os(dependencies: &String) -> Result<RunCommandInputData, Message> {
     return match os_info::get().os_type() {
-        Type::Macos => { Some(build_macos_install_command(dependences)) }
-        Type::Ubuntu => { Some(build_ubuntu_debian_install_command(dependences)) }
-        Type::Debian => { Some(build_ubuntu_debian_install_command(dependences)) }
-        Type::OracleLinux => { Some(build_ubuntu_debian_install_command(dependences)) }
-        Type::CentOS => { Some(build_centos_fedora_rhel_install_command(dependences)) }
-        Type::Fedora => { Some(build_centos_fedora_rhel_install_command(dependences)) }
-        Type::Redhat => { Some(build_centos_fedora_rhel_install_command(dependences)) }
-        _ => { None }
+        Type::Macos => { Ok(build_macos_install_command(dependencies)) }
+        Type::Ubuntu => { Ok(build_ubuntu_debian_install_command(dependencies)) }
+        Type::Debian => { Ok(build_ubuntu_debian_install_command(dependencies)) }
+        Type::OracleLinux => { Ok(build_ubuntu_debian_install_command(dependencies)) }
+        Type::CentOS => { Ok(build_centos_fedora_rhel_install_command(dependencies)) }
+        Type::Fedora => { Ok(build_centos_fedora_rhel_install_command(dependencies)) }
+        Type::Redhat => { Ok(build_centos_fedora_rhel_install_command(dependencies)) }
+        _ => {
+            return Err(Message::GettingDependences(MessageData {
+                message: "Error getting dependencies".to_string(),
+                task: TaskType::InstallDependences,
+                ..Default::default()
+            }));
+        }
     };
 }
 
-fn build_macos_install_command(dependences: String) -> RunCommandInputData {
-    let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
+fn build_macos_install_command(dependencies: &String) -> RunCommandInputData {
+    let mut args = Vec::from_iter(dependencies.split_whitespace().map(String::from));
     args.insert(0, Cmd::Install.as_string());
     RunCommandInputData { command: Cmd::Install.as_string(), args, ..Default::default() }
 }
 
-fn build_ubuntu_debian_install_command(dependences: String) -> RunCommandInputData {
-    let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
+fn build_ubuntu_debian_install_command(dependencies: &String) -> RunCommandInputData {
+    let mut args = Vec::from_iter(dependencies.split_whitespace().map(String::from));
     args.insert(0, Cmd::Install.as_string());
     args.insert(0, "-y".to_string());
     args.insert(0, Cmd::AptGet.as_string());
     RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
 }
 
-fn build_centos_fedora_rhel_install_command(dependences: String) -> RunCommandInputData {
-    let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
+fn build_centos_fedora_rhel_install_command(dependencies: &String) -> RunCommandInputData {
+    let mut args = Vec::from_iter(dependencies.split_whitespace().map(String::from));
     args.insert(0, "--skip-broken".to_string());
     args.insert(0, "-y".to_string());
     args.insert(0, Cmd::Install.as_string());
@@ -142,15 +139,15 @@ fn build_centos_fedora_rhel_install_command(dependences: String) -> RunCommandIn
     RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
 }
 
-fn get_verify_command_from_os(dependences: String) -> Option<RunCommandInputData> {
+fn get_verify_command_from_os(dependencies: &String) -> Option<RunCommandInputData> {
     return match os_info::get().os_type() {
-        Type::Macos => { Some(build_macos_verify_install_command(dependences)) }
+        Type::Macos => { Some(build_macos_verify_install_command(dependencies)) }
         _ => { None }
     };
 }
 
-fn build_macos_verify_install_command(dependences: String) -> RunCommandInputData {
-    let mut args = Vec::from_iter(dependences.split_whitespace().map(String::from));
+fn build_macos_verify_install_command(dependencies: &String) -> RunCommandInputData {
+    let mut args = Vec::from_iter(dependencies.split_whitespace().map(String::from));
     args.insert(0, Cmd::List.as_string());
     RunCommandInputData { command: Cmd::Brew.as_string(), args, ..Default::default() }
 }

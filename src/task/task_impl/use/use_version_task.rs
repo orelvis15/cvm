@@ -8,7 +8,7 @@ use crate::env::Env;
 use crate::{Success, Term, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_version_use;
-use crate::message::message::{Message, Error};
+use crate::message::message::{Message, MessageData};
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
@@ -23,6 +23,11 @@ pub struct UserVersionData {
 }
 
 impl Task for UserVersionTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
@@ -32,10 +37,10 @@ impl Task for UserVersionTask {
         let current_folder_path = Path::new(current_folder.as_str());
 
         if !version_folder_path.exists() {
-            return Err(Message::VersionInstaller(Error {
+            return Err(Message::VersionInstaller(MessageData {
                 message: format!("The version {version} is not installed yet, please install it using the command: cvm install {version}", version = &self.input_data.version),
                 task: self.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
 
@@ -43,10 +48,11 @@ impl Task for UserVersionTask {
             let folder_result = fs::create_dir_all(current_folder.clone());
 
             if let Err(error) = folder_result {
-                return Err(Message::CreateFolderStructure(Error {
+                return Err(Message::CreateFolderStructure(MessageData {
                     message: "Error creating folder structure".to_string(),
                     task: self.get_type(),
                     stack: vec![error.to_string()],
+                    ..Default::default()
                 }));
             }
         };
@@ -73,10 +79,10 @@ impl Task for UserVersionTask {
                 let mut current_file = File::open(Path::new(&url_build(vec![&current_folder.to_string(), &file_name], false)))?;
 
                 if !diff_files(&mut version_file, &mut current_file) {
-                    return Err(Message::UseVersion(Error{
+                    return Err(Message::UseVersion(MessageData {
                         message: "version could not be used".to_string(),
                         task: TaskType::UseVersion(UserVersionData{ version: self.input_data.version.clone() }),
-                        stack: vec![]
+                        ..Default::default()
                     }))
                 }
             }

@@ -3,7 +3,7 @@
 use std::path::Path;
 use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term, url_build};
-use crate::subcommands::config::Args;
+use crate::subcommands::commands_config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, read_version, verify_version};
 use crate::config::remote_config::RemoteConfig;
 use crate::task::task::Task;

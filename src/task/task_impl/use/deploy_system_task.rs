@@ -27,6 +27,11 @@ pub struct DeploySystemTask {}
 /// - Permisos de administrador
 
 impl Task for DeploySystemTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");

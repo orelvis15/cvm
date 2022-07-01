@@ -5,7 +5,7 @@ use std::process::{Child, Command, Stdio};
 use std::thread;
 use crate::config::remote_config::RemoteConfig;
 use crate::env::Env;
-use crate::message::message::{Message, Error};
+use crate::message::message::{Message, MessageData};
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::Term;
@@ -37,6 +37,11 @@ pub struct RunCommandInputData {
 }
 
 impl Task for RunCommandTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
@@ -48,10 +53,11 @@ impl Task for RunCommandTask {
                 child = data;
             }
             Err(error) => {
-                return Err(Message::FaileToRunCommand(Error {
+                return Err(Message::FaileToRunCommand(MessageData {
                     message: format!("Failed to run command: {}, args: {:?}", self.input_data.command, self.input_data.args),
                     task: self.get_type(),
                     stack: vec![error.to_string()],
+                    ..Default::default()
                 }));
             }
         };
@@ -132,19 +138,21 @@ fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) ->
             if code.success() {
                 Ok(Success {})
             } else {
-                Err(Message::CommandOutputError(Error {
+                Err(Message::CommandOutputError(MessageData {
                     message: "The command output an message".to_string(),
                     task: _self.get_type(),
                     stack: vec![code.to_string()],
+                    ..Default::default()
                 }))
             }
         }
-        Err(_) => {
+        Err(error) => {
             Err(
-                Message::FaileToRunCommand(Error {
+                Message::FaileToRunCommand(MessageData {
                     message: "Failed to run command".to_string(),
                     task: _self.get_type(),
-                    stack: vec![],
+                    stack: vec![error.to_string()],
+                    ..Default::default()
                 }))
         }
     }

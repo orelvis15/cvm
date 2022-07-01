@@ -1,9 +1,7 @@
 extern crate core;
 
 use std::io::stdout;
-use crossterm::style::Stylize;
-use owo_colors::OwoColorize;
-use message::message::{Error, Message};
+use message::message::{MessageData, Message};
 use subcommands::subcommands_impl;
 use crate::subcommands::subcommand::Command;
 use subcommands::subcommands_impl::init::Init;
@@ -11,13 +9,13 @@ use subcommands::subcommands_impl::install::Install;
 use subcommands::subcommands_impl::list::List;
 use subcommands::subcommands_impl::start::Start;
 use subcommands::subcommands_impl::stop::Stop;
+use crate::message::message::MessageKind;
 use crate::subcommands_impl::clean::Clean;
 use crate::subcommands_impl::config::Config;
 use crate::subcommands_impl::r#use::Use;
 use crate::subcommands_impl::remove::Remove;
 use crate::subcommands_impl::update::Update;
 use crate::task::task::Success;
-use crate::task::task_type::TaskType::EmptyTask;
 use crate::term::term::Term;
 use crate::utils::url_build::url_build;
 
@@ -43,19 +41,19 @@ fn main() {
 
     let mut term = Term { stdout: stdout() };
 
-    show_update_alert(&config.update.last_cvm_version, &VERSION.to_string());
+    let _ =show_update_alert(&config.update.last_cvm_version, &VERSION.to_string());
 
-    let args = subcommands::config::command_config();
+    let args = subcommands::commands_config::command_config();
 
     let result = match args.subcommand() {
         Some(("init", matches)) => {
             Init::start(matches, &config, &mut term)
         }
         Some(("install", matches)) => {
-                Install::start(matches, &config, &mut term)
+            Install::start(matches, &config, &mut term)
         }
         Some(("use", matches)) => {
-                Use::start(matches, &config, &mut term)
+            Use::start(matches, &config, &mut term)
         }
         Some(("remove", matches)) => {
             Remove::start(matches, &config, &mut term)
@@ -64,19 +62,19 @@ fn main() {
             Clean::start(matches, &config, &mut term)
         }
         Some(("list", matches)) => {
-                List::start(matches, &config, &mut term)
+            List::start(matches, &config, &mut term)
         }
         Some(("update", matches)) => {
-                Update::start(matches, &config, &mut term)
+            Update::start(matches, &config, &mut term)
         }
         Some(("start", matches)) => {
-                Start::start(matches, &config, &mut term)
+            Start::start(matches, &config, &mut term)
         }
         Some(("stop", matches)) => {
-                Stop::start(matches, &config, &mut term)
+            Stop::start(matches, &config, &mut term)
         }
         Some(("config", matches)) => {
-                Config::start(matches, &config, &mut term)
+            Config::start(matches, &config, &mut term)
         }
         _ => { error_not_found() }
     };
@@ -92,15 +90,19 @@ fn main() {
 }
 
 fn error_not_found() -> Result<Success, Message> {
-    return Err(Message::CommandNotFound(Error {
+    return Err(Message::CommandNotFound(MessageData {
         message: "Command not found".to_string(),
-        task: EmptyTask("".to_string()),
-        stack: vec![],
+        ..Default::default()
     }));
 }
 
-fn show_update_alert(last_version: &String, current_version: &String) {
+fn show_update_alert(last_version: &String, current_version: &String) -> Result<Success, Message> {
     if &last_version > &current_version {
-        println!("{} {} => {}", "New update available".blue(), &current_version.blue(), &last_version.green());
+        return Err(Message::CommandNotFound(MessageData {
+            message: format!("{} {} => {}", "New update available", &current_version, &last_version),
+            kind: MessageKind::Info,
+            ..Default::default()
+        }));
     };
+    Ok(Success{})
 }

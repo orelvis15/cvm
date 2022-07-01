@@ -13,6 +13,11 @@ pub struct ServicesManagerTask {
 }
 
 impl Task for ServicesManagerTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         for services in &config.services_item {

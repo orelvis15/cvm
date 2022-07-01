@@ -2,7 +2,7 @@
 
 use clap::{ArgMatches};
 use crate::{Command, Message, Success, Term};
-use crate::subcommands::config::Args;
+use crate::subcommands::commands_config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
 use crate::config::remote_config::RemoteConfig;
 use crate::task::task_impl::r#use::deploy_system_task::DeploySystemTask;

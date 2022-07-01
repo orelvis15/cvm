@@ -29,6 +29,12 @@ pub enum TaskType {
     Permission(String),
 }
 
+impl Default for TaskType {
+    fn default() -> Self {
+        TaskType::EmptyTask("".to_string())
+    }
+}
+
 impl TaskType {
     pub fn print(&self) -> String {
         match &self {

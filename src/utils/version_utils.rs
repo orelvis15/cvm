@@ -5,8 +5,7 @@ use std::fs::File;
 use std::path::Path;
 use regex::Regex;
 use serde::{Serialize, Deserialize};
-use crate::message::message::{Message, Error};
-use crate::task::task_type::TaskType::EmptyTask;
+use crate::message::message::{Message, MessageData};
 use crate::url_build;
 
 pub const LATEST: &str = "latest";
@@ -19,10 +18,9 @@ pub fn verify_version(version: &str) -> Result<&str, Message> {
     if valid {
         Ok(version)
     } else {
-        return Err(Message::VersionBadFormed(Error {
+        return Err(Message::VersionBadFormed(MessageData {
             message: "The version is not well formed".to_string(),
-            task: EmptyTask("Use Command".to_string()),
-            stack: vec![],
+            ..Default::default()
         }));
     }
 }
@@ -37,10 +35,9 @@ pub fn get_last_tag(url: &String) -> Result<String, Message> {
             }
         }
     }
-    return Err(Message::CheckCardanoVersion(Error {
+    return Err(Message::CheckCardanoVersion(MessageData {
         message: "Error checking latest cardano node tag".to_string(),
-        task: EmptyTask("".to_string()),
-        stack: vec![],
+        ..Default::default()
     }));
 }
 

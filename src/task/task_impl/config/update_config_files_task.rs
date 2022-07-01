@@ -12,7 +12,7 @@ use crate::config::remote_config::{RemoteConfig, ConfigFileItem};
 use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::{Error, Term, url_build};
+use crate::{MessageData, Term, url_build};
 use crate::config::state_config::{get_state, update_init_files};
 use crate::message::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
@@ -29,12 +29,17 @@ pub struct UpdateConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for UpdateConfigFilesTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         if get_state()?.init.files_item.is_empty() {
-            return Err(Message::UpdateConfigFile(Error{
+            return Err(Message::UpdateConfigFile(MessageData {
                 message: "The configuration files have not been downloaded yet".to_string(),
                 task: self.get_type(),
-                stack: vec![]
+                ..Default::default()
             }));
         }
         download_config_files(&self, &config.config_file_item, &config, term)?;

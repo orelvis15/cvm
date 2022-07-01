@@ -9,6 +9,11 @@ use crate::task::task_type::TaskType;
 pub struct EmptyTask {}
 
 impl Task for EmptyTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         Ok(Success{})
     }

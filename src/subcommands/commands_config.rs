@@ -17,6 +17,7 @@ pub fn command_config() -> ArgMatches {
         .subcommand(Command::new(CommandsConfig::INIT.to_string())
             .about("Start the environment to be able to build a Cardano node")
             .arg(get_arg_network())
+            .arg(get_arg_force_init())
         )
         .subcommand(Command::new(CommandsConfig::INSTALL.to_string())
             .about("Build the cardano node and make it available for use")
@@ -33,7 +34,7 @@ pub fn command_config() -> ArgMatches {
         .subcommand(Command::new(CommandsConfig::CONFIG.to_string())
             .subcommand(Command::new(CommandsConfig::UPDATE.to_string())
                 .about("Update configuration files and scripts to their latest released version as long as they have not been modified by someone")
-                .arg(get_arg_force())
+                .arg(get_arg_force_config())
             )
         )
         .subcommand(Command::new(CommandsConfig::CLEAN.to_string())
@@ -57,7 +58,14 @@ fn get_arg_network() -> Arg<'static> {
     Arg::new(Args::NETWORK._to_string()).default_value(Args::LATEST._to_string()).takes_value(true)
 }
 
-fn get_arg_force() -> Arg<'static> {
+fn get_arg_force_init() -> Arg<'static> {
+    Arg::new(Args::FORCE._to_string())
+        .short('f')
+        .long(Args::FORCE._to_string())
+        .help("Force rerun all initialization tasks")
+}
+
+fn get_arg_force_config() -> Arg<'static> {
     Arg::new(Args::FORCE._to_string())
         .short('f')
         .long(Args::FORCE._to_string())

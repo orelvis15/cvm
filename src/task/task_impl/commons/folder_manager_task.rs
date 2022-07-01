@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 use crate::env::Env;
-use crate::{Error, Success, Term, url_build};
+use crate::{MessageData, Success, Term, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -14,6 +14,11 @@ pub struct FolderManagerTask {
 }
 
 impl Task for FolderManagerTask {
+
+    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        Ok(true)
+    }
+
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
         match &self.input_data {
             FolderManagerAction::Create(data) => {
@@ -64,10 +69,9 @@ fn create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Succ
         }
 
         if !parent_path.exists() || folder_name.is_empty() {
-            return Err(Message::CreateFolder(Error {
+            return Err(Message::CreateFolder(MessageData {
                 message: format!("Trying create folder {}", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
 
@@ -84,10 +88,9 @@ fn check_create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Resul
         let folder_path = Path::new(&folder_url);
 
         if !folder_path.exists() {
-            return Err(Message::CreateFolder(Error {
+            return Err(Message::CreateFolder(MessageData {
                 message: format!("Trying create folder {}", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
     }
@@ -112,10 +115,9 @@ fn check_remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success,
     for folder_url in data {
         let folder_path = Path::new(folder_url);
         if folder_path.exists() {
-            return Err(Message::RemoveFolder(Error {
+            return Err(Message::RemoveFolder(MessageData {
                 message: format!("Folder {} could not be removed", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
     }
@@ -127,10 +129,9 @@ fn clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messag
     for folder_url in data {
         let folder_path = Path::new(folder_url);
         if !folder_path.exists() {
-            return Err(Message::FolderNotFound(Error {
+            return Err(Message::FolderNotFound(MessageData {
                 message: format!("Folder {} not exist", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
 
@@ -151,20 +152,18 @@ fn check_clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, 
         let folder_path = Path::new(folder_url);
 
         if !folder_path.exists() {
-            return Err(Message::FolderNotFound(Error {
+            return Err(Message::FolderNotFound(MessageData {
                 message: format!("Folder {} not exist", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
 
         if fs::read_dir(folder_path)?.count() == 0 {
             continue;
         } else {
-            return Err(Message::FolderNotFound(Error {
+            return Err(Message::FolderNotFound(MessageData {
                 message: format!("Folder {} is not empty", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         }
     }
@@ -176,10 +175,9 @@ fn exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messag
     for folder_url in data {
         let folder_path = Path::new(folder_url);
         if !folder_path.exists() {
-            return Err(Message::FolderNotFound(Error {
+            return Err(Message::FolderNotFound(MessageData {
                 message: format!("Error folder {} not found", folder_path.display()),
-                task: task.get_type(),
-                stack: vec![],
+                ..Default::default()
             }));
         };
     }

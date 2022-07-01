@@ -1,7 +1,6 @@
 use std::env;
 use users::{get_current_uid, get_user_by_uid};
-use crate::{Error, Message};
-use crate::task::task_type::TaskType;
+use crate::{MessageData, Message};
 
 pub fn get_current_user() -> Result<String, Message> {
     let user = get_user_by_uid(get_current_uid()).unwrap();
@@ -14,9 +13,8 @@ pub fn get_current_user() -> Result<String, Message> {
         return Ok(String::from(sudo_user.to_str().unwrap()));
     }
 
-    Err(Message::UserNotFound(Error{
+    Err(Message::UserNotFound(MessageData {
         message: "User not found".to_string(),
-        task: TaskType::EmptyTask("".to_string()),
-        stack: vec![]
+        ..Default::default()
     }))
 }
