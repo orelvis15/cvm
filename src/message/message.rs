@@ -139,7 +139,7 @@ impl Message {
 
     #[cfg(debug_assertions)]
     pub fn print(&self) {
-        let message = format!("Message: {} \n{} \nStack:{:?}", self.data().message, self.data().task, self.data().stack);
+        let message = format!("Message: {} \n{} \nStack:{:?}", &self.data().message, &self.data().task, &self.data().stack);
         match self.data().kind {
             MessageKind::Info => { println!("{}", message.blue()) }
             MessageKind::Warning => { println!("{}", message.yellow()) }
@@ -149,10 +149,11 @@ impl Message {
 
     #[cfg(not(debug_assertions))]
     pub fn print(&self) {
+        let message = &self.data().message;
         match self.data().kind {
-            MessageKind::Info => { println!("{}", self.data().message.blue()) }
-            MessageKind::Warning => { println!("{}", self.data().message.yellow()) }
-            _ => { println!("{}", self.data().message.red()) }
+            MessageKind::Info => { println!("{}", message.clone().blue()) }
+            MessageKind::Warning => { println!("{}", &message.clone().yellow()) }
+            _ => { println!("{}", &message.clone().red()) }
         }
     }
 }
