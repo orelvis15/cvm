@@ -45,7 +45,7 @@ impl Task for CreateFolderStructure {
             folders.push(url_build(vec![&Folder::get_path(Folder::from_str(folder.parent.as_str()).unwrap(), config), &folder.name.to_string()], false));
         }
 
-        let result = TaskManager {}.start(vec![
+        let result = TaskManager::default().start(vec![
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Exits(folders) }),
         ], config, term, L2);
 

@@ -14,7 +14,7 @@ pub struct Update{}
 impl Command for Update{
     fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(CheckUpdateTask { input_data: CheckUpdateData { version: VERSION.to_string() } }),
         ], config, term, L1)
     }

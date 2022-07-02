@@ -13,7 +13,7 @@ impl Command for Start{
     fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(ServicesManagerTask { input_data: ServicesAction::START }),
         ], config, term, L1)
     }

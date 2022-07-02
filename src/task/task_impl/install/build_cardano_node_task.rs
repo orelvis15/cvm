@@ -34,7 +34,7 @@ impl Task for BuildCardanoNodeTask {
         let cabal_url = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
         let libsodium_ported_file = url_build(vec![&cardano_folder, &config.build_cardano_node.cnode_ported_libsodium_file_name], false);
 
-        TaskManager {}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![git_folder.to_string()]) }),
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![cardano_folder.clone()]) }),
             Box::new(RunCommandTask { input_data: build_clone_repo_command(cardano_node_repository.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),

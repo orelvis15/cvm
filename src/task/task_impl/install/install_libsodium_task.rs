@@ -27,7 +27,7 @@ impl Task for InstallLibsodiumTask {
         let git_folder = Folder::get_path(Folder::GIT, &config);
         let libsodium_folder = url_build(vec![&git_folder, &config.init.libsodium_folder], false);
 
-        TaskManager {}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![libsodium_folder.to_string()]) }),
             Box::new(RunCommandTask { input_data: build_clone_repo_command(libsodium_repo.clone(), git_folder), command_description: "Cloning Libsodium repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_checkout_repo_command(libsodium_folder.clone(), config.init.libsodium_commit.clone()), command_description: "Switching to the specified commit".to_string() }),
@@ -44,7 +44,7 @@ impl Task for InstallLibsodiumTask {
         let l_lib_la = "/usr/local/lib/libsodium.la".to_string();
         let l_lib_so = "/usr/local/lib/libsodium.so".to_string();
 
-        TaskManager {}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(vec![l_lib_a, l_lib_la, l_lib_so]) }),
         ], config, term, L2)
     }

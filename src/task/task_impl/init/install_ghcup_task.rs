@@ -40,7 +40,7 @@ impl Task for InstallHanskellGhcTask {
     }
 
     fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        TaskManager {}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(RunCommandTask { input_data: build_sed_install_file_command(&self.install_sh_uri, &config.init.ghcup_pattern_sed), command_description: "Editing ghcup installation file".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_command(&self.install_sh_uri), command_description: "Installing ghcup".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_ghc_version_command(&self.ghcup_dir, &config.init.haskell_ghc_version), command_description: "Installing ghc".to_string() }),

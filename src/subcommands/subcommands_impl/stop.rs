@@ -14,7 +14,7 @@ impl Command for Stop{
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(ServicesManagerTask { input_data: ServicesAction::STOP }),
         ], config, term, L1)
     }

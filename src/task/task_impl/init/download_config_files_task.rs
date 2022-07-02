@@ -99,7 +99,7 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
 
 fn apply_pattern_sed(file_path: String, pattern: &String, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
-    TaskManager {}.start(vec![
+    TaskManager::default().start(vec![
         Box::new(RunCommandTask {
             input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
             command_description: "".to_string(),

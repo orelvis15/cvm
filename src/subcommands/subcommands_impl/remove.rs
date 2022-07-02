@@ -46,6 +46,6 @@ impl Command for Remove {
         }
 
         task_queue.reverse();
-        TaskManager {}.start(task_queue, config, term, L1)
+        TaskManager::default().start(task_queue, config, term, L1)
     }
 }

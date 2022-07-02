@@ -27,7 +27,7 @@ impl Command for Use{
             }
         };
 
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(ServicesManagerTask { input_data: ServicesAction::STOP }),
             Box::new(UserVersionTask { input_data: UserVersionData { version }}),
             Box::new(DeploySystemTask { }),

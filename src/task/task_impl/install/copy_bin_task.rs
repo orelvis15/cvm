@@ -54,7 +54,7 @@ impl Task for CopyBinTask {
             files_paths.push(url_build(vec![&version_folder.to_string(), required_file], false))
         }
 
-        TaskManager {}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Exits(vec![version_folder]) }),
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(files_paths) }),
         ], config, term, L2)

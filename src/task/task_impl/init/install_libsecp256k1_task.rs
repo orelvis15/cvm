@@ -33,7 +33,7 @@ impl Task for Installlibsecp256k1Task {
     }
 
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        TaskManager {}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![self.libsecp256k1_folder.clone()]) }),
             Box::new(RunCommandTask { input_data: build_clone_repo_command(&self.libsecp256k1_repo.clone(), &self.git_folder), command_description: "Cloning libsecp256k1 repository".to_string() }),
             Box::new(RunCommandTask { input_data: build_checkout_repo_command(&self.libsecp256k1_folder.clone(), &config.init.libsecp256k1_commit.clone()), command_description: "Switching to the specified commit".to_string() }),

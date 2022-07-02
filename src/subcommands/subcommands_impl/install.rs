@@ -46,12 +46,12 @@ impl Command for Install {
         if version_folder.exists() {
             return Err(Message::VersionExist(MessageData {
                 message: format!("the version {ver} is already installed to reinstall it firts remove it with the command [cvm remove {ver}]", ver = version),
-                kind: MessageKind::Warning,
+                kind: MessageKind::Info,
                 ..Default::default()
             }))
         }
 
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(BuildCardanoNodeTask { version: version.to_string() }),
         ], config, term, L1)
     }

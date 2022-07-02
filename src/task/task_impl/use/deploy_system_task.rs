@@ -29,18 +29,17 @@ pub struct DeploySystemTask {}
 impl Task for DeploySystemTask {
 
     fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        sudo::escalate_if_needed().expect("Super user permissions are required");
         Ok(true)
     }
 
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
 
-        sudo::escalate_if_needed().expect("Super user permissions are required");
-
         for services in &config.services_item {
             create_service(&services)?;
         }
 
-        TaskManager{}.start(vec![
+        TaskManager::default().start(vec![
             Box::new(RunCommandTask { input_data: build_reset_daemon_command(), command_description: "Reset systemctl daemon".to_string() }),
         ], config, term, L2)
     }
