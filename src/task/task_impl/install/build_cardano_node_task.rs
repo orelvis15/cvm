@@ -15,35 +15,36 @@ use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
 use crate::term::log_level::LogLevel::L2;
 
+#[derive(Default)]
 pub struct BuildCardanoNodeTask {
     pub version: String,
+    cardano_folder: String,
+    ghcup_folder: String,
+    libsodium_ported_file: String,
+    git_folder: String,
 }
 
 impl Task for BuildCardanoNodeTask {
 
     fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        self.cardano_folder = url_build(vec![&Folder::get_path(Folder::GIT, &config), &config.build_cardano_node.cnode_repository_name], false);
+        self.ghcup_folder = url_build(vec![&Folder::get_home_dir()?, &config.init.ghcup_bin_path], false);
+        self.libsodium_ported_file = url_build(vec![&self.cardano_folder, &config.build_cardano_node.cnode_ported_libsodium_file_name], false);
+        self.git_folder = Folder::get_path(Folder::GIT, &config);
         Ok(true)
     }
 
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let home_dir = Folder::get_home_dir()?;
-
-        let cardano_node_repository = &config.build_cardano_node.cnode_repository;
-        let git_folder = Folder::get_path(Folder::GIT, &config);
-        let cardano_folder = url_build(vec![&git_folder, &config.build_cardano_node.cnode_repository_name], false);
-        let cabal_url = url_build(vec![&home_dir, &config.init.ghcup_bin_path], false);
-        let libsodium_ported_file = url_build(vec![&cardano_folder, &config.build_cardano_node.cnode_ported_libsodium_file_name], false);
-
         TaskManager::default().start(vec![
-            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![git_folder.to_string()]) }),
-            Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![cardano_folder.clone()]) }),
-            Box::new(RunCommandTask { input_data: build_clone_repo_command(cardano_node_repository.clone(), git_folder), command_description: "Cloning cardano node repository".to_string() }),
-            Box::new(FileManagerTask { input_data: FileManagerAction::CreateFileString((libsodium_ported_file.to_string(), config.build_cardano_node.cnode_ported_libsodium_data.clone().to_string()) ) }),
-            Box::new(RunCommandTask { input_data: build_fetch_all_command(cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
-            Box::new(RunCommandTask { input_data: build_checkout_version_command(self.version.clone(), cardano_folder.clone()), command_description: format!("changing to the version {}", &self.version) }),
-            Box::new(RunCommandTask { input_data: build_cabal_update_command(&cabal_url), command_description: "Updating cabal packages".to_string() }),
-            Box::new(RunCommandTask { input_data: build_run_cabal_command(cabal_url, cardano_folder.clone(), &config.binaries.required_files), command_description: "Building cardano node".to_string() }),
-            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(), origin_path: cardano_folder.clone(), version: self.version.clone() } }),
+            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![self.git_folder.clone().to_string()]) }),
+            Box::new(FolderManagerTask { input_data: FolderManagerAction::Remove(vec![self.cardano_folder.clone()]) }),
+            Box::new(RunCommandTask { input_data: build_clone_repo_command(&config.build_cardano_node.cnode_repository, &self.git_folder.to_string()), command_description: "Cloning cardano node repository".to_string() }),
+            Box::new(FileManagerTask { input_data: FileManagerAction::CreateFileString((self.libsodium_ported_file.to_string(), config.build_cardano_node.cnode_ported_libsodium_data.clone().to_string()) ) }),
+            Box::new(RunCommandTask { input_data: build_fetch_all_command(&self.cardano_folder.clone()), command_description: "Fetch cardano node repository".to_string() }),
+            Box::new(RunCommandTask { input_data: build_checkout_version_command(&self.version, &self.cardano_folder), command_description: format!("changing to the version {}", &self.version) }),
+            Box::new(RunCommandTask { input_data: build_cabal_update_command(&self.ghcup_folder), command_description: "Updating cabal packages".to_string() }),
+            Box::new(RunCommandTask { input_data: build_run_cabal_command(&self.ghcup_folder, &self.cardano_folder, &config.binaries.required_files), command_description: "Building cardano node".to_string() }),
+            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(), origin_path: self.cardano_folder.clone(), version: self.version.clone() } }),
         ], config, term, L2)
     }
 
@@ -56,28 +57,28 @@ impl Task for BuildCardanoNodeTask {
     }
 }
 
-fn build_clone_repo_command(repo: String, path: String) -> RunCommandInputData {
-    let args = vec![Cmd::Clone.as_string(), repo];
-    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
+fn build_clone_repo_command(repo: &String, path: &String) -> RunCommandInputData {
+    let args = vec![Cmd::Clone.as_string(), repo.clone()];
+    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path.to_string() }
 }
 
-fn build_fetch_all_command(path: String) -> RunCommandInputData {
+fn build_fetch_all_command(path: &String) -> RunCommandInputData {
     let args = vec![Cmd::Fetch.as_string(), "--all".to_string(), "--recurse-submodules".to_string(), "--tags".to_string()];
-    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
+    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path.to_string() }
 }
 
-fn build_checkout_version_command(version: String, path: String) -> RunCommandInputData {
+fn build_checkout_version_command(version: &String, path: &String) -> RunCommandInputData {
     let arg_version = version.to_string();
     let args = vec![Cmd::Checkout.as_string(), arg_version];
-    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path }
+    RunCommandInputData { command: Cmd::Git.as_string(), args, current_dir: path.to_string() }
 }
 
-fn build_run_cabal_command(cabal_path: String, folder_path: String, binaries: &Vec<String>) -> RunCommandInputData {
+fn build_run_cabal_command(cabal_path: &String, folder_path: &String, binaries: &Vec<String>) -> RunCommandInputData {
     let mut args: Vec<String> = vec![Cmd::Build.as_string()];
     for binary in binaries {
         args.push(binary.to_string());
     }
-    RunCommandInputData { command: url_build(vec![&cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: folder_path }
+    RunCommandInputData { command: url_build(vec![&cabal_path, &Cmd::Cabal.as_string()], false), args, current_dir: folder_path.to_string() }
 }
 
 fn build_cabal_update_command(cabal_path: &String) -> RunCommandInputData {

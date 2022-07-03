@@ -51,8 +51,11 @@ impl Command for Install {
             }))
         }
 
+        let mut task = BuildCardanoNodeTask::default();
+        task.version = version.to_string();
+
         TaskManager::default().start(vec![
-            Box::new(BuildCardanoNodeTask { version: version.to_string() }),
+            Box::new(task),
         ], config, term, L1)
     }
 }
