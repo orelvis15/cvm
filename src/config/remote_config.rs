@@ -4,7 +4,7 @@ use crate::{Message, url_build};
 use crate::utils::download_manager::download_in_path;
 use crate::utils::folders::Folder;
 
-const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm/master/config/config.toml";
+const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm/master/config/config_remote.toml";
 const FILE_NAME: &str = "config_remote.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
@@ -44,7 +44,6 @@ pub struct General {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Init {
     pub git_assets: String,
-    pub config_path: String,
     pub ghcup_url: String,
     pub install_ghc_file: String,
     pub ghcup_bin_path: String,

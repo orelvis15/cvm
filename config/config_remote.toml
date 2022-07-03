@@ -9,7 +9,6 @@ file_name = "cvm.tar.gz"
 
 [init]
 git_assets = "https://github.com/orelvis15/cvm/releases/download"
-config_path = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/"
 ghcup_url = "https://get-ghcup.haskell.org"
 ghcup_bin_path = ".ghcup/bin"
 ghcup_pattern_sed = "s/read /#/g;/^warn /s/^/#/g;/^yellow /s/^/#/g;/^green /s/^/#/g;/^green^/s/^/#/g"
