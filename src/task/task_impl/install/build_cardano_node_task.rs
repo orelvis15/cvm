@@ -9,7 +9,6 @@ use crate::task::task::Task;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
-use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
@@ -44,7 +43,6 @@ impl Task for BuildCardanoNodeTask {
             Box::new(RunCommandTask { input_data: build_checkout_version_command(&self.version, &self.cardano_folder), command_description: format!("changing to the version {}", &self.version) }),
             Box::new(RunCommandTask { input_data: build_cabal_update_command(&self.ghcup_folder), command_description: "Updating cabal packages".to_string() }),
             Box::new(RunCommandTask { input_data: build_run_cabal_command(&self.ghcup_folder, &self.cardano_folder, &config.binaries.required_files), command_description: "Building cardano node".to_string() }),
-            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(), origin_path: self.cardano_folder.clone(), version: self.version.clone() } }),
         ], config, term, L2)
     }
 

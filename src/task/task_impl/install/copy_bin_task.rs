@@ -24,24 +24,30 @@ pub struct CopyBinInputData {
     pub files_names: Vec<String>,
     pub origin_path: String,
     pub version: String,
+    pub bin_folder: String,
+    pub version_folder: String,
 }
 
 impl Task for CopyBinTask {
 
     fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        let version_folder_path = Path::new(&self.input_data.version_folder);
+        if !version_folder_path.exists() {
+            return Ok(false);
+        }
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
-        let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
-        let version_folder_path = Path::new(version_folder.as_str());
-
-        if !version_folder_path.exists() {
-            fs::create_dir_all(version_folder_path)?;
-        };
-
-        build_copy_program_to_bin_folder_command(&self.input_data.files_names, &version_folder.to_string(), &self.input_data.origin_path, &self)
+    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+        for entry in WalkDir::new(&self.input_data.origin_path) {
+            let entry = entry.unwrap();
+            for file_name in &self.input_data.files_names {
+                if entry.file_name().to_str().unwrap() == file_name && entry.path().is_file() {
+                    fs::copy(entry.path(), format!("{}/{}", &self.input_data.version_folder, file_name))?;
+                }
+            }
+        }
+        Ok(Success {})
     }
 
     fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
@@ -63,16 +69,4 @@ impl Task for CopyBinTask {
     fn get_type(self: &Self) -> TaskType {
         TaskType::CopyBinFiles(self.input_data.clone())
     }
-}
-
-fn build_copy_program_to_bin_folder_command(file_names: &Vec<String>, destination_path: &String, origin_path: &String, _self: &CopyBinTask) -> Result<Success, Message> {
-    for entry in WalkDir::new(origin_path) {
-        let entry = entry.unwrap();
-        for file_name in file_names {
-            if entry.file_name().to_str().unwrap() == file_name && entry.path().is_file() {
-                fs::copy(entry.path(), format!("{}/{}", destination_path, file_name))?;
-            }
-        }
-    }
-    Ok(Success {})
 }

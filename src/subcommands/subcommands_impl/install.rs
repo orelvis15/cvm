@@ -9,16 +9,17 @@ use crate::config::remote_config::RemoteConfig;
 use crate::{Message, Command, Term, MessageData, url_build};
 use crate::config::state_config::get_state;
 use crate::message::message::MessageKind;
+use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
 use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
+use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
 use crate::utils::folders::Folder;
 
-pub struct Install{}
+pub struct Install {}
 
 impl Command for Install {
     fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();
 
@@ -41,21 +42,25 @@ impl Command for Install {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &version], false);
-        let version_folder = Path::new(&version_folder);
+        let version_folder_path = Path::new(&version_folder);
+        let cardano_folder = url_build(vec![&Folder::get_path(Folder::GIT, &config), &config.build_cardano_node.cnode_repository_name], false);
 
-        if version_folder.exists() {
+        if version_folder_path.exists() {
             return Err(Message::VersionExist(MessageData {
                 message: format!("the version {ver} is already installed to reinstall it firts remove it with the command [cvm remove {ver}]", ver = version),
                 kind: MessageKind::Info,
                 ..Default::default()
-            }))
+            }));
         }
 
-        let mut task = BuildCardanoNodeTask::default();
-        task.version = version.to_string();
+        let mut build_cardano_task = BuildCardanoNodeTask::default();
+        build_cardano_task.version = version.to_string();
 
         TaskManager::default().start(vec![
-            Box::new(task),
+            Box::new(build_cardano_task),
+            Box::new(FolderManagerTask { input_data: FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())]) }),
+            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(),
+                origin_path: cardano_folder.clone(), version: version.clone(), bin_folder: bin_folder.clone(), version_folder: version_folder.clone() } }),
         ], config, term, L1)
     }
 }
