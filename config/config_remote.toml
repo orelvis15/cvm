@@ -53,7 +53,7 @@ others_files = ["cardano-submit-api", "cardano-api", "cardano-api-test", "cardan
 #Services items
 
 [[services_item]]
-url = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/systemd/"
+url = "https://raw.githubusercontent.com/orelvis15/cvm/master/config/systemd/"
 file = "cnode.service"
 name = "cnode"
 

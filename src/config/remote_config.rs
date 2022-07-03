@@ -4,7 +4,7 @@ use crate::{Message, url_build};
 use crate::utils::download_manager::download_in_path;
 use crate::utils::folders::Folder;
 
-const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/config.toml";
+const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm/master/config/config.toml";
 const FILE_NAME: &str = "config_remote.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
