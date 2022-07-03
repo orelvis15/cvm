@@ -1,8 +1,8 @@
 #![allow(dead_code, unused_variables)]
 
 use clap::ArgMatches;
+use crossterm::style::Stylize;
 use fs_extra::dir::get_size;
-use owo_colors::OwoColorize;
 use walkdir::WalkDir;
 use crate::{Command, Message, Success, Term};
 use crate::utils::version_utils::verify_version;

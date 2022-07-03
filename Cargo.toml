@@ -6,27 +6,25 @@ authors = ["Orelvis Lago Vasallo"]
 description = "CLI for version control in cardano pools"
 
 [dependencies]
-clap = { version = "3.2.1", features = ["derive", "yaml"] }
-reqwest = { version = "0.11.10", features = ["json", "blocking", "rustls-tls"] , default-features = false}
-tokio = { version = "1", features = ["full"] }
-os_info = "3"
+clap = { version = "3.2.8", features = ["derive", "yaml"] }
+reqwest = { version = "0.11.11", features = ["json", "blocking", "rustls-tls"] , default-features = false}
+tokio = { version = "1.19.2 ", features = ["full"] }
+os_info = "3.4.0"
 rs-release = "0.1.7"
-toml = "0.5"
-serde = "1.0.136"
-owo-colors = "3.2.0"
+toml = "0.5.9"
+serde = "1.0.138"
 strfmt = "0.1.6"
-regex = "1.5.5"
+regex = "1.5.6"
 walkdir = "2.3.2"
-serde_json = "1.0.49"
-flate2 = "1.0.23"
+serde_json = "1.0.82"
+flate2 = "1.0.24"
 tar = "0.4.38"
 sudo = "0.6.0"
 users = "0.11.0"
-systemctl = "0.1.6"
+systemctl = "0.1.7"
 tinytemplate = "1.2.1"
 file_diff = "1.0.0"
-crossterm = "0.23.2"
-lazy_static = "1.4.0"
+crossterm = "0.24.0"
 fs_extra = "1.2.0"
 faccess = "0.2.4"
 sha256 = "1.0.3"
