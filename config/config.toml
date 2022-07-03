@@ -1,0 +1,262 @@
+[general]
+version = "0.0.1"
+
+[update]
+last_cvm_version = "0.0.1"
+version_pattern = "v{version}"
+name_pattern = "cvm-{arch}.tar.gz"
+file_name = "cvm.tar.gz"
+
+[init]
+git_assets = "https://github.com/orelvis15/cvm/releases/download"
+config_path = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/"
+ghcup_url = "https://get-ghcup.haskell.org"
+ghcup_bin_path = ".ghcup/bin"
+ghcup_pattern_sed = "s/read /#/g;/^warn /s/^/#/g;/^yellow /s/^/#/g;/^green /s/^/#/g;/^green^/s/^/#/g"
+libsodium_repository = "https://github.com/input-output-hk/libsodium.git"
+libsodium_commit = "66f017f1"
+libsodium_folder = "libsodium"
+libsodium_autogen_file = "./autogen.sh"
+libsodium_config_file = "./configure"
+libsecp256k1_repository = "https://github.com/bitcoin-core/secp256k1"
+libsecp256k1_commit= "ac83be33"
+libsecp256k1_autogen_file = "./autogen.sh"
+libsecp256k1_configure_file = "./configure"
+libsecp256k1_folder = "secp256k1"
+install_ghc_file = "install_ghc"
+haskell_ghc_version = "8.10.7"
+haskell_cabal_version = "3.6.2.0"
+
+[dependencies]
+macos = ["coreutils", "gnupg", "jq", "libsodium", "tcptraceroute"]
+debian = ["libpq-dev", "python3", "build-essential", "pkg-config", "libffi-dev", "libgmp-dev", "libssl-dev", "libtinfo-dev", "systemd", "libsystemd-dev", "libsodium-dev", "zlib1g-dev", "make", "g++", "tmux", "git", "jq", "libncursesw5", "gnupg", "aptitude", "libtool", "autoconf", "secure-delete", "iproute2", "bc", "tcptraceroute", "dialog", "automake", "sqlite3", "bsdmainutils", "libusb-1.0-0-dev", "libudev-dev", "curl"]
+ubuntu = ["libpq-dev", "python3", "build-essential", "pkg-config", "libffi-dev", "libgmp-dev", "libssl-dev", "libtinfo-dev", "systemd", "libsystemd-dev", "libsodium-dev", "zlib1g-dev", "make", "g++", "tmux", "git", "jq", "libncursesw5", "gnupg", "aptitude", "libtool", "autoconf", "secure-delete", "iproute2", "bc", "tcptraceroute", "dialog", "automake", "sqlite3", "bsdmainutils", "libusb-1.0-0-dev", "libudev-dev", "curl", "unzip"]
+centos = ["python3", "coreutils", "libffi-devel", "gmp-devel", "openssl-devel", "ncurses-libs", "systemd", "systemd-devel", "zlib-devel", "make", "gcc-c++", "tmux", "git", "jq", "gnupg2", "libtool", "autoconf", "iproute", "bc", "traceroute", "dialog", "sqlite", "util-linux", "xz", "curl"]
+centos_7 = ["libusb", "pkconfig", "srm"]
+centos_8 = ["libusbx", "ncurses-compat-libs", "pkgconf-pkg-config"]
+rhel = ["python3", "coreutils", "libffi-devel", "gmp-devel", "openssl-devel", "ncurses-libs", "systemd", "systemd-devel", "libsodium-devel", "zlib-devel", "make", "gcc-c++", "tmux", "git", "jq", "gnupg2", "libtool", "autoconf", "iproute", "bc", "traceroute", "dialog", "sqlite", "util-linux", "xz", "curl"]
+rhel_7 = ["libusb", "pkconfig", "srm"]
+rhel_8 = ["libusbx", "ncurses-compat-libs", "pkgconf-pkg-config"]
+fedora = ["python3", "coreutils", "libffi-devel", "gmp-devel", "openssl-devel", "ncurses-libs", "systemd", "systemd-devel", "libsodium-devel", "zlib-devel", "make", "gcc-c++", "tmux", "git", "jq", "gnupg2", "libtool", "autoconf", "iproute", "bc", "traceroute", "dialog", "sqlite", "util-linux", "xz", "libusbx", "ncurses-compat-libs", "pkgconf-pkg-config", "srm", "curl"]
+
+[build_cardano_node]
+cnode_repository = "https://github.com/input-output-hk/cardano-node.git"
+cnode_release = "https://api.github.com/repos/input-output-hk/cardano-node/releases/latest"
+cnode_repository_name = "cardano-node"
+cnode_ported_libsodium_file_name = "cabal.project.local"
+cnode_ported_libsodium_data = "package cardano-crypto-praos\n  flags: -external-libsodium-vrf"
+
+[binaries]
+required_files = ["cardano-node", "cardano-cli"]
+others_files = ["cardano-submit-api", "cardano-api", "cardano-api-test", "cardano-node-capi", "cardano-topology", "cardano-git-rev", "cardano-node-chairman", "cardano-client-demo", "cardano-testnet", "locli", "trace-dispatcher", "trace-forward", "trace-resources", "tx-generator" ]
+
+#Services items
+
+[[services_item]]
+url = "https://raw.githubusercontent.com/orelvis15/cvm_config/master/systemd/"
+file = "cnode.service"
+name = "cnode"
+
+# Folder Structure
+
+[[structure_folder_item]]
+key = "ROOT"
+name = "cardano"
+parent = "."
+
+[[structure_folder_item]]
+key = "SCRIPTS"
+name = "scripts"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "FILES"
+name = "files"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "DB"
+name = "db"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "GUILDDB"
+name = "guild-db"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "SOCKETS"
+name = "sockets"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "PRIV"
+name = "priv"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "TMP"
+name = "tmp"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "LOGS"
+name = "logs"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "BIN"
+name = "bin"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "GIT"
+name = "git"
+parent = "ROOT"
+
+[[structure_folder_item]]
+key = "CURRENT"
+name = "current"
+parent = "BIN"
+
+# Config files
+
+[[config_file_item]]
+url = "https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/{network}-byron-genesis.json"
+name = "byron-genesis.json"
+folder_key = "FILES"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/{network}-shelley-genesis.json"
+name = "shelley-genesis.json"
+folder_key = "FILES"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/{network}-alonzo-genesis.json"
+name = "alonzo-genesis.json"
+folder_key = "FILES"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/{network}-topology.json"
+name = "topology.json"
+folder_key = "FILES"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/files/config-{network}.json"
+name = "config.json"
+folder_key = "FILES"
+pattern_sed="s|/opt/cardano/cnode|/opt/cardano|g"
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/files/config-dbsync.json"
+name = "config-dbsync.json"
+folder_key = "FILES"
+pattern_sed=""
+
+# Script helpers
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/env"
+name = "env"
+folder_key = "SCRIPTS"
+pattern_sed="2,80s|.{HOME}/.cabal/bin|/opt/cardano/bin/current|g;s|/opt/cardano/cnode|/opt/cardano|g;/#CNODE_HOME=/s/^#//g;/#CNODE_PORT=/s/^#//g;/#CONFIG=/s/^#//g;/#SOCKET=/s/^#//g;/#TOPOLOGY=/s/^#//g;/#LOG_DIR=/s/^#//g;/DB_DIR=/s/^#//g;/CNODEBIN=/s/^#//g;/CCLI=/s/^#//g"
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/cnode.sh"
+name = "cnode.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/dbsync.sh"
+name = "dbsync.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/cntools.sh"
+name = "cntools.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/cntools.library"
+name = "cntools.library"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/logMonitor.sh"
+name = "logMonitor.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/setup_mon.sh"
+name = "setup_mon.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/topologyUpdater.sh"
+name = "topologyUpdater.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/cabal-build-all.sh"
+name = "cabal-build-all.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/submitapi.sh"
+name = "submitapi.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/ogmios.sh"
+name = "ogmios.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/system-info.sh"
+name = "system-info.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/sLiveView.sh"
+name = "sLiveView.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/gLiveView.sh"
+name = "gLiveView.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/deploy-as-systemd.sh"
+name = "deploy-as-systemd.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/cncli.sh"
+name = "cncli.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
+
+[[config_file_item]]
+url = "https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/grest-helper-scripts/setup-grest.sh"
+name = "setup-grest.sh"
+folder_key = "SCRIPTS"
+pattern_sed=""
