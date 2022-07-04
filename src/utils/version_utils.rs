@@ -11,6 +11,7 @@ use crate::url_build;
 pub const LATEST: &str = "latest";
 const USER_AGENT: &str = "cvm";
 const VERSION_FILE: &str = "version";
+const CVM_RELEASES: &str = "https://api.github.com/repos/orelvis15/cvm/releases/latest";
 
 pub fn verify_version(version: &str) -> Result<&str, Message> {
     let regex = Regex::new(r"^(\d+\.)?(\d+\.)?(\*|\d+)$").unwrap();
@@ -29,14 +30,30 @@ pub fn get_last_tag(url: &String) -> Result<String, Message> {
     let client = reqwest::blocking::Client::builder().user_agent(USER_AGENT).build();
     if let Ok(client) = client {
         if let Ok(response) = client.get(url).send() {
-            if let Ok(test) = response.text() {
-                let tag: Tag = serde_json::from_str(test.as_str()).unwrap();
+            if let Ok(text) = response.text() {
+                let tag: Tag = serde_json::from_str(text.as_str()).unwrap();
                 return Ok(tag.tag_name);
             }
         }
     }
     return Err(Message::CheckCardanoVersion(MessageData {
-        message: "Error checking latest cardano node tag".to_string(),
+        message: "Error checking latest cardano node release".to_string(),
+        ..Default::default()
+    }));
+}
+
+pub fn get_last_cvm_version() -> Result<String, Message> {
+    let client = reqwest::blocking::Client::builder().user_agent(USER_AGENT).build();
+    if let Ok(client) = client {
+        if let Ok(response) = client.get(CVM_RELEASES).send() {
+            if let Ok(text) = response.text() {
+                let tag: Tag = serde_json::from_str(text.as_str()).unwrap();
+                return Ok(tag.tag_name);
+            }
+        }
+    }
+    return Err(Message::CheckCardanoVersion(MessageData {
+        message: "Error checking latest cvm release".to_string(),
         ..Default::default()
     }));
 }

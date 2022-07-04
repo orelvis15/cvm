@@ -1,12 +1,12 @@
 #![allow(dead_code, unused_variables)]
 
+use std::io::stdout;
 use std::path::Path;
 use clap::ArgMatches;
 use crate::subcommands::commands_config::{Args};
 use crate::task::task::Success;
 use crate::utils::version_utils::{get_last_tag, LATEST, verify_version};
-use crate::config::remote_config::RemoteConfig;
-use crate::{Message, Command, Term, MessageData, url_build};
+use crate::{Message, CommandStrategy, Term, MessageData, url_build, config};
 use crate::config::state_config::get_state;
 use crate::message::message::MessageKind;
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
@@ -18,8 +18,12 @@ use crate::utils::folders::Folder;
 
 pub struct Install {}
 
-impl Command for Install {
-    fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+impl CommandStrategy for Install {
+    fn start(command: &ArgMatches) -> Result<Success, Message> {
+
+        let config = config::remote_config::get_remote_config()?;
+        let mut term = Term { stdout: stdout() };
+
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();
 
@@ -61,6 +65,6 @@ impl Command for Install {
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())]) }),
             Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(),
                 origin_path: cardano_folder.clone(), version: version.clone(), bin_folder: bin_folder.clone(), version_folder: version_folder.clone() } }),
-        ], config, term, L1)
+        ], &config, &mut term, L1)
     }
 }

@@ -8,11 +8,12 @@ use crate::env::Env;
 use strfmt::strfmt;
 use crate::{Success, Term};
 use crate::config::remote_config::{RemoteConfig, Update};
-use crate::message::message::{Message, MessageData};
+use crate::message::message::{Message, MessageData, MessageKind};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
 use crate::utils::folders::Folder;
+use crate::utils::version_utils::get_last_cvm_version;
 
 pub struct CheckUpdateTask {
     pub input_data: CheckUpdateData,
@@ -30,15 +31,18 @@ impl Task for CheckUpdateTask {
     }
 
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        if &config.update.last_cvm_version <= &self.input_data.version {
+        let last_version = get_last_cvm_version()?;
+        let last_version = last_version.replace("v", "");
+        if &last_version <= &self.input_data.version {
             return Err(Message::AlreadyLastUpdate(MessageData {
                 message: "You already have the latest version".to_string(),
                 task: self.get_type(),
+                kind: MessageKind::Info,
                 ..Default::default()
             }));
         };
 
-        download_and_copy_version(&config.update.last_cvm_version, &config.init.git_assets, &config.update)
+        download_and_copy_version(&last_version, &config.init.git_assets, &config.update)
     }
 
     fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {

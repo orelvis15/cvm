@@ -17,7 +17,7 @@ pub fn get_remote_config() -> Result<RemoteConfig, Message> {
     Ok(parse_file)
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct RemoteConfig {
     pub general: General,
     pub update: Update,
@@ -30,18 +30,18 @@ pub struct RemoteConfig {
     pub services_item: Vec<Services>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct Binaries {
     pub required_files: Vec<String>,
     pub others_files: Vec<String>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct General {
     pub version: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct Init {
     pub git_assets: String,
     pub ghcup_url: String,
@@ -62,7 +62,7 @@ pub struct Init {
     pub haskell_cabal_version: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct ConfigFileItem {
     pub url: String,
     pub name: String,
@@ -70,7 +70,7 @@ pub struct ConfigFileItem {
     pub pattern_sed: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct Dependencies {
     pub macos: Vec<String>,
     pub debian: Vec<String>,
@@ -84,7 +84,7 @@ pub struct Dependencies {
     pub rhel_8: Vec<String>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct BuildCardanoNode {
     pub cnode_repository: String,
     pub cnode_release: String,
@@ -93,22 +93,21 @@ pub struct BuildCardanoNode {
     pub cnode_ported_libsodium_data: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct StructureFolderItem {
     pub key: String,
     pub name: String,
     pub parent: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct Update {
-    pub last_cvm_version: String,
     pub version_pattern: String,
     pub name_pattern: String,
     pub file_name: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct Services {
     pub url: String,
     pub file: String,

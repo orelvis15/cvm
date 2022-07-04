@@ -2,7 +2,6 @@
 version = "0.0.1"
 
 [update]
-last_cvm_version = "0.0.1"
 version_pattern = "v{version}"
 name_pattern = "cvm-{arch}.tar.gz"
 file_name = "cvm.tar.gz"

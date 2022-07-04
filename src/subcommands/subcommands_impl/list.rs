@@ -4,16 +4,17 @@ use clap::ArgMatches;
 use crossterm::style::Stylize;
 use fs_extra::dir::get_size;
 use walkdir::WalkDir;
-use crate::{Command, Message, Success, Term};
+use crate::{CommandStrategy, config, Message, Success};
 use crate::utils::version_utils::verify_version;
-use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::get_state;
 use crate::utils::folders::Folder;
 
 pub struct List{}
 
-impl Command for List{
-    fn start(command: &ArgMatches, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+impl CommandStrategy for List{
+    fn start(command: &ArgMatches) -> Result<Success, Message> {
+
+        let config = config::remote_config::get_remote_config()?;
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let current_folder = Folder::get_path(Folder::CURRENT, &config);
