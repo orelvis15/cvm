@@ -74,8 +74,6 @@ fn download_and_copy_version(version: &String) -> Result<Success, Message> {
     let asset = strfmt(&NAME_PATTERN, &arch_map).unwrap();
     let url = format!("{}/{}/{}", GIT_DOWNLOAD_URL, &ver.as_str(), &asset.as_str());
 
-    println!("ahi {}", &url);
-
     let download_path = download(&url, format!("/{}", &FILE_NAME).as_str())?;
 
     decompress(download_path, home_dir)
