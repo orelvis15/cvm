@@ -16,7 +16,7 @@ impl CommandStrategy for Start {
         let config = config::remote_config::get_remote_config()?;
         let mut term = Term { stdout: stdout() };
 
-        if get_state()?.r#use == "" {
+        if get_state()?.r#use.version == "" {
             return Err(Message::UseVersion(
                 MessageData {
                     message: "There is no version in use yet, run the command [cvm use x.x.x]".to_string(),
