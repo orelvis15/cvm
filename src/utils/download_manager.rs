@@ -42,5 +42,5 @@ pub fn download_in_path(url: &String, path: String, name: String) -> Result<Stri
 
     file.write_all(&content.unwrap())?;
 
-    Ok(path)
+    Ok(file_path)
 }
