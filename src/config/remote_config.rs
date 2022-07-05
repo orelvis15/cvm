@@ -1,5 +1,6 @@
 use serde::{Deserialize};
 use std::fs;
+use std::path::Path;
 use crate::{Message, url_build};
 use crate::utils::download_manager::download_in_path;
 use crate::utils::folders::Folder;
@@ -7,20 +8,42 @@ use crate::utils::folders::Folder;
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm/master/config/config_remote.toml";
 const FILE_NAME: &str = "config_remote.tom";
 const PROJECT_FOLDER: &str = ".cvm";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn get_remote_config() -> Result<RemoteConfig, Message> {
     let home_dir = Folder::get_home_dir()?;
     let project_folder = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string()], false);
-    let file_path = download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME.to_string())?;
-    let file = fs::read_to_string(format!("{}/{}", file_path, FILE_NAME))?;
+    let file_path = format!("{}/{}", project_folder, FILE_NAME);
+    if need_download_config(&file_path)? {
+        download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME.to_string())?;
+    }
+    Ok(get_file_toml(&file_path)?)
+}
+
+fn get_file_toml(file_path: &String) -> Result<RemoteConfig, Message> {
+    let file = fs::read_to_string(file_path)?;
     let parse_file = toml::from_str(&file)?;
     Ok(parse_file)
+}
+
+fn need_download_config(file_url: &String) -> Result<bool, Message> {
+    let file_path = Path::new(file_url);
+    if !file_path.exists() {
+        return Ok(true);
+    }
+
+    let confg = get_file_toml(file_url)?;
+
+    if confg.general.version != VERSION {
+        return Ok(true);
+    }
+
+    return Ok(false);
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct RemoteConfig {
     pub general: General,
-    pub update: Update,
     pub init: Init,
     pub dependencies: Dependencies,
     pub config_file_item: Vec<ConfigFileItem>,
@@ -43,7 +66,6 @@ pub struct General {
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct Init {
-    pub git_assets: String,
     pub ghcup_url: String,
     pub install_ghc_file: String,
     pub ghcup_bin_path: String,
@@ -98,13 +120,6 @@ pub struct StructureFolderItem {
     pub key: String,
     pub name: String,
     pub parent: String,
-}
-
-#[derive(Deserialize, Debug, Clone, Default)]
-pub struct Update {
-    pub version_pattern: String,
-    pub name_pattern: String,
-    pub file_name: String,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
