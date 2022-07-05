@@ -1,6 +1,6 @@
 ## CVM - Cardano Version Manager
 
-<img src="https://raw.githubusercontent.com/orelvis15/cvm/add_images/images/logo_ligth.svg" width="500" />
+<img src="https://raw.githubusercontent.com/orelvis15/cvm/master/images/logo_ligth.svg" width="500" />
 
 Version Management System for Cardano Pools.
 
