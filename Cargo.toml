@@ -1,6 +1,6 @@
 [package]
 name = "cvm"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Orelvis Lago Vasallo"]
 description = "CLI for version control in cardano pools"

@@ -26,19 +26,22 @@ pub struct CheckUpdateTask {
 
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct CheckUpdateData {
-    pub version: String,
+    pub old_version: String,
+    pub last_version: String
 }
 
 impl Task for CheckUpdateTask {
 
     fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+        let last_version = get_last_cvm_version()?;
+        let last_version = last_version.replace("v", "");
+        self.input_data.last_version = last_version;
         Ok(true)
     }
 
     fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        let last_version = get_last_cvm_version()?;
-        let last_version = last_version.replace("v", "");
-        if &last_version <= &self.input_data.version {
+
+        if &self.input_data.last_version <= &self.input_data.old_version {
             return Err(Message::AlreadyLastUpdate(MessageData {
                 message: "You already have the latest version".to_string(),
                 task: self.get_type(),
@@ -47,7 +50,7 @@ impl Task for CheckUpdateTask {
             }));
         };
 
-        download_and_copy_version(&last_version)
+        download_and_copy_version(&self.input_data.last_version)
     }
 
     fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {

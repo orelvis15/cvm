@@ -1,5 +1,6 @@
 extern crate core;
 
+use clap::ArgMatches;
 use crossterm::style::Stylize;
 use message::message::{MessageData, Message};
 use subcommands::subcommands_impl;
@@ -31,7 +32,9 @@ mod term;
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
-    let _ = show_update_alert(VERSION.to_string());
+    if check_and_apply_update(VERSION.to_string()){
+        return;
+    }
 
     let args = subcommands::commands_config::command_config();
     let result = match args.subcommand() {
@@ -85,11 +88,16 @@ fn error_not_found() -> Result<Success, Message> {
     }));
 }
 
-fn show_update_alert(current_version: String) {
+fn check_and_apply_update(current_version: String) -> bool {
     let last_version = get_last_cvm_version().unwrap_or("".to_string());
     let last_version = last_version.replace("v", "");
     if &last_version > &current_version {
-        print!("{}\n {}\n", format!("{} {} => {}", "New update available".yellow(), &current_version.blue(),
-                                    &last_version.yellow()), "To actualize run [cvm update]".green());
-    };
+        print!("{}\n", format!("{} {} => {}", "New update available".yellow(), &current_version.blue(), &last_version.yellow()));
+        let update_result = Update::start(&ArgMatches::default());
+        if let Err(result) = update_result {
+            result.print();
+        }
+        return true;
+    }
+    false
 }

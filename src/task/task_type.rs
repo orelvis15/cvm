@@ -49,7 +49,7 @@ impl TaskType {
             TaskType::UseVersion(_) => { "Switching to the version".to_string() }
             TaskType::DeploySystem => { "Deploying cardano node as a service".to_string() }
             TaskType::ServicesManager => { "".to_string() }
-            TaskType::CheckUpdate(_) => { "Checking new update".to_string() }
+            TaskType::CheckUpdate(data) => { format!("Updating to version {}", data.last_version) }
             TaskType::EmptyTask(text) => { text.to_string() }
             TaskType::FolderManager(text) => { text.to_string() }
             TaskType::Permission(text) => { format!("{} permission", text.to_string()) }
@@ -79,7 +79,7 @@ impl fmt::Display for TaskType {
                 write!(f, "Task: Use_Version_Task | version: {}", data.version)
             }
             TaskType::CheckUpdate(data) => {
-                write!(f, "Task: Check_Update_Task | version: {}", data.version)
+                write!(f, "Task: Check_Update_Task | version: {}", data.old_version)
             }
             TaskType::EmptyTask(data) => {
                 write!(f, "Task: Empty_Task | Data:{}", data)

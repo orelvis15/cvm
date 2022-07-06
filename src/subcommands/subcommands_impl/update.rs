@@ -18,7 +18,7 @@ impl CommandStrategy for Update{
         let mut term = Term { stdout: stdout() };
 
         TaskManager::default().start(vec![
-            Box::new(CheckUpdateTask { input_data: CheckUpdateData { version: VERSION.to_string() } }),
+            Box::new(CheckUpdateTask { input_data: CheckUpdateData { old_version: VERSION.to_string(),..Default::default() } }),
         ], &RemoteConfig::default(), &mut term, L1)
     }
 }
