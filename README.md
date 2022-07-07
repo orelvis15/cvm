@@ -110,14 +110,6 @@ Update CLI to the latest version
 cvm update
 `
 
-## Update config
-
-Update configuration files and scripts without removing those that have been manually modified
-
-`
-cvm config update
-`
-
 If you want to force the update of all configuration files and scripts
 
 `
@@ -132,6 +124,9 @@ Clear cache files of cabal, ghc and cardano build
 cvm clean
 `
 
+## More info and community
+- [Telegram](https://t.me/cvm_cli)
+- [Website](https://sites.google.com/view/cvmcli/inicio)
 
 ## Acknowledgment
  - Entire [Guild-Operators repository](https://github.com/cardano-community/guild-operators/graphs/contributors) team
