@@ -1,0 +1,184 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Cardano Version manager</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="Cardano Version Manager"
+                  title="Cardano Version manager"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Sumario" duration="1">
+        <h2 is-upgraded>Que vamos a aprender</h2>
+<p>Vamos a aprender a usar Cardano Version Manager (CVM) para administrar las versiones y configuración de los ejecutables del nodo de cardano.</p>
+<p class="image-container"><img style="width: 500.00px" src="img/1107732f93621eb4.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Instalando CVM" duration="1">
+        <p>1 - Para instalar cvm solo debemos ejecutar la siguiente línea en nuestra terminal.</p>
+<pre><code>curl https://raw.githubusercontent.com/orelvis15/cvm/master/install.sh -sSf | bash &amp;&amp; source &#34;$HOME&#34;/.cvm/env
+</code></pre>
+<p>2 - Una vez terminada la ejecución se debería tener una salida como esta</p>
+<p class="image-container"><img style="width: 750.00px" src="img/975a177f56fa3673.png"></p>
+<p>3 - Ejecutemos <strong><em>cvm help</em></strong> para verificar que la instalación tuvo éxito.</p>
+<p class="image-container"><img style="width: 750.00px" src="img/6ce0d5cdee548104.png"></p>
+<h2 is-upgraded>Felicitaciones!</h2>
+<p>Ya está instalado Cardano Version Manager en tu servidor.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ajustes iniciales para usar CVM" duration="1">
+        <p>CVM crea la estructura de carpetas necesarias para iniciar el nodo de cardano en el directorio /opt, debemos asegurarnos de que el usuario actual tenga los permisos de escritura en este directorio.</p>
+<p>1 - Añadimos al usuario actual en el grupo de <strong>sudo</strong>.</p>
+<pre><code>sudo adduser [user] sudo
+</code></pre>
+<p>Remplace [user] por el usuario, en nuestro caso seria <strong>sudo adduser orelvis sudo</strong>.</p>
+<p>2 - Añadimos el grupo sudo como propietario del directorio /opt</p>
+<pre><code>sudo chown -R root:sudo /opt
+</code></pre>
+<p>3 - Asignamos permisos de lectura/escritura al usuario y grupo propietarios del directorio /opt</p>
+<pre><code>sudo chmod -R 775 /opt
+</code></pre>
+<p>Ejecutamos ls -la y si todo salió bien deberíamos tener una salida como esta.</p>
+<p class="image-container"><img style="width: 400.00px" src="img/50a24ff020a15aad.png"></p>
+<h2 is-upgraded>Felicitaciones!</h2>
+<p>Ya está todo listo para usar CVM</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Preparando el servidor con CVM" duration="1">
+        <p>1 - Para poder utilizar un nodo de cardano necesitamos instalar ciertas dependencias y descargar varios archivos de configuración, todo esto lo vamos a poder hacer con el comando <strong>cvm init</strong></p>
+<pre><code>cvm init
+</code></pre>
+<p>Este comando va a realizar lo siguiente.</p>
+<ul>
+<li>Instalar todas las dependencias necesarias para correr y compilar el nodo de cardano.</li>
+<li>Crear la estructura de carpetas necesarias en el directorio /opt</li>
+<li>Descargar los archivos de configuración publicados por IOK.</li>
+<li>Descargar los scripts publicados por la comunidad <a href="https://github.com/cardano-community/guild-operators" target="_blank">guild-operator</a> para gestionar nuestro nodo.</li>
+</ul>
+<p>2 - Si todo salió bien deberías ver una salida como esta.</p>
+<p class="image-container"><img style="width: 600.00px" src="img/de64865577174c79.png"></p>
+<h2 is-upgraded>Felicitaciones!</h2>
+<p>Ahora el servidor está listo para usar el nodo de cardano. </p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Compilando Cardano node" duration="1">
+        <p>La forma más segura de utilizar los binarios del nodo de cardano es si nosotros mismo lo compilamos, está la opción recomendada por la comunidad, por eso esta funcionalidad está integrada en CVM.</p>
+<p>En la sección pasada preparamos nuestro el servidor para compilar cardano node sin problemas.</p>
+<p>1 - Corremos el comando <strong>cvm install x.x.x</strong> donde <strong>x.x.x</strong> es la versión de cardano que queremos instalar, si solo queremos instalar la última versión podemos ejecutar <strong>cvm install</strong> y cvm se encargará de encontrar la última versión disponible.</p>
+<pre><code>cvm install
+</code></pre>
+<p>Este comando va a realizar las siguientes acciones.</p>
+<ul>
+<li>Clona el repositorio del nodo de cardano con los últimos cambio.</li>
+<li>Se asegura de que se encuentre en la etiqueta de la versión que se pasó por parámetros.</li>
+<li>Actualiza los paquetes de Cabal.</li>
+<li>Compila el nodo de cardano.</li>
+<li>Crea una carpeta en /opt/cardano/bin con el nombre de la versión que se instaló y copia dentro los binarios generados.</li>
+</ul>
+<p>Una vez terminado debería tener algo como esto.</p>
+<p class="image-container"><img style="width: 600.00px" src="img/8cc1423ea401b0d1.png"></p>
+<p>2 - Si ahora ejecutamos *<strong>cvm list</strong> veremos que tenemos una salida parecida a esta.</p>
+<pre><code>cvm list
+</code></pre>
+<p class="image-container"><img style="width: 350.00px" src="img/44286e3488ad35f5.png"></p>
+<h2 is-upgraded>Felicitaciones!</h2>
+<p>Ya está instalado el nodo de cardano en el servidor.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Iniciando el nodo" duration="1">
+        <p>Ya tenemos el nodo instalado en nuestro servidor, ahora necesitamos hacer que comience a funcionar.</p>
+<p>1 - primero vamos a ejecutar <strong>cvm use x.x.x</strong>.</p>
+<pre><code>cvm use 1.35.0
+</code></pre>
+<p>Este comando va a hacer lo siguiente:</p>
+<ul>
+<li>Guarda como la versión de cardano a ejecutar la pasada por parámetros.</li>
+<li>En caso de que no exista el servicio de cardano este se va a crear</li>
+<li>Va a reiniciar el demonio de systemctl para obtener los cambios en el servicio</li>
+</ul>
+<p><strong><em>En este paso se necesita acceso de administrado, es común que se pida la contraseña de root</em></strong></p>
+<p>Deberías tener una salida como esta</p>
+<p class="image-container"><img style="width: 400.00px" src="img/f717e02edef56ccc.png"></p>
+<p>2 - Si ahora ejecutamos <strong>cvm list</strong> deberíamos obtener una salida parecida a esta.</p>
+<p class="image-container"><img style="width: 300.00px" src="img/f04cc0f4e51aab99.png"></p>
+<p>3 - Verifiquemos que el sistema está reconociendo el nodo de cardano y la cardano cli.</p>
+<pre><code>cardano-node --version
+</code></pre>
+<p class="image-container"><img style="width: 400.00px" src="img/74ce43cf4b2fbdbf.png"></p>
+<pre><code>cardano-clie --version
+</code></pre>
+<p class="image-container"><img style="width: 400.00px" src="img/ace22e2a11a62e6a.png"></p>
+<p>Ya todo está listo para comenzar con la sincronización del nodo.</p>
+<p>4 - Iniciamos el servicio del nodo de cardano</p>
+<pre><code>cvm start
+</code></pre>
+<p class="image-container"><img style="width: 300.00px" src="img/d4bdba9debaceb69.png"></p>
+<p>5 - Chequeamos que el servicio esté corriendo</p>
+<pre><code>systemctl cnode status
+</code></pre>
+<p class="image-container"><img style="width: 600.00px" src="img/ac989294d846e8a5.png"></p>
+<h2 is-upgraded>Felicitaciones!</h2>
+<p>Hora tienes el nodo de cardano corriendo en tu servidor. </p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Monitorizando la sincronización" duration="1">
+        <p>Podemos hacer seguimiento de la sincronización con el libro mayor usando los scripts de la comunidad de guild-operator</p>
+<p>1 - Accedemos al directorio de scripts en /opt/cardano.</p>
+<pre><code>cd /opt/cardano/scripts
+</code></pre>
+<p>2 - Ahora corremos <strong>gLiveView</strong></p>
+<pre><code>./gLiveView.sh
+</code></pre>
+<p>Deberías ver algo como esto&gt;</p>
+<p class="image-container"><img style="width: 600.00px" src="img/c33575e95c671d60.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Próximos Pasos" duration="1">
+        <p>Puedes encontrar más información sobre CVM en la <a href="https://github.com/orelvis15/cvm" target="_blank">página oficial en github</a>.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

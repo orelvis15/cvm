@@ -1,0 +1,25 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2022-07-08T21:15:17-05:00",
+  "id": "Cardano Version Manager",
+  "duration": 8,
+  "title": "Cardano Version manager",
+  "authors": "Orelvis Lago Vasallo",
+  "summary": "Cardano Version Manager",
+  "source": "page.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "cardano tool"
+  ],
+  "tags": [
+    "cardano",
+    "cvm"
+  ],
+  "url": "Cardano Version Manager"
+}
