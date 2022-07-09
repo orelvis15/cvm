@@ -3,13 +3,13 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2022-07-08T22:41:48-05:00",
-  "id": "Index",
-  "duration": 1,
+  "updated": "2022-07-08T22:42:07-05:00",
+  "id": "Cardano Version Manager Espanol",
+  "duration": 8,
   "title": "Cardano Version manager",
   "authors": "Orelvis Lago Vasallo",
-  "summary": "Index",
-  "source": "index.md",
+  "summary": "Cardano Version Manager Espanol",
+  "source": "cvm_es.md",
   "theme": "",
   "status": [
     "published"
@@ -21,5 +21,5 @@
     "cardano",
     "cvm"
   ],
-  "url": "Index"
+  "url": "Cardano Version Manager Espanol"
 }
