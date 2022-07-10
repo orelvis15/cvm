@@ -7,12 +7,13 @@ use walkdir::WalkDir;
 use crate::{CommandStrategy, config, Message, Success};
 use crate::utils::version_utils::verify_version;
 use crate::config::state_config::get_state;
+use crate::context::context::Context;
 use crate::utils::folders::Folder;
 
 pub struct List{}
 
 impl CommandStrategy for List{
-    fn start(command: &ArgMatches) -> Result<Success, Message> {
+    fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
 
         let config = config::remote_config::get_remote_config()?;
 

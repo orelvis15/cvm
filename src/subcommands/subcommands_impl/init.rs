@@ -1,6 +1,5 @@
 #![allow(dead_code, unused_variables)]
 
-use std::io::stdout;
 use clap::ArgMatches;
 use crate::subcommands::subcommand_strategy::CommandStrategy;
 use crate::subcommands::commands_config::Args;
@@ -14,30 +13,29 @@ use crate::task::task_impl::init::install_dependences_task::InstallDependenciesT
 use crate::task::task_impl::init::install_ghcup_task::InstallHanskellGhcTask;
 use crate::task::task_impl::init::install_libsecp256k1_task::Installlibsecp256k1Task;
 use crate::task_manager::task_manager::TaskManager;
-use crate::{config, Term};
+use crate::config;
+use crate::context::context::Context;
 use crate::term::log_level::LogLevel::L1;
 use crate::utils::folders::Folder;
 
 const MAINNET: &str = "mainnet";
 const TESTNET: &str = "testnet";
 
-pub struct Init{}
+pub struct Init {}
 
 impl CommandStrategy for Init {
-    fn start(command: &ArgMatches) -> Result<Success, Message> {
-
+    fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
         let config = config::remote_config::get_remote_config()?;
-        let mut term = Term { stdout: stdout() };
 
         let mut network = MAINNET;
 
-        if let Some(value) = command.get_one::<String>(Args::NETWORK._to_string()){
+        if let Some(value) = command.get_one::<String>(Args::NETWORK._to_string()) {
             if value == TESTNET {
                 network = TESTNET
             }
         }
 
-        if command.contains_id(Args::FORCE._to_string()){
+        if command.contains_id(Args::FORCE._to_string()) {
             reset_init()?;
         };
 
@@ -48,7 +46,7 @@ impl CommandStrategy for Init {
             Box::new(CreateFolderStructure::default()),
             Box::new(Installlibsecp256k1Task::default()),
             Box::new(DownloadConfigFilesTask { network: network.to_string() }),
-        ], &config, &mut term, L1)?;
+        ], &config, L1, context)?;
 
         set_init_network(network.to_string())?;
         set_init_success(true)

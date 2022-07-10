@@ -1,9 +1,9 @@
 #![allow(dead_code, unused_variables)]
 
-use std::io::stdout;
 use std::path::Path;
 use clap::ArgMatches;
-use crate::{CommandStrategy, config, Message, Success, Term, url_build};
+use crate::{CommandStrategy, config, Message, Success, url_build};
+use crate::context::context::Context;
 use crate::subcommands::commands_config::Args;
 use crate::utils::version_utils::{get_last_tag, LATEST, read_version, verify_version};
 use crate::task::task::Task;
@@ -16,10 +16,9 @@ use crate::utils::folders::Folder;
 pub struct Remove {}
 
 impl CommandStrategy for Remove {
-    fn start(command: &ArgMatches) -> Result<Success, Message> {
+    fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
 
         let config = config::remote_config::get_remote_config()?;
-        let mut term = Term { stdout: stdout() };
 
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();
@@ -49,6 +48,6 @@ impl CommandStrategy for Remove {
         }
 
         task_queue.reverse();
-        TaskManager::default().start(task_queue, &config, &mut term, L1)
+        TaskManager::default().start(task_queue, &config, L1, context)
     }
 }

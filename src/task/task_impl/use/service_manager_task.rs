@@ -1,8 +1,8 @@
 #![allow(dead_code, unused_variables)]
 
 use std::process::ExitStatus;
-use crate::env::Env;
-use crate::{Success, Term};
+use crate::context::context::Context;
+use crate::Success;
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -14,11 +14,11 @@ pub struct ServicesManagerTask {
 
 impl Task for ServicesManagerTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
 
         for services in &config.services_item {
             exec_action(&self.input_data, services.name.as_str())?;
@@ -26,7 +26,7 @@ impl Task for ServicesManagerTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         Ok(Success {})
     }
 

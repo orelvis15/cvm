@@ -2,9 +2,9 @@
 
 use std::fs;
 use std::path::Path;
+use crate::context::context::Context;
 use walkdir::WalkDir;
-use crate::env::Env;
-use crate::{Success, Term, url_build};
+use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::utils::folders::Folder;
@@ -29,8 +29,7 @@ pub struct CopyBinInputData {
 }
 
 impl Task for CopyBinTask {
-
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         let version_folder_path = Path::new(&self.input_data.version_folder);
         if !version_folder_path.exists() {
             return Ok(false);
@@ -38,7 +37,7 @@ impl Task for CopyBinTask {
         Ok(true)
     }
 
-    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         for entry in WalkDir::new(&self.input_data.origin_path) {
             let entry = entry.unwrap();
             for file_name in &self.input_data.files_names {
@@ -50,7 +49,7 @@ impl Task for CopyBinTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
 
@@ -63,7 +62,7 @@ impl Task for CopyBinTask {
         TaskManager::default().start(vec![
             Box::new(FolderManagerTask { input_data: FolderManagerAction::Exits(vec![version_folder]) }),
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(files_paths) }),
-        ], config, term, L2)
+        ], config, L2, context)
     }
 
     fn get_type(self: &Self) -> TaskType {

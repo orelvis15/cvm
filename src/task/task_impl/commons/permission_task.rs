@@ -4,8 +4,8 @@ use std::fs;
 use std::string::String;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
-use crate::env::Env;
-use crate::{MessageData, Success, Term};
+use crate::context::context::Context;
+use crate::{MessageData, Success};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -18,11 +18,11 @@ pub struct PermissionTask {
 
 impl Task for PermissionTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         match &self.input_data {
             PermissionAction::CheckWrite(data) => {
                 check_write(data)
@@ -39,7 +39,7 @@ impl Task for PermissionTask {
         }
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         match &self.input_data {
             PermissionAction::SetFilesPermission(data) => {
                 for (value, mode) in data {

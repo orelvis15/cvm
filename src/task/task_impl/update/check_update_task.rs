@@ -2,11 +2,11 @@
 
 use std::collections::HashMap;
 use std::fs::File;
+use crate::context::context::Context;
 use flate2::read::GzDecoder;
 use tar::Archive;
-use crate::env::Env;
 use strfmt::strfmt;
-use crate::{Success, Term};
+use crate::Success;
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::{Message, MessageData, MessageKind};
 use crate::task::task::Task;
@@ -32,14 +32,14 @@ pub struct CheckUpdateData {
 
 impl Task for CheckUpdateTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         let last_version = get_last_cvm_version()?;
         let last_version = last_version.replace("v", "");
         self.input_data.last_version = last_version;
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
 
         if &self.input_data.last_version <= &self.input_data.old_version {
             return Err(Message::AlreadyLastUpdate(MessageData {
@@ -53,7 +53,7 @@ impl Task for CheckUpdateTask {
         download_and_copy_version(&self.input_data.last_version)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         Ok(Success {})
     }
 

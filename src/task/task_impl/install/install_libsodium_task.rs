@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
-use crate::env::Env;
-use crate::{Success, Term, url_build};
+use crate::context::context::Context;
+use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::utils::folders::Folder;
@@ -16,13 +16,11 @@ use crate::term::log_level::LogLevel::L2;
 pub struct InstallLibsodiumTask {}
 
 impl Task for InstallLibsodiumTask {
-
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let libsodium_repo = &config.init.libsodium_repository;
         let git_folder = Folder::get_path(Folder::GIT, &config);
         let libsodium_folder = url_build(vec![&git_folder, &config.init.libsodium_folder], false);
@@ -35,18 +33,17 @@ impl Task for InstallLibsodiumTask {
             Box::new(RunCommandTask { input_data: build_configure_repo_command(libsodium_folder.clone(), config.init.libsodium_config_file.clone()), command_description: "Configuring the installation".to_string() }),
             Box::new(RunCommandTask { input_data: build_make_repo_command(libsodium_folder.clone()), command_description: "Compiling Libsodium".to_string() }),
             Box::new(RunCommandTask { input_data: build_make_install_repo_command(libsodium_folder.clone()), command_description: "Installing Libsodium".to_string() }),
-        ], config, term, L2)
+        ], config, L2, context)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let l_lib_a = "/usr/local/lib/libsodium.a".to_string();
         let l_lib_la = "/usr/local/lib/libsodium.la".to_string();
         let l_lib_so = "/usr/local/lib/libsodium.so".to_string();
 
         TaskManager::default().start(vec![
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(vec![l_lib_a, l_lib_la, l_lib_so]) }),
-        ], config, term, L2)
+        ], config, L2, context)
     }
 
     fn get_type(self: &Self) -> TaskType {

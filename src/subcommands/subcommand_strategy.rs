@@ -2,7 +2,8 @@
 
 use clap::ArgMatches;
 use crate::{Message, Success};
+use crate::context::context::Context;
 
 pub trait CommandStrategy {
-    fn start(command: &ArgMatches) -> Result<Success, Message>;
+    fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message>;
 }

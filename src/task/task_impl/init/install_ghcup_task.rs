@@ -1,13 +1,13 @@
 #![allow(dead_code, unused_variables)]
 
+use crate::context::context::Context;
 use crate::config::remote_config::{RemoteConfig, Init};
-use crate::env::Env;
 use crate::message::message::Message;
 use crate::task::task::{Success, Task};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
 use crate::task::task_type::TaskType;
-use crate::{Term, url_build};
+use crate::url_build;
 use crate::config::state_config::{get_task_complete, set_task_complete};
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
 use crate::term::log_level::LogLevel::L2;
@@ -27,8 +27,7 @@ pub struct InstallHanskellGhcOutputData {
 }
 
 impl Task for InstallHanskellGhcTask {
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
-
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         if get_task_complete(&self.get_type()) {
             return Ok(false);
         };
@@ -39,7 +38,7 @@ impl Task for InstallHanskellGhcTask {
         Ok(true)
     }
 
-    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         TaskManager::default().start(vec![
             Box::new(RunCommandTask { input_data: build_sed_install_file_command(&self.install_sh_uri, &config.init.ghcup_pattern_sed), command_description: "Editing ghcup installation file".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_command(&self.install_sh_uri), command_description: "Installing ghcup".to_string() }),
@@ -47,17 +46,17 @@ impl Task for InstallHanskellGhcTask {
             Box::new(RunCommandTask { input_data: build_set_ghc_version_command(&self.ghcup_dir, &config.init.haskell_ghc_version), command_description: "Changing to the corresponding version of ghc".to_string() }),
             Box::new(RunCommandTask { input_data: build_install_cabal_version_command(&self.ghcup_dir, &config.init.haskell_cabal_version), command_description: "Installing cabal".to_string() }),
             Box::new(RunCommandTask { input_data: build_set_cabal_version_command(&self.ghcup_dir, &config.init.haskell_cabal_version), command_description: "Changing to the corresponding version of cabal".to_string() }),
-        ], config, term, L2)
+        ], config, L2, context)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let home_dir = Folder::get_home_dir()?;
         let cabal_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"cabal".to_string()], false);
         let ghc_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"ghc".to_string()], false);
 
         let result = TaskManager {}.start(vec![
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(vec![cabal_bin_path, ghc_bin_path]) }),
-        ], config, term, L2);
+        ], config, L2, context);
         set_task_complete(&self.get_type());
         result
     }

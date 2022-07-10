@@ -2,8 +2,8 @@
 
 use std::fs;
 use std::path::Path;
-use crate::env::Env;
-use crate::{MessageData, Success, Term, url_build};
+use crate::context::context::Context;
+use crate::{MessageData, Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -15,11 +15,11 @@ pub struct FolderManagerTask {
 
 impl Task for FolderManagerTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         match &self.input_data {
             FolderManagerAction::Create(data) => {
                 create(self, data)
@@ -36,7 +36,7 @@ impl Task for FolderManagerTask {
         }
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         match &self.input_data {
             FolderManagerAction::Create(data) => {
                 check_create(self, data)

@@ -7,12 +7,12 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::str::FromStr;
+use crate::context::context::Context;
 use strfmt::strfmt;
 use crate::config::remote_config::{RemoteConfig, ConfigFileItem};
-use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::{Term, url_build};
+use crate::url_build;
 use crate::config::state_config::{add_init_file, get_task_complete, set_task_complete};
 use crate::message::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
@@ -30,19 +30,18 @@ pub struct DownloadConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for DownloadConfigFilesTask {
-
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         if get_task_complete(&self.get_type()) {
             return Ok(false);
         };
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-        download_config_files(&self.network, &config.config_file_item, &config, term)
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
+        download_config_files(&self.network, &config.config_file_item, &config, context)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let mut paths = vec![];
 
         for item in &config.config_file_item {
@@ -51,7 +50,7 @@ impl Task for DownloadConfigFilesTask {
 
         let result = TaskManager {}.start(vec![
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(paths) }),
-        ], config, term, L2);
+        ], config, L2, context);
 
         set_task_complete(&self.get_type());
 
@@ -63,7 +62,7 @@ impl Task for DownloadConfigFilesTask {
     }
 }
 
-fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
     for item in items {
         let folder_path = Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config);
 
@@ -85,7 +84,7 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
         }
 
         if item.pattern_sed != "" {
-            apply_pattern_sed(url_build(vec![&folder_path, &item.name], false), &item.pattern_sed, config, term)?;
+            apply_pattern_sed(url_build(vec![&folder_path, &item.name], false), &item.pattern_sed, config, context)?;
         }
 
         if item.folder_key == Folder::SCRIPTS.to_string() {
@@ -97,12 +96,12 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
     Ok(Success {})
 }
 
-fn apply_pattern_sed(file_path: String, pattern: &String, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+fn apply_pattern_sed(file_path: String, pattern: &String, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
     TaskManager::default().start(vec![
         Box::new(RunCommandTask {
             input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
             command_description: "".to_string(),
         }),
-    ], config, term, L2)
+    ], config, L2, context)
 }

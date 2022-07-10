@@ -3,8 +3,8 @@
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use crate::env::Env;
-use crate::{MessageData, Success, Term};
+use crate::context::context::Context;
+use crate::{MessageData, Success};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -16,11 +16,11 @@ pub struct FileManagerTask {
 
 impl Task for FileManagerTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         match &self.input_data {
             FileManagerAction::Remove(data) => {
                 remove(self, data)
@@ -34,7 +34,7 @@ impl Task for FileManagerTask {
         }
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         match &self.input_data {
             FileManagerAction::Remove(data) => {
                 check_remove(self, data)

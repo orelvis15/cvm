@@ -3,9 +3,9 @@
 use std::fs;
 use std::fs::File;
 use std::path::Path;
+use crate::context::context::Context;
 use file_diff::diff_files;
-use crate::env::Env;
-use crate::{Success, Term, url_build};
+use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_version_use;
 use crate::message::message::{Message, MessageData};
@@ -24,11 +24,11 @@ pub struct UserVersionData {
 
 impl Task for UserVersionTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
@@ -62,7 +62,7 @@ impl Task for UserVersionTask {
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
 
         let bin_folder = Folder::get_path(Folder::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);

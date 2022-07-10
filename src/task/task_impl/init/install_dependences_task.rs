@@ -3,15 +3,14 @@
 extern crate rs_release;
 
 use os_info::Type;
-use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
 use crate::config::remote_config::{RemoteConfig, Dependencies};
 use crate::config::state_config::{get_task_complete, set_task_complete};
+use crate::context::context::Context;
 use crate::message::message::{Message, MessageData};
 use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
 use crate::task_manager::task_manager::TaskManager;
-use crate::Term;
 use crate::term::log_level::LogLevel::L2;
 
 #[derive(Default)]
@@ -25,7 +24,7 @@ pub struct InstallDependenciesOutputData {
 }
 
 impl Task for InstallDependenciesTask {
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         if get_task_complete(&self.get_type()) {
             return Ok(false);
         };
@@ -34,14 +33,14 @@ impl Task for InstallDependenciesTask {
         Ok(true)
     }
 
-    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let command_input_result = get_install_command_from_os(&self.dependencies)?;
         TaskManager{}.start(vec![
-            Box::new(RunCommandTask { input_data: command_input_result, command_description: "Installing the necessary dependencies".to_string() })
-        ], config, term, L2)
+                    Box::new(RunCommandTask { input_data: command_input_result, command_description: "Installing the necessary dependencies".to_string() })
+                ], config, L2, context )
     }
 
-    fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         set_task_complete(&self.get_type());
         Ok(Success {})
     }

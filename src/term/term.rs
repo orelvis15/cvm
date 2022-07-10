@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables)]
 
-use std::io::{Stdout, Write};
+use std::io::{Stdout, stdout, Write};
 use crossterm::{cursor, ExecutableCommand, QueueableCommand};
 use crossterm::style::Stylize;
 use crate::task::task_type::TaskType;
@@ -8,6 +8,12 @@ use crate::term::log_level::LogLevel;
 
 pub struct Term {
     pub stdout: Stdout,
+}
+
+impl Default for Term {
+    fn default() -> Self {
+        Term { stdout: stdout() }
+    }
 }
 
 impl Term {

@@ -4,10 +4,10 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use crate::context::context::Context;
 use file_diff::diff_files;
 use tinytemplate::TinyTemplate;
-use crate::env::Env;
-use crate::{Success, Term, url_build};
+use crate::{Success, url_build};
 use crate::config::remote_config::{RemoteConfig, Services};
 use crate::message::message::Message;
 use crate::task::task::Task;
@@ -27,24 +27,22 @@ pub struct DeploySystemTask {}
 /// - Permisos de administrador
 
 impl Task for DeploySystemTask {
-
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         sudo::escalate_if_needed().expect("Super user permissions are required");
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
-
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         for services in &config.services_item {
             create_service(&services)?;
         }
 
         TaskManager::default().start(vec![
             Box::new(RunCommandTask { input_data: build_reset_daemon_command(), command_description: "Reset systemctl daemon".to_string() }),
-        ], config, term, L2)
+        ], config, L2, context)
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         Ok(Success {})
     }
 
@@ -75,7 +73,7 @@ fn create_service_file(template: &String, service_name: &String, service_file_do
 
     let files_is_same = check_if_files_is_same(service_path, Path::new(service_file_download)).unwrap_or(false);
 
-    if !service_path.exists() || (service_path.exists() && !files_is_same){
+    if !service_path.exists() || (service_path.exists() && !files_is_same) {
         let mut file = File::create(service_path)?;
         file.write_all(template.as_bytes())?;
     }

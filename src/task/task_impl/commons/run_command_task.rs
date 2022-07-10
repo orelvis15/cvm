@@ -2,13 +2,12 @@
 
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
+use crate::context::context::Context;
 use std::thread;
 use crate::config::remote_config::RemoteConfig;
-use crate::env::Env;
 use crate::message::message::{Message, MessageData};
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::Term;
 
 pub struct RunCommandTask {
     pub input_data: RunCommandInputData,
@@ -38,11 +37,11 @@ pub struct RunCommandInputData {
 
 impl Task for RunCommandTask {
 
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let mut command = build_command(&self.input_data.clone());
 
         let result = command.spawn();
@@ -65,7 +64,7 @@ impl Task for RunCommandTask {
         start_command(self.get_type().to_string(), child, self)
     }
 
-    fn check(self: &Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         Ok(Success{})
     }
 

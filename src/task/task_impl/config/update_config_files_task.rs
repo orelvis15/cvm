@@ -7,12 +7,12 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::str::FromStr;
+use crate::context::context::Context;
 use strfmt::strfmt;
 use crate::config::remote_config::{RemoteConfig, ConfigFileItem};
-use crate::env::Env;
 use crate::task::task::{Success, Task};
 use crate::task::task_type::TaskType;
-use crate::{MessageData, Term, url_build};
+use crate::{MessageData, url_build};
 use crate::config::state_config::{get_state, update_init_files};
 use crate::message::message::Message;
 use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
@@ -29,12 +29,11 @@ pub struct UpdateConfigFilesTask {
 const NETWORK: &str = "network";
 
 impl Task for UpdateConfigFilesTask {
-
-    fn prepare(self: &mut Self, env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<bool, Message> {
+    fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
 
-    fn run(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         if get_state()?.init.files_item.is_empty() {
             return Err(Message::UpdateConfigFile(MessageData {
                 message: "The configuration files have not been downloaded yet".to_string(),
@@ -42,11 +41,11 @@ impl Task for UpdateConfigFilesTask {
                 ..Default::default()
             }));
         }
-        download_config_files(&self, &config.config_file_item, &config, term)?;
+        download_config_files(&self, &config.config_file_item, &config, context)?;
         Ok(Success {})
     }
 
-    fn check(self: &Self, _env: &mut Env, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+    fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let mut paths = vec![];
 
         for item in &config.config_file_item {
@@ -55,7 +54,7 @@ impl Task for UpdateConfigFilesTask {
 
         TaskManager {}.start(vec![
             Box::new(FileManagerTask { input_data: FileManagerAction::Check(paths) }),
-        ], config, term, L2)
+        ], config, L2, context)
     }
 
     fn get_type(self: &Self) -> TaskType {
@@ -63,14 +62,14 @@ impl Task for UpdateConfigFilesTask {
     }
 }
 
-fn download_config_files(update_config_file_task: &UpdateConfigFilesTask, items: &Vec<ConfigFileItem>, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+fn download_config_files(update_config_file_task: &UpdateConfigFilesTask, items: &Vec<ConfigFileItem>, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
     for item in items {
         let folder_path = Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config);
 
         let local_file = url_build(vec![&folder_path, &item.name.clone()], false);
         let remote_file = download_remote_file(&item)?;
 
-        apply_pattern_sed(&remote_file, &item.pattern_sed, config, term)?;
+        apply_pattern_sed(&remote_file, &item.pattern_sed, config, context)?;
 
         if local_file_was_modify_manualy(&local_file)? && !update_config_file_task.force {
             continue;
@@ -85,12 +84,11 @@ fn download_config_files(update_config_file_task: &UpdateConfigFilesTask, items:
         if item.folder_key == Folder::SCRIPTS.to_string() {
             fs::set_permissions(&local_file, fs::Permissions::from_mode(0o755))?;
         };
-
     }
     Ok(Success {})
 }
 
-fn update_file(remote_file_uri: &String, local_file_uri: &String) -> Result<Success, Message>{
+fn update_file(remote_file_uri: &String, local_file_uri: &String) -> Result<Success, Message> {
     fs::copy(remote_file_uri, local_file_uri)?;
     update_init_files(&local_file_uri)
 }
@@ -143,7 +141,7 @@ fn download_remote_file(item: &&ConfigFileItem) -> Result<String, Message> {
     }
 }
 
-fn apply_pattern_sed(file_path: &String, pattern: &String, config: &RemoteConfig, term: &mut Term) -> Result<Success, Message> {
+fn apply_pattern_sed(file_path: &String, pattern: &String, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
     if pattern.is_empty() { return Ok(Success {}); }
 
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
@@ -152,5 +150,5 @@ fn apply_pattern_sed(file_path: &String, pattern: &String, config: &RemoteConfig
             input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
             command_description: "".to_string(),
         }),
-    ], config, term, L2)
+    ], config, L2, context)
 }
