@@ -42,11 +42,15 @@ impl Task for InstallDependenciesTask {
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         set_task_complete(&self.get_type());
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::InstallDependences
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 

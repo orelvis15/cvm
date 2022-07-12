@@ -43,11 +43,15 @@ impl Task for DeploySystemTask {
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::DeploySystem
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 
@@ -77,7 +81,7 @@ fn create_service_file(template: &String, service_name: &String, service_file_do
         let mut file = File::create(service_path)?;
         file.write_all(template.as_bytes())?;
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_if_files_is_same(service_path: &Path, service_file_download: &Path) -> Result<bool, Message, > {

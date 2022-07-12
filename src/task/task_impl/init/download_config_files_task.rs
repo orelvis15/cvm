@@ -60,6 +60,10 @@ impl Task for DownloadConfigFilesTask {
     fn get_type(self: &Self) -> TaskType {
         TaskType::DownloadConfigFiles
     }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
+    }
 }
 
 fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
@@ -93,7 +97,7 @@ fn download_config_files(network: &String, items: &Vec<ConfigFileItem>, config: 
 
         add_init_file(&file_path)?;
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn apply_pattern_sed(file_path: String, pattern: &String, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {

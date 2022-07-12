@@ -46,7 +46,7 @@ impl Task for CopyBinTask {
                 }
             }
         }
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
@@ -67,5 +67,9 @@ impl Task for CopyBinTask {
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::CopyBinFiles(self.input_data.clone())
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }

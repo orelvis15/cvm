@@ -82,7 +82,7 @@ fn set_state(state: State) -> Result<Success, Message> {
     let mut file = File::options().truncate(true).write(true).open(file_path)?;
     let toml_str = toml::to_string(&state).unwrap();
     file.write_all(toml_str.as_bytes())?;
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 pub fn set_task_complete(task: &TaskType) {
@@ -120,7 +120,7 @@ fn create_state_file() -> Result<Success, Message> {
     let toml_str = toml::to_string(&state).unwrap();
     let mut file = File::create(Path::new(file_path.as_str()))?;
     file.write_all(toml_str.as_bytes())?;
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

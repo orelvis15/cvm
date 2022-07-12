@@ -23,15 +23,19 @@ impl Task for ServicesManagerTask {
         for services in &config.services_item {
             exec_action(&self.input_data, services.name.as_str())?;
         }
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::ServicesManager
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 

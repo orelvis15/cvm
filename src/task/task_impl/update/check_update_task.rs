@@ -54,11 +54,15 @@ impl Task for CheckUpdateTask {
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::CheckUpdate(self.input_data.clone())
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 
@@ -88,5 +92,5 @@ fn decompress(file_uri: String, home_dir: String) -> Result<Success, Message> {
     let mut archive = Archive::new(tar);
     archive.unpack(format!("{}/{}/", home_dir, ".cvm"))?;
 
-    Ok(Success {})
+    Ok(Success::default())
 }

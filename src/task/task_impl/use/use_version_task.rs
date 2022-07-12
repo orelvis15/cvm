@@ -59,7 +59,7 @@ impl Task for UserVersionTask {
 
         copy_file_version(&version_folder, &current_folder, &config.binaries.required_files, self)?;
         set_version_use(self.input_data.version.clone())?;
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
@@ -87,11 +87,15 @@ impl Task for UserVersionTask {
                 }
             }
         }
-        Ok(Success{})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::UseVersion(self.input_data.clone())
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 
@@ -105,5 +109,5 @@ fn copy_file_version(version_folder: &String, current_folder: &String, files_nam
         fs::copy(&file, &file_out)?;
 
     }
-    Ok(Success {})
+    Ok(Success::default())
 }

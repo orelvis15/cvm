@@ -1,12 +1,13 @@
 #![allow(dead_code, unused_variables)]
 
+use sha256::digest;
 use crate::config::remote_config::RemoteConfig;
 use crate::Message;
 use crate::context::context::Context;
 use crate::task::task_type::TaskType;
+use crate::context::storage::TaskOutputData;
 
 pub trait Task {
-
     /// Prepare and check
     /// Prepare all data for the task
     /// Check if is necesary run task
@@ -26,7 +27,15 @@ pub trait Task {
 
     /// Return taskType
     fn get_type(self: &Self) -> TaskType;
+
+    fn get_id(self: &Self) -> String;
 }
 
-#[derive(Debug, Clone)]
-pub struct Success {}
+pub fn id_generator(data: &Vec<String>) -> String{
+    digest(data.join(&"|"))
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Success {
+    pub value: TaskOutputData
+}

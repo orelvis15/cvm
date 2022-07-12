@@ -42,7 +42,7 @@ impl Task for UpdateConfigFilesTask {
             }));
         }
         download_config_files(&self, &config.config_file_item, &config, context)?;
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
@@ -59,6 +59,10 @@ impl Task for UpdateConfigFilesTask {
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::UpdateConfigFiles
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 
@@ -85,7 +89,7 @@ fn download_config_files(update_config_file_task: &UpdateConfigFilesTask, items:
             fs::set_permissions(&local_file, fs::Permissions::from_mode(0o755))?;
         };
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn update_file(remote_file_uri: &String, local_file_uri: &String) -> Result<Success, Message> {
@@ -142,7 +146,7 @@ fn download_remote_file(item: &&ConfigFileItem) -> Result<String, Message> {
 }
 
 fn apply_pattern_sed(file_path: &String, pattern: &String, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
-    if pattern.is_empty() { return Ok(Success {}); }
+    if pattern.is_empty() { return Ok(Success::default()); }
 
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
     TaskManager::default().start(vec![

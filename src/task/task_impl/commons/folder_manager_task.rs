@@ -5,16 +5,21 @@ use std::path::Path;
 use crate::context::context::Context;
 use crate::{MessageData, Success, url_build};
 use crate::config::remote_config::RemoteConfig;
+use crate::context::storage::TaskOutputData;
 use crate::message::message::Message;
-use crate::task::task::Task;
+use crate::task::task::{id_generator, Task};
 use crate::task::task_type::TaskType;
 
 pub struct FolderManagerTask {
     pub input_data: FolderManagerAction,
 }
 
-impl Task for FolderManagerTask {
+#[derive(Debug, Clone)]
+pub struct FolderManagerOutputData {
+    pub operation: FolderManagerAction,
+}
 
+impl Task for FolderManagerTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
@@ -33,7 +38,8 @@ impl Task for FolderManagerTask {
             FolderManagerAction::Exits(data) => {
                 exits(self, data)
             }
-        }
+        }?;
+        Ok(Success { value: TaskOutputData::FolderManager(FolderManagerOutputData { operation: self.input_data.to_owned() }) })
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
@@ -55,6 +61,20 @@ impl Task for FolderManagerTask {
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::FolderManager("".to_string())
+    }
+
+    fn get_id(self: &Self) -> String {
+        match &self.input_data {
+            FolderManagerAction::Create(data) => {
+                let result: Vec<String> = data.iter()
+                    .map(|(value_1, value_2)| format!("{}{}", value_1, value_2))
+                    .collect();
+                id_generator(&result)
+            }
+            FolderManagerAction::Remove(data) => { id_generator(data) }
+            FolderManagerAction::Clean(data) => { id_generator(data) }
+            FolderManagerAction::Exits(data) => { id_generator(data) }
+        }
     }
 }
 
@@ -78,7 +98,7 @@ fn create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Succ
         fs::create_dir(folder_path)?;
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Success, Message> {
@@ -95,7 +115,7 @@ fn check_create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Resul
         };
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
@@ -108,7 +128,7 @@ fn remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messa
         fs::remove_dir_all(folder_path)?;
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
@@ -122,7 +142,7 @@ fn check_remove(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success,
         };
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
@@ -144,7 +164,7 @@ fn clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messag
         };
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
@@ -168,7 +188,7 @@ fn check_clean(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, 
         }
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
@@ -182,11 +202,11 @@ fn exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messag
         };
     }
 
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

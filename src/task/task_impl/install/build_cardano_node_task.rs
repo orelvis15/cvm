@@ -46,11 +46,15 @@ impl Task for BuildCardanoNodeTask {
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success {})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::BuildCardanoNode
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }
 

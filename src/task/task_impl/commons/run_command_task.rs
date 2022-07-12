@@ -1,31 +1,18 @@
 #![allow(dead_code, unused_variables)]
 
 use std::io::{BufRead, BufReader};
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
 use crate::context::context::Context;
 use std::thread;
 use crate::config::remote_config::RemoteConfig;
+use crate::context::storage::TaskOutputData;
 use crate::message::message::{Message, MessageData};
-use crate::task::task::{Success, Task};
+use crate::task::task::{id_generator, Success, Task};
 use crate::task::task_type::TaskType;
 
 pub struct RunCommandTask {
     pub input_data: RunCommandInputData,
-    pub command_description: String
-}
-
-pub struct RunCommandOutputData {
-    pub tag: String,
-    pub result: Result<Success, Message>,
-}
-
-impl RunCommandOutputData {
-    fn get_tag(&self) -> &String {
-        &self.tag
-    }
-    fn get_data(&self) -> &RunCommandOutputData {
-        self
-    }
+    pub command_description: String,
 }
 
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -35,8 +22,13 @@ pub struct RunCommandInputData {
     pub current_dir: String,
 }
 
-impl Task for RunCommandTask {
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub struct RunCommandOutputData {
+    pub tag: String,
+    pub code: i32,
+}
 
+impl Task for RunCommandTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
@@ -61,15 +53,23 @@ impl Task for RunCommandTask {
             }
         };
         watch_log_process(&mut child);
-        start_command(self.get_type().to_string(), child, self)
+        let exit_code = start_command(self.get_type().to_string(), child, self)?;
+
+        Ok(Success { value: TaskOutputData::RunCommand(RunCommandOutputData { tag: "".to_string(), code: exit_code.code().unwrap_or(0i32) }) })
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success{})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::RunCommand(self.input_data.clone(), self.command_description.clone())
+    }
+
+    fn get_id(self: &Self) -> String {
+        let value: Vec<String> = vec![self.input_data.command.clone(),
+                                      self.input_data.args.join(&"")];
+        id_generator(&value)
     }
 }
 
@@ -89,14 +89,14 @@ pub fn build_command(input: &RunCommandInputData) -> Command {
 }
 
 #[cfg(debug_assertions)]
-fn read_stdout(mut command: Command) -> Command{
+fn read_stdout(mut command: Command) -> Command {
     command.stdout(Stdio::piped());
     command.stderr(Stdio::piped());
     command
 }
 
 #[cfg(not(debug_assertions))]
-fn read_stdout(mut command: Command) -> Command{
+fn read_stdout(mut command: Command) -> Command {
     command.stdout(Stdio::null());
     command.stderr(Stdio::null());
     command
@@ -128,14 +128,13 @@ fn watch_log_process(child: &mut Child) {
 #[cfg(not(debug_assertions))]
 fn watch_log_process(child: &mut Child) {}
 
-fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<Success, Message> {
-
+fn start_command(task_type: String, mut child: Child, _self: &RunCommandTask) -> Result<ExitStatus, Message> {
     let handler = child.wait();
 
     match handler {
         Ok(code) => {
             if code.success() {
-                Ok(Success {})
+                Ok(code)
             } else {
                 Err(Message::CommandOutputError(MessageData {
                     message: "The command output an message".to_string(),
@@ -206,13 +205,13 @@ impl Cmd {
             Cmd::Make => "make".to_string(),
             Cmd::Fetch => "fetch".to_string(),
             Cmd::Build => "build".to_string(),
-            Cmd::Systemctl => {"systemctl".to_string()}
-            Cmd::DaemonReload => {"daemon-reload".to_string()}
-            Cmd::All => {"all".to_string()}
-            Cmd::Update => {"update".to_string()}
-            Cmd::Clean => {"clean".to_string()}
-            Cmd::Help => {"help".to_string()}
-            Cmd::Sudo => {"sudo".to_string()}
+            Cmd::Systemctl => { "systemctl".to_string() }
+            Cmd::DaemonReload => { "daemon-reload".to_string() }
+            Cmd::All => { "all".to_string() }
+            Cmd::Update => { "update".to_string() }
+            Cmd::Clean => { "clean".to_string() }
+            Cmd::Help => { "help".to_string() }
+            Cmd::Sudo => { "sudo".to_string() }
         }
     }
 }

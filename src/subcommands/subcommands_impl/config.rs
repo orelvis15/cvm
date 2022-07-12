@@ -25,7 +25,7 @@ impl CommandStrategy for Config {
                 let force_arg = matches.contains_id(Args::FORCE._to_string());
                 update_config(force_arg, &config, context)
             }
-            _ => { Ok(Success {}) }
+            _ => { Ok(Success::default()) }
         }
     }
 }

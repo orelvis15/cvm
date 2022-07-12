@@ -57,4 +57,8 @@ impl Task for CreateFolderStructure {
     fn get_type(self: &Self) -> TaskType {
         TaskType::CreateFolderStructure
     }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
+    }
 }

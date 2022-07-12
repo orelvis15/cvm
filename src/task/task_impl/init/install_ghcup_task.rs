@@ -64,6 +64,10 @@ impl Task for InstallHanskellGhcTask {
     fn get_type(self: &Self) -> TaskType {
         TaskType::InstallGhcup
     }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
+    }
 }
 
 fn download_install_ghc_file(init: &Init) -> Result<String, Message> {

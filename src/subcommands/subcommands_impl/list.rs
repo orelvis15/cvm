@@ -37,7 +37,7 @@ impl CommandStrategy for List{
                 }
             };
         }
-        Ok(Success {})
+        Ok(Success::default())
     }
 }
 

@@ -15,14 +15,18 @@ impl Task for EmptyTask {
     }
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success{})
+        Ok(Success::default())
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        Ok(Success{})
+        Ok(Success::default())
     }
 
     fn get_type(self: &Self) -> TaskType {
         TaskType::EmptyTask("".to_string())
+    }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
     }
 }

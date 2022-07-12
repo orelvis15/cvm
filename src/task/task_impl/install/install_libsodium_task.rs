@@ -49,6 +49,10 @@ impl Task for InstallLibsodiumTask {
     fn get_type(self: &Self) -> TaskType {
         TaskType::InstallLibsodium
     }
+
+    fn get_id(self: &Self) -> String {
+        "".to_string()
+    }
 }
 
 fn build_clone_repo_command(repo: String, path: String) -> RunCommandInputData {

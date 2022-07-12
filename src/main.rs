@@ -2,7 +2,7 @@ extern crate core;
 
 use clap::ArgMatches;
 use crossterm::style::Stylize;
-use message::message::{MessageData, Message};
+use message::message::{Message, MessageData};
 use subcommands::subcommands_impl;
 use crate::subcommands::subcommand_strategy::CommandStrategy;
 use subcommands::subcommands_impl::init::Init;
@@ -23,7 +23,6 @@ use crate::utils::version_utils::get_last_cvm_version;
 
 mod task;
 mod config;
-mod storage;
 mod subcommands;
 mod utils;
 mod task_manager;

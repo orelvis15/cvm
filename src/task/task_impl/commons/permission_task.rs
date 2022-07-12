@@ -8,16 +8,21 @@ use crate::context::context::Context;
 use crate::{MessageData, Success};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
-use crate::task::task::Task;
+use crate::task::task::{id_generator, Task};
 use crate::task::task_type::TaskType;
 use faccess::PathExt;
+use crate::context::storage::TaskOutputData;
 
 pub struct PermissionTask {
     pub input_data: PermissionAction,
 }
 
-impl Task for PermissionTask {
+#[derive(Debug, Clone)]
+pub struct PermissionOutputData {
+    pub operation: PermissionAction,
+}
 
+impl Task for PermissionTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
         Ok(true)
     }
@@ -36,7 +41,8 @@ impl Task for PermissionTask {
             PermissionAction::SetFilesPermission(data) => {
                 set_permission(data)
             }
-        }
+        }?;
+        Ok(Success { value: TaskOutputData::Permission(PermissionOutputData { operation: self.input_data.to_owned() }) })
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
@@ -54,9 +60,9 @@ impl Task for PermissionTask {
                         }));
                     }
                 };
-                Ok(Success {})
+                Ok(Success::default())
             }
-            _ => { Ok(Success {}) }
+            _ => { Ok(Success::default()) }
         }
     }
 
@@ -78,6 +84,20 @@ impl Task for PermissionTask {
         };
         TaskType::Permission(output)
     }
+
+    fn get_id(self: &Self) -> String {
+        match &self.input_data {
+            PermissionAction::SetFilesPermission(data) => {
+                let result: Vec<String> = data.iter()
+                    .map(|(value_1, value_2)| format!("{}{}", value_1, value_2))
+                    .collect();
+                id_generator(&result)
+            }
+            PermissionAction::CheckWrite(data) => { id_generator(data) }
+            PermissionAction::CheckRead(data) => { id_generator(data) }
+            PermissionAction::CheckExecution(data) => { id_generator(data) }
+        }
+    }
 }
 
 fn set_permission(data: &Vec<(String, u32)>) -> Result<Success, Message> {
@@ -85,7 +105,7 @@ fn set_permission(data: &Vec<(String, u32)>) -> Result<Success, Message> {
         error_is_dir(path)?;
         fs::set_permissions(path, fs::Permissions::from_mode(mode.clone()))?;
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_write(paths: &Vec<String>) -> Result<Success, Message> {
@@ -99,7 +119,7 @@ fn check_write(paths: &Vec<String>) -> Result<Success, Message> {
             if result.is_err() { return result; }
         }
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_read(paths: &Vec<String>) -> Result<Success, Message> {
@@ -113,7 +133,7 @@ fn check_read(paths: &Vec<String>) -> Result<Success, Message> {
             if result.is_err() { return result; }
         }
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_write_folder(value: &String) -> Result<Success, Message> {
@@ -127,7 +147,7 @@ fn check_write_folder(value: &String) -> Result<Success, Message> {
             }));
         }
     };
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_write_path(value: &String) -> Result<Success, Message> {
@@ -138,7 +158,7 @@ fn check_write_path(value: &String) -> Result<Success, Message> {
             ..Default::default()
         }));
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_read_folder(value: &String) -> Result<Success, Message> {
@@ -152,7 +172,7 @@ fn check_read_folder(value: &String) -> Result<Success, Message> {
             }));
         }
     };
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_read_path(value: &String) -> Result<Success, Message> {
@@ -163,7 +183,7 @@ fn check_read_path(value: &String) -> Result<Success, Message> {
             ..Default::default()
         }));
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn check_execution(paths: &Vec<String>) -> Result<Success, Message> {
@@ -179,7 +199,7 @@ fn check_execution(paths: &Vec<String>) -> Result<Success, Message> {
             }
         };
     }
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 fn error_is_dir(value: &String) -> Result<Success, Message> {
@@ -190,7 +210,7 @@ fn error_is_dir(value: &String) -> Result<Success, Message> {
             ..Default::default()
         }));
     };
-    Ok(Success {})
+    Ok(Success::default())
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
