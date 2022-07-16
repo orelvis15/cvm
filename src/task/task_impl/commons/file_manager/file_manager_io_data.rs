@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables)]
+
 use crate::task::task_impl::task_input_data::TaskInputData;
 
 /// Input for File Manager Task

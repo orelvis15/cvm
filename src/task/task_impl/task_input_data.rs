@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables)]
+
 use crate::task::task_impl::commons::file_manager::file_manager_io_data::FileManagerAction;
 use crate::task::task_impl::commons::folder_manager::folder_manager_io_data::FolderManagerAction;
 use crate::task::task_impl::commons::permission::permission_io_data::PermissionAction;
