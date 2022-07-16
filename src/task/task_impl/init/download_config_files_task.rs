@@ -15,9 +15,12 @@ use crate::task::task_type::TaskType;
 use crate::url_build;
 use crate::config::state_config::{add_init_file, get_task_complete, set_task_complete};
 use crate::message::message::Message;
-use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
+use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
+use crate::task::task_impl::commons::file_manager::file_manager_task::FileManagerTask;
 use crate::utils::folders::Folder;
-use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task::task_impl::commons::command::run_command_task::{Cmd, RunCommandTask};
+use crate::task::task_impl::commons::file_manager::file_manager_io_data::FileManagerAction;
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
 use crate::utils::download_manager::download_in_path;
@@ -49,7 +52,7 @@ impl Task for DownloadConfigFilesTask {
         }
 
         let result = TaskManager {}.start(vec![
-            Box::new(FileManagerTask { input_data: FileManagerAction::Check(paths) }),
+            Box::new(FileManagerTask { input_data: TaskInputData::FileManager(FileManagerAction::Check(paths)), ..Default::default() }),
         ], config, L2, context);
 
         set_task_complete(&self.get_type());
@@ -104,8 +107,12 @@ fn apply_pattern_sed(file_path: String, pattern: &String, config: &RemoteConfig,
     let args = vec!["-i".to_string(), pattern.to_string(), file_path.to_string()];
     TaskManager::default().start(vec![
         Box::new(RunCommandTask {
-            input_data: RunCommandInputData { command: Cmd::Sed.as_string(), args, ..Default::default() },
-            command_description: "".to_string(),
-        }),
+            input_data: RunCommandInputData {
+                command: TaskInputData::String(Cmd::Sed.as_string()),
+                args: TaskInputData::VecString(args),
+                ..Default::default()
+            },
+            ..Default::default()
+        })
     ], config, L2, context)
 }

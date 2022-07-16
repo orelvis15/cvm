@@ -1,10 +1,11 @@
 #![allow(dead_code, unused_variables)]
 
 use crate::context::storage::TaskOutputData::Empty;
-use crate::task::task_impl::commons::file_manager_task::FileManagerOutputData;
-use crate::task::task_impl::commons::folder_manager_task::FolderManagerOutputData;
-use crate::task::task_impl::commons::permission_task::PermissionOutputData;
-use crate::task::task_impl::commons::run_command_task::RunCommandOutputData;
+use crate::task::task_impl::commons::command::run_command_io_data::RunCommandOutputData;
+use crate::task::task_impl::commons::download::dowload_io_data::DownloadOutputData;
+use crate::task::task_impl::commons::file_manager::file_manager_io_data::FileManagerOutputData;
+use crate::task::task_impl::commons::folder_manager::folder_manager_io_data::FolderManagerOutputData;
+use crate::task::task_impl::commons::permission::permission_io_data::PermissionOutputData;
 
 #[derive(Default)]
 pub struct Storage {
@@ -25,6 +26,7 @@ pub enum TaskOutputData {
     FileManager(FileManagerOutputData),
     FolderManager(FolderManagerOutputData),
     Permission(PermissionOutputData),
+    Download(DownloadOutputData),
 }
 
 impl Default for TaskOutputData {

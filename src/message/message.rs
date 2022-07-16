@@ -39,7 +39,7 @@ impl Default for MessageKind {
 pub enum Message {
     //Tasks Errors
     ErrorRunTask(MessageData),
-    TaskType(MessageData),
+    TaskTypeError(MessageData),
     Libsodium(MessageData),
 
     //App Features
@@ -88,6 +88,7 @@ pub enum Message {
 
     //arguments
     ParseArg(MessageData),
+    ParseUrl(MessageData),
 
     Generic(MessageData),
 }
@@ -96,7 +97,7 @@ impl Message {
     pub fn data(&self) -> &MessageData {
         match self {
             Message::ErrorRunTask(this) => { &this }
-            Message::TaskType(this) => { &this }
+            Message::TaskTypeError(this) => { &this }
             Message::AlreadyLastUpdate(this) => { &this }
             Message::ErrorUpdate(this) => { &this }
             Message::CreateFolderStructure(this) => { &this }
@@ -134,6 +135,7 @@ impl Message {
             Message::VersionExist(this) => { &this }
             Message::UserNotFound(this) => { &this }
             Message::NewUpdate(this) => { &this }
+            Message::ParseUrl(this) => { &this }
         }
     }
 

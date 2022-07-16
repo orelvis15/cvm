@@ -9,13 +9,15 @@ use crate::config::remote_config::{RemoteConfig, Dependencies};
 use crate::config::state_config::{get_task_complete, set_task_complete};
 use crate::context::context::Context;
 use crate::message::message::{Message, MessageData};
-use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
+use crate::task::task_impl::commons::command::run_command_task::{Cmd, RunCommandTask};
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
 
 #[derive(Default)]
 pub struct InstallDependenciesTask {
-    dependencies: String
+    dependencies: String,
 }
 
 #[derive(Debug, Clone)]
@@ -35,9 +37,13 @@ impl Task for InstallDependenciesTask {
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let command_input_result = get_install_command_from_os(&self.dependencies)?;
-        TaskManager{}.start(vec![
-                    Box::new(RunCommandTask { input_data: command_input_result, command_description: "Installing the necessary dependencies".to_string() })
-                ], config, L2, context )
+        let input = RunCommandInputData{
+            description: TaskInputData::String("Installing the necessary dependencies".to_string()),
+            ..command_input_result
+        };
+        TaskManager::default().start(vec![
+            Box::new(RunCommandTask { input_data: input, data: Default::default() })
+        ], config, L2, context)
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
@@ -122,7 +128,7 @@ fn get_install_command_from_os(dependencies: &String) -> Result<RunCommandInputD
 fn build_macos_install_command(dependencies: &String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependencies.split_whitespace().map(String::from));
     args.insert(0, Cmd::Install.as_string());
-    RunCommandInputData { command: Cmd::Install.as_string(), args, ..Default::default() }
+    RunCommandInputData { command: TaskInputData::String(Cmd::Install.as_string()), args: TaskInputData::VecString(args), ..Default::default() }
 }
 
 fn build_ubuntu_debian_install_command(dependencies: &String) -> RunCommandInputData {
@@ -130,7 +136,7 @@ fn build_ubuntu_debian_install_command(dependencies: &String) -> RunCommandInput
     args.insert(0, Cmd::Install.as_string());
     args.insert(0, "-y".to_string());
     args.insert(0, Cmd::AptGet.as_string());
-    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
+    RunCommandInputData { command: TaskInputData::String(Cmd::Sudo.as_string()), args: TaskInputData::VecString(args), ..Default::default() }
 }
 
 fn build_centos_fedora_rhel_install_command(dependencies: &String) -> RunCommandInputData {
@@ -139,7 +145,7 @@ fn build_centos_fedora_rhel_install_command(dependencies: &String) -> RunCommand
     args.insert(0, "-y".to_string());
     args.insert(0, Cmd::Install.as_string());
     args.insert(0, Cmd::Yum.as_string());
-    RunCommandInputData { command: Cmd::Sudo.as_string(), args, ..Default::default() }
+    RunCommandInputData { command: TaskInputData::String(Cmd::Sudo.as_string()), args: TaskInputData::VecString(args), ..Default::default() }
 }
 
 fn get_verify_command_from_os(dependencies: &String) -> Option<RunCommandInputData> {
@@ -152,5 +158,5 @@ fn get_verify_command_from_os(dependencies: &String) -> Option<RunCommandInputDa
 fn build_macos_verify_install_command(dependencies: &String) -> RunCommandInputData {
     let mut args = Vec::from_iter(dependencies.split_whitespace().map(String::from));
     args.insert(0, Cmd::List.as_string());
-    RunCommandInputData { command: Cmd::Brew.as_string(), args, ..Default::default() }
+    RunCommandInputData { command: TaskInputData::String(Cmd::Brew.as_string()), args: TaskInputData::VecString(args), ..Default::default() }
 }

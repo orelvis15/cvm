@@ -29,6 +29,7 @@ mod task_manager;
 mod message;
 mod term;
 mod context;
+pub mod resolvers;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 

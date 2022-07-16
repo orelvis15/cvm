@@ -9,9 +9,11 @@ use crate::{Message, CommandStrategy, MessageData, url_build, config};
 use crate::config::state_config::get_state;
 use crate::context::context::Context;
 use crate::message::message::MessageKind;
-use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
+use crate::task::task_impl::commons::folder_manager::folder_manager_io_data::FolderManagerAction;
+use crate::task::task_impl::commons::folder_manager::folder_manager_task::FolderManagerTask;
 use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
 use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
 use crate::utils::folders::Folder;
@@ -60,7 +62,7 @@ impl CommandStrategy for Install {
 
         TaskManager::default().start(vec![
             Box::new(build_cardano_task),
-            Box::new(FolderManagerTask { input_data: FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())]) }),
+            Box::new(FolderManagerTask { input_data: TaskInputData::FolderManager(FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())])), ..Default::default() }),
             Box::new(CopyBinTask {
                 input_data: CopyBinInputData {
                     files_names: config.binaries.required_files.clone(),

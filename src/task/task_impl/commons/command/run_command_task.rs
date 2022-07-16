@@ -8,33 +8,46 @@ use crate::config::remote_config::RemoteConfig;
 use crate::context::storage::TaskOutputData;
 use crate::message::message::{Message, MessageData};
 use crate::task::task::{id_generator, Success, Task};
+use crate::task::task_impl::commons::command::run_command_io_data::{ResolveRunCommandInputData, RunCommandInputData, RunCommandOutputData};
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task::task_type::TaskType;
 
+#[derive(Default)]
 pub struct RunCommandTask {
     pub input_data: RunCommandInputData,
-    pub command_description: String,
-}
-
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
-pub struct RunCommandInputData {
-    pub command: String,
-    pub args: Vec<String>,
-    pub current_dir: String,
-}
-
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
-pub struct RunCommandOutputData {
-    pub tag: String,
-    pub code: i32,
+    pub data: ResolveRunCommandInputData,
 }
 
 impl Task for RunCommandTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
+        let mut input_data = ResolveRunCommandInputData::default();
+
+        match &self.input_data.command {
+            TaskInputData::String(data) => { input_data.command = data.to_owned() }
+            _ => {}
+        }
+
+        match &self.input_data.args {
+            TaskInputData::VecString(data) => { input_data.args = data.to_owned() }
+            _ => {}
+        }
+
+        match &self.input_data.current_dir {
+            TaskInputData::String(data) => { input_data.current_dir = data.to_owned() }
+            _ => {}
+        }
+
+        match &self.input_data.description {
+            TaskInputData::String(data) => { input_data.description = data.to_owned() }
+            _ => {}
+        }
+
+        self.data = input_data;
         Ok(true)
     }
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        let mut command = build_command(&self.input_data.clone());
+        let mut command = build_command(&self.data);
 
         let result = command.spawn();
 
@@ -45,7 +58,7 @@ impl Task for RunCommandTask {
             }
             Err(error) => {
                 return Err(Message::FaileToRunCommand(MessageData {
-                    message: format!("Failed to run command: {}, args: {:?}", self.input_data.command, self.input_data.args),
+                    message: format!("Failed to run command: {}, args: {:?}", self.data.command, self.data.args),
                     task: self.get_type(),
                     stack: vec![error.to_string()],
                     ..Default::default()
@@ -63,17 +76,17 @@ impl Task for RunCommandTask {
     }
 
     fn get_type(self: &Self) -> TaskType {
-        TaskType::RunCommand(self.input_data.clone(), self.command_description.clone())
+        TaskType::RunCommand(self.data.to_owned())
     }
 
     fn get_id(self: &Self) -> String {
-        let value: Vec<String> = vec![self.input_data.command.clone(),
-                                      self.input_data.args.join(&"")];
+        let value: Vec<String> = vec![self.data.command.clone(),
+                                      self.data.args.join(&"")];
         id_generator(&value)
     }
 }
 
-pub fn build_command(input: &RunCommandInputData) -> Command {
+pub fn build_command(input: &ResolveRunCommandInputData) -> Command {
     let cmd = Command::new(&input.command);
     let mut cmd = read_stdout(cmd);
 

@@ -14,7 +14,9 @@ use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
 use serde::Serialize;
-use crate::task::task_impl::commons::run_command_task::{Cmd, RunCommandInputData, RunCommandTask};
+use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
+use crate::task::task_impl::commons::command::run_command_task::{Cmd, RunCommandTask};
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
 use crate::utils::user::get_current_user;
@@ -38,7 +40,7 @@ impl Task for DeploySystemTask {
         }
 
         TaskManager::default().start(vec![
-            Box::new(RunCommandTask { input_data: build_reset_daemon_command(), command_description: "Reset systemctl daemon".to_string() }),
+            Box::new(RunCommandTask { input_data: build_reset_daemon_command(), ..Default::default() }),
         ], config, L2, context)
     }
 
@@ -92,7 +94,12 @@ fn check_if_files_is_same(service_path: &Path, service_file_download: &Path) -> 
 
 fn build_reset_daemon_command() -> RunCommandInputData {
     let args = vec![Cmd::DaemonReload.as_string()];
-    RunCommandInputData { command: Cmd::Systemctl.as_string(), args, current_dir: "".to_string() }
+    RunCommandInputData {
+        command: TaskInputData::String(Cmd::Systemctl.as_string()),
+        args: TaskInputData::VecString(args),
+        description: TaskInputData::String("Reset systemctl daemon".to_string()),
+        ..Default::default()
+    }
 }
 
 #[derive(Serialize)]

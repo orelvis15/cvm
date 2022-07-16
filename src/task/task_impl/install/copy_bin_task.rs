@@ -9,8 +9,11 @@ use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
 use crate::utils::folders::Folder;
 use crate::task::task::Task;
-use crate::task::task_impl::commons::file_manager_task::{FileManagerAction, FileManagerTask};
-use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
+use crate::task::task_impl::commons::file_manager::file_manager_io_data::FileManagerAction;
+use crate::task::task_impl::commons::file_manager::file_manager_task::FileManagerTask;
+use crate::task::task_impl::commons::folder_manager::folder_manager_io_data::FolderManagerAction;
+use crate::task::task_impl::commons::folder_manager::folder_manager_task::FolderManagerTask;
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task::task_type::TaskType;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L2;
@@ -60,8 +63,8 @@ impl Task for CopyBinTask {
         }
 
         TaskManager::default().start(vec![
-            Box::new(FolderManagerTask { input_data: FolderManagerAction::Exits(vec![version_folder]) }),
-            Box::new(FileManagerTask { input_data: FileManagerAction::Check(files_paths) }),
+            Box::new(FolderManagerTask { input_data: TaskInputData::FolderManager(FolderManagerAction::Exits(vec![version_folder])), ..Default::default() }),
+            Box::new(FileManagerTask { input_data: TaskInputData::FileManager(FileManagerAction::Check(files_paths)), ..Default::default() }),
         ], config, L2, context)
     }
 

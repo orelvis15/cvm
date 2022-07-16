@@ -6,7 +6,7 @@ use crate::subcommands::commands_config::Args;
 use crate::config::state_config::{reset_init, set_init_network, set_init_success};
 use crate::message::message::Message;
 use crate::task::task::Success;
-use crate::task::task_impl::commons::permission_task::{PermissionAction, PermissionTask};
+use crate::task::task_impl::commons::permission::permission_task::PermissionTask;
 use crate::task::task_impl::init::create_folder_structure_task::CreateFolderStructure;
 use crate::task::task_impl::init::download_config_files_task::DownloadConfigFilesTask;
 use crate::task::task_impl::init::install_dependences_task::InstallDependenciesTask;
@@ -15,6 +15,8 @@ use crate::task::task_impl::init::install_libsecp256k1_task::Installlibsecp256k1
 use crate::task_manager::task_manager::TaskManager;
 use crate::config;
 use crate::context::context::Context;
+use crate::task::task_impl::commons::permission::permission_io_data::PermissionAction;
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::term::log_level::LogLevel::L1;
 use crate::utils::folders::Folder;
 
@@ -40,7 +42,7 @@ impl CommandStrategy for Init {
         };
 
         TaskManager::default().start(vec![
-            Box::new(PermissionTask { input_data: PermissionAction::CheckWrite(vec![Folder::get_workspaces_dir().to_string()]) }),
+            Box::new(PermissionTask { input_data: TaskInputData::Permission(PermissionAction::CheckWrite(vec![Folder::get_workspaces_dir().to_string()])), ..Default::default() }),
             Box::new(InstallDependenciesTask::default()),
             Box::new(InstallHanskellGhcTask::default()),
             Box::new(CreateFolderStructure::default()),

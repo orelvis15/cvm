@@ -12,23 +12,30 @@ use crate::task::task::{id_generator, Task};
 use crate::task::task_type::TaskType;
 use faccess::PathExt;
 use crate::context::storage::TaskOutputData;
+use crate::task::task_impl::commons::permission::permission_io_data::{PermissionAction, PermissionOutputData, ResolvePermissionInputData};
+use crate::task::task_impl::task_input_data::TaskInputData;
 
+#[derive(Default)]
 pub struct PermissionTask {
-    pub input_data: PermissionAction,
-}
-
-#[derive(Debug, Clone)]
-pub struct PermissionOutputData {
-    pub operation: PermissionAction,
+    pub input_data: TaskInputData,
+    pub data: ResolvePermissionInputData,
 }
 
 impl Task for PermissionTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
+        let mut input_data = ResolvePermissionInputData::default();
+        match &self.input_data {
+            TaskInputData::Permission(action) => {
+                input_data.action = action.to_owned();
+            }
+            _ => {}
+        }
+        self.data = input_data;
         Ok(true)
     }
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        match &self.input_data {
+        match &self.data.action {
             PermissionAction::CheckWrite(data) => {
                 check_write(data)
             }
@@ -42,11 +49,11 @@ impl Task for PermissionTask {
                 set_permission(data)
             }
         }?;
-        Ok(Success { value: TaskOutputData::Permission(PermissionOutputData { operation: self.input_data.to_owned() }) })
+        Ok(Success { value: TaskOutputData::Permission(PermissionOutputData { operation: self.data.action.to_owned() }) })
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        match &self.input_data {
+        match &self.data.action {
             PermissionAction::SetFilesPermission(data) => {
                 for (value, mode) in data {
                     let path = Path::new(value);
@@ -68,7 +75,7 @@ impl Task for PermissionTask {
 
     fn get_type(self: &Self) -> TaskType {
         let output;
-        match self.input_data {
+        match self.data.action {
             PermissionAction::SetFilesPermission(_) => {
                 output = String::from("Setting permissions");
             }
@@ -86,7 +93,7 @@ impl Task for PermissionTask {
     }
 
     fn get_id(self: &Self) -> String {
-        match &self.input_data {
+        match &self.data.action {
             PermissionAction::SetFilesPermission(data) => {
                 let result: Vec<String> = data.iter()
                     .map(|(value_1, value_2)| format!("{}{}", value_1, value_2))
@@ -211,12 +218,4 @@ fn error_is_dir(value: &String) -> Result<Success, Message> {
         }));
     };
     Ok(Success::default())
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum PermissionAction {
-    SetFilesPermission(Vec<(String, u32)>),
-    CheckWrite(Vec<String>),
-    CheckRead(Vec<String>),
-    CheckExecution(Vec<String>),
 }

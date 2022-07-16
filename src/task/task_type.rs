@@ -2,14 +2,14 @@
 
 use std::fmt;
 use std::fmt::Formatter;
-use crate::task::task_impl::commons::run_command_task::RunCommandInputData;
+use crate::task::task_impl::commons::command::run_command_io_data::ResolveRunCommandInputData;
 use crate::task::task_impl::install::copy_bin_task::CopyBinInputData;
 use crate::task::task_impl::r#use::use_version_task::UserVersionData;
 use crate::task::task_impl::update::check_update_task::CheckUpdateData;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum TaskType {
-    RunCommand(RunCommandInputData, String),
+    RunCommand(ResolveRunCommandInputData),
     InstallDependences,
     InstallGhcup,
     CreateFolderStructure,
@@ -27,6 +27,7 @@ pub enum TaskType {
     FolderManager(String),
     FileManager(String),
     Permission(String),
+    Download(String),
 }
 
 impl Default for TaskType {
@@ -38,7 +39,7 @@ impl Default for TaskType {
 impl TaskType {
     pub fn print(&self) -> String {
         match &self {
-            TaskType::RunCommand(data, description) => { description.to_string() }
+            TaskType::RunCommand(data) => { data.description.to_string() }
             TaskType::InstallDependences => { "Installing necessary dependencies".to_string() }
             TaskType::InstallGhcup => { "Install ghcup".to_string() }
             TaskType::CreateFolderStructure => { "Creating folder structure".to_string() }
@@ -56,6 +57,7 @@ impl TaskType {
             TaskType::FileManager(text) => { text.to_string() }
             TaskType::UpdateConfigFiles => {"Updating configuration files".to_string() }
             TaskType::Libsecp256k1 => {"Installing libsecp256k1".to_string()}
+            TaskType::Download(text) => {format!("Downloading {}", text)}
         }
     }
 }
@@ -63,7 +65,7 @@ impl TaskType {
 impl fmt::Display for TaskType {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            TaskType::RunCommand(data, description) => {
+            TaskType::RunCommand(data) => {
                 write!(f, "Task: Run_Command_Task | command: {} | Dir: {}", format!("{} {:?}", data.command, data.args), data.current_dir)
             }
             TaskType::InstallDependences => write!(f, "Task: Install_Dependencies_Task"),
@@ -91,6 +93,7 @@ impl fmt::Display for TaskType {
             TaskType::FileManager(_) =>  write!(f, "Task: File_Manager"),
             TaskType::UpdateConfigFiles => write!(f, "Task: Update_Config_File"),
             TaskType::Libsecp256k1 => write!(f, "Task: Libsecp256k1"),
+            TaskType::Download(_) => write!(f, "Task: Download"),
         }
     }
 }

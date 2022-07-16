@@ -8,24 +8,31 @@ use crate::config::remote_config::RemoteConfig;
 use crate::context::storage::TaskOutputData;
 use crate::message::message::Message;
 use crate::task::task::{id_generator, Task};
+use crate::task::task_impl::commons::folder_manager::folder_manager_io_data::{FolderManagerAction, FolderManagerOutputData, ResolveFolderManagerInputData};
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task::task_type::TaskType;
 
+#[derive(Default)]
 pub struct FolderManagerTask {
-    pub input_data: FolderManagerAction,
-}
-
-#[derive(Debug, Clone)]
-pub struct FolderManagerOutputData {
-    pub operation: FolderManagerAction,
+    pub input_data: TaskInputData,
+    pub data: ResolveFolderManagerInputData
 }
 
 impl Task for FolderManagerTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
+        let mut input_data = ResolveFolderManagerInputData::default();
+        match &self.input_data {
+            TaskInputData::FolderManager(action) => {
+                input_data.action = action.to_owned();
+            }
+            _ => {}
+        }
+        self.data = input_data;
         Ok(true)
     }
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        match &self.input_data {
+        match &self.data.action {
             FolderManagerAction::Create(data) => {
                 create(self, data)
             }
@@ -39,11 +46,11 @@ impl Task for FolderManagerTask {
                 exits(self, data)
             }
         }?;
-        Ok(Success { value: TaskOutputData::FolderManager(FolderManagerOutputData { operation: self.input_data.to_owned() }) })
+        Ok(Success { value: TaskOutputData::FolderManager(FolderManagerOutputData { operation: self.data.action.to_owned() }) })
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        match &self.input_data {
+        match &self.data.action {
             FolderManagerAction::Create(data) => {
                 check_create(self, data)
             }
@@ -64,7 +71,7 @@ impl Task for FolderManagerTask {
     }
 
     fn get_id(self: &Self) -> String {
-        match &self.input_data {
+        match &self.data.action {
             FolderManagerAction::Create(data) => {
                 let result: Vec<String> = data.iter()
                     .map(|(value_1, value_2)| format!("{}{}", value_1, value_2))
@@ -207,15 +214,4 @@ fn exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messag
 
 fn check_exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
     Ok(Success::default())
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum FolderManagerAction {
-    Create(Vec<(String, String)>),
-    //Path for create, Folder name
-    Remove(Vec<String>),
-    // Folder path
-    Clean(Vec<String>),
-    // Folder path
-    Exits(Vec<String>), // Folder path
 }

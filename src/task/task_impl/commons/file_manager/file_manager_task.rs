@@ -9,24 +9,31 @@ use crate::config::remote_config::RemoteConfig;
 use crate::context::storage::TaskOutputData;
 use crate::message::message::Message;
 use crate::task::task::{id_generator, Task};
+use crate::task::task_impl::commons::file_manager::file_manager_io_data::{FileManagerAction, FileManagerOutputData, ResolveFileManagerInputData};
+use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task::task_type::TaskType;
 
+#[derive(Default)]
 pub struct FileManagerTask {
-    pub input_data: FileManagerAction,
-}
-
-#[derive(Debug, Clone)]
-pub struct FileManagerOutputData {
-    pub operation: FileManagerAction
+    pub input_data: TaskInputData,
+    pub data: ResolveFileManagerInputData,
 }
 
 impl Task for FileManagerTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
+        let mut input_data = ResolveFileManagerInputData::default();
+        match &self.input_data {
+            TaskInputData::FileManager(action) => {
+                input_data.action = action.to_owned();
+            }
+            _ => {}
+        }
+        self.data = input_data;
         Ok(true)
     }
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        match &self.input_data {
+        match &self.data.action {
             FileManagerAction::Remove(data) => {
                 remove(self, data)
             }
@@ -37,11 +44,11 @@ impl Task for FileManagerTask {
                 create_file_string(path, data)
             }
         }?;
-        Ok(Success{ value: TaskOutputData::FileManager(FileManagerOutputData { operation: self.input_data.to_owned() }) })
+        Ok(Success { value: TaskOutputData::FileManager(FileManagerOutputData { operation: self.data.action.to_owned() }) })
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        match &self.input_data {
+        match &self.data.action {
             FileManagerAction::Remove(data) => {
                 check_remove(self, data)
             }
@@ -54,7 +61,7 @@ impl Task for FileManagerTask {
     }
 
     fn get_id(self: &Self) -> String {
-        match &self.input_data {
+        match &self.data.action {
             FileManagerAction::Remove(data) => { id_generator(data) }
             FileManagerAction::Check(data) => { id_generator(data) }
             FileManagerAction::CreateFileString((data_1, data_2)) => {
@@ -112,11 +119,4 @@ fn exits(task: &FileManagerTask, data: &Vec<String>) -> Result<Success, Message>
         };
     }
     Ok(Success::default())
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum FileManagerAction {
-    Remove(Vec<String>),
-    Check(Vec<String>),
-    CreateFileString((String, String)), // path, data
 }

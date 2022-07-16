@@ -10,7 +10,7 @@ use crate::context::storage::TaskOutputData;
 pub trait Task {
     /// Prepare and check
     /// Prepare all data for the task
-    /// Check if is necesary run task
+    /// Check if is necessary run task
     /// * `context` - contains storage and term config
     /// * `RemoteConfig` - The config object
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message>;
