@@ -20,6 +20,7 @@ pub struct ResolveFolderManagerInputData{
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum FolderManagerAction {
     Create(Vec<(String, String)>),
+    CreatePaths(Vec<String>),
     Remove(Vec<String>),
     Clean(Vec<String>),
     Exits(Vec<String>),

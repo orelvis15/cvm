@@ -8,7 +8,7 @@ use crate::resolvers::folders::system_folders::SystemFolder;
 use crate::resolvers::routes_resolve::FolderCustom;
 use crate::utils::user::get_current_user;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum CustomFolders {
     ROOT,
     Scripts,

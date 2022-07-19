@@ -15,7 +15,7 @@ use crate::task::task_type::TaskType;
 #[derive(Default)]
 pub struct FolderManagerTask {
     pub input_data: TaskInputData,
-    pub data: ResolveFolderManagerInputData
+    pub data: ResolveFolderManagerInputData,
 }
 
 impl Task for FolderManagerTask {
@@ -35,6 +35,9 @@ impl Task for FolderManagerTask {
         match &self.data.action {
             FolderManagerAction::Create(data) => {
                 create(self, data)
+            }
+            FolderManagerAction::CreatePaths(data) => {
+                create_path(self, data)
             }
             FolderManagerAction::Remove(data) => {
                 remove(self, data)
@@ -63,6 +66,9 @@ impl Task for FolderManagerTask {
             FolderManagerAction::Exits(data) => {
                 check_exits(self, data)
             }
+            FolderManagerAction::CreatePaths(data) => {
+                check_create_path(self, data)
+            }
         }
     }
 
@@ -81,6 +87,7 @@ impl Task for FolderManagerTask {
             FolderManagerAction::Remove(data) => { id_generator(data) }
             FolderManagerAction::Clean(data) => { id_generator(data) }
             FolderManagerAction::Exits(data) => { id_generator(data) }
+            FolderManagerAction::CreatePaths(data) => { id_generator(data) }
         }
     }
 }
@@ -104,7 +111,6 @@ fn create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Succ
 
         fs::create_dir(folder_path)?;
     }
-
     Ok(Success::default())
 }
 
@@ -112,6 +118,41 @@ fn check_create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Resul
     for (parent_url, folder_name) in data {
         let parent_path = Path::new(parent_url);
         let folder_url = url_build(vec![parent_url, folder_name], false);
+        let folder_path = Path::new(&folder_url);
+
+        if !folder_path.exists() {
+            return Err(Message::CreateFolder(MessageData {
+                message: format!("Trying create folders {}", folder_path.display()),
+                ..Default::default()
+            }));
+        };
+    }
+
+    Ok(Success::default())
+}
+
+fn create_path(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
+        let folder_path = Path::new(&folder_url);
+
+        if folder_path.exists() {
+            continue;
+        }
+
+        if !folder_path.exists() {
+            return Err(Message::CreateFolder(MessageData {
+                message: format!("Trying create folders {}", folder_path.display()),
+                ..Default::default()
+            }));
+        };
+
+        fs::create_dir(folder_path)?;
+    }
+    Ok(Success::default())
+}
+
+fn check_create_path(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Message> {
+    for folder_url in data {
         let folder_path = Path::new(&folder_url);
 
         if !folder_path.exists() {
