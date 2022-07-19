@@ -15,7 +15,7 @@ pub struct Use {}
 
 impl CommandStrategy for Use {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();

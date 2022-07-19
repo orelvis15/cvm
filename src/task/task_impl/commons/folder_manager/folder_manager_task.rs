@@ -97,7 +97,7 @@ fn create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Result<Succ
 
         if !parent_path.exists() || folder_name.is_empty() {
             return Err(Message::CreateFolder(MessageData {
-                message: format!("Trying create folder {}", folder_path.display()),
+                message: format!("Trying create folders {}", folder_path.display()),
                 ..Default::default()
             }));
         };
@@ -116,7 +116,7 @@ fn check_create(task: &FolderManagerTask, data: &Vec<(String, String)>) -> Resul
 
         if !folder_path.exists() {
             return Err(Message::CreateFolder(MessageData {
-                message: format!("Trying create folder {}", folder_path.display()),
+                message: format!("Trying create folders {}", folder_path.display()),
                 ..Default::default()
             }));
         };
@@ -203,7 +203,7 @@ fn exits(task: &FolderManagerTask, data: &Vec<String>) -> Result<Success, Messag
         let folder_path = Path::new(folder_url);
         if !folder_path.exists() {
             return Err(Message::FolderNotFound(MessageData {
-                message: format!("Error folder {} not found", folder_path.display()),
+                message: format!("Error folders {} not found", folder_path.display()),
                 ..Default::default()
             }));
         };

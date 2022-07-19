@@ -18,7 +18,7 @@ use crate::context::context::Context;
 use crate::task::task_impl::commons::permission::permission_io_data::PermissionAction;
 use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::term::log_level::LogLevel::L1;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::system_folders::SystemFolder;
 
 const MAINNET: &str = "mainnet";
 const TESTNET: &str = "testnet";
@@ -27,7 +27,7 @@ pub struct Init {}
 
 impl CommandStrategy for Init {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         let mut network = MAINNET;
 
@@ -42,7 +42,7 @@ impl CommandStrategy for Init {
         };
 
         TaskManager::default().start(vec![
-            Box::new(PermissionTask { input_data: TaskInputData::Permission(PermissionAction::CheckWrite(vec![Folder::get_workspaces_dir().to_string()])), ..Default::default() }),
+            Box::new(PermissionTask { input_data: TaskInputData::Permission(PermissionAction::CheckWrite(vec![SystemFolder::get_path_string(&SystemFolder::UnixOpt)])), ..Default::default() }),
             Box::new(InstallDependenciesTask::default()),
             Box::new(InstallHanskellGhcTask::default()),
             Box::new(CreateFolderStructure::default()),

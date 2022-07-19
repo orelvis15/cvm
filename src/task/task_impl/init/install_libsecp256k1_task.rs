@@ -5,7 +5,7 @@ use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::{get_task_complete, set_task_complete};
 use crate::message::message::Message;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
 use crate::task::task_impl::commons::folder_manager::folder_manager_task::FolderManagerTask;
@@ -29,7 +29,7 @@ impl Task for Installlibsecp256k1Task {
             return Ok(false);
         };
         self.libsecp256k1_repo = config.clone().init.libsecp256k1_repository;
-        self.git_folder = Folder::get_path(Folder::GIT, &config);
+        self.git_folder = CustomFolders::get_path_string(&CustomFolders::GIT, &config);
         self.libsecp256k1_folder = url_build(vec![&self.git_folder, &config.init.libsecp256k1_folder], false);
         Ok(true)
     }

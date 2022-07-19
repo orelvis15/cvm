@@ -16,7 +16,7 @@ pub struct Config {}
 
 impl CommandStrategy for Config {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         let default_value = "".to_string();
 

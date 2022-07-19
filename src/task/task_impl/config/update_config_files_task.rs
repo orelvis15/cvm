@@ -17,7 +17,7 @@ use crate::config::state_config::{get_state, update_init_files};
 use crate::message::message::Message;
 use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
 use crate::task::task_impl::commons::file_manager::file_manager_task:: FileManagerTask;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::task::task_impl::commons::command::run_command_task::{Cmd, RunCommandTask};
 use crate::task::task_impl::commons::file_manager::file_manager_io_data::FileManagerAction;
 use crate::task::task_impl::task_input_data::TaskInputData;
@@ -52,7 +52,7 @@ impl Task for UpdateConfigFilesTask {
         let mut paths = vec![];
 
         for item in &config.config_file_item {
-            paths.push(Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config));
+            paths.push(CustomFolders::get_path_string(&CustomFolders::from_str(item.folder_key.as_str()).unwrap(), config));
         }
 
         TaskManager {}.start(vec![
@@ -71,7 +71,7 @@ impl Task for UpdateConfigFilesTask {
 
 fn download_config_files(update_config_file_task: &UpdateConfigFilesTask, items: &Vec<ConfigFileItem>, config: &RemoteConfig, context: &mut Context) -> Result<Success, Message> {
     for item in items {
-        let folder_path = Folder::get_path(Folder::from_str(item.folder_key.as_str()).unwrap(), config);
+        let folder_path = CustomFolders::get_path_string(&CustomFolders::from_str(item.folder_key.as_str()).unwrap(), config);
 
         let local_file = url_build(vec![&folder_path, &item.name.clone()], false);
         let remote_file = download_remote_file(&item)?;
@@ -88,7 +88,7 @@ fn download_config_files(update_config_file_task: &UpdateConfigFilesTask, items:
 
         update_file(&remote_file, &local_file)?;
 
-        if item.folder_key == Folder::SCRIPTS.to_string() {
+        if item.folder_key == CustomFolders::Scripts.to_string() {
             fs::set_permissions(&local_file, fs::Permissions::from_mode(0o755))?;
         };
     }

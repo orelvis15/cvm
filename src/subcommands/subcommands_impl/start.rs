@@ -13,7 +13,7 @@ pub struct Start {}
 
 impl CommandStrategy for Start {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         if get_state()?.r#use.version == "" {
             return Err(Message::UseVersion(

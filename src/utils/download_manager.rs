@@ -6,10 +6,10 @@ use std::fs::File;
 use std::os::unix::fs::PermissionsExt;
 use crate::message::message::Message;
 use crate::url_build;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 pub fn download(url: &String, name: &str) -> Result<String, Message> {
-    let home_dir = Folder::get_home_dir()?;
+    let home_dir = CustomFolders::get_home_dir()?;
 
     let dir_tmp_main = format!("{}/.cvm/tmp/", home_dir);
 

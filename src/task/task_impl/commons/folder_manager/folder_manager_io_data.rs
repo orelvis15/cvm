@@ -12,9 +12,9 @@ pub struct ResolveFolderManagerInputData{
     pub action: FolderManagerAction
 }
 
-/// * `Create - Vec<(String, String)>` -> (path, folderName) firt arg path from where the folder will be created
-///                                                         seconds arg is the name for the folder
-/// * `Remove - Vec<String>` -> paths for all folder we will be remove
+/// * `Create - Vec<(String, String)>` -> (path, folderName) firt arg path from where the folders will be created
+///                                                         seconds arg is the name for the folders
+/// * `Remove - Vec<String>` -> paths for all folders we will be remove
 /// * `Clean - Vec<String>` -> paths of the folders that will be emptied
 /// * `Exist - Vec<String>` -> paths of the folders that will be check if exist
 #[derive(Clone, Debug, Eq, PartialEq)]

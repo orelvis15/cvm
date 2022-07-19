@@ -1,23 +1,29 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 use std::fs;
 use std::path::Path;
-use crate::{Message, url_build};
+use crate::{Context, Message, url_build};
 use crate::utils::download_manager::download_in_path;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
+use crate::resolvers::routes_resolve::FolderCustom;
 
 const CONFIG_URL: &str = "https://raw.githubusercontent.com/orelvis15/cvm/master/config/config_remote.toml";
 const FILE_NAME: &str = "config_remote.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub fn get_remote_config() -> Result<RemoteConfig, Message> {
-    let home_dir = Folder::get_home_dir()?;
+pub fn get_remote_config(context: &mut Context) -> Result<RemoteConfig, Message> {
+    let home_dir = CustomFolders::get_home_dir()?;
     let project_folder = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string()], false);
     let file_path = format!("{}/{}", project_folder, FILE_NAME);
     if need_download_config(&file_path)? {
         download_in_path(&CONFIG_URL.to_string(), project_folder, FILE_NAME.to_string())?;
     }
-    Ok(get_file_toml(&file_path)?)
+    if let Err(error) = get_file_toml(&file_path)  {
+        return Err(error);
+    };
+    let config = get_file_toml(&file_path).unwrap();
+    context.remote_config = config.clone();
+    Ok(config)
 }
 
 fn get_file_toml(file_path: &String) -> Result<RemoteConfig, Message> {
@@ -48,7 +54,7 @@ pub struct RemoteConfig {
     pub dependencies: Dependencies,
     pub config_file_item: Vec<ConfigFileItem>,
     pub build_cardano_node: BuildCardanoNode,
-    pub structure_folder_item: Vec<StructureFolderItem>,
+    pub folder_custom: Vec<FolderCustom>,
     pub binaries: Binaries,
     pub services_item: Vec<Services>,
 }
@@ -113,13 +119,6 @@ pub struct BuildCardanoNode {
     pub cnode_repository_name: String,
     pub cnode_ported_libsodium_file_name: String,
     pub cnode_ported_libsodium_data: String,
-}
-
-#[derive(Deserialize, Debug, Clone, Default)]
-pub struct StructureFolderItem {
-    pub key: String,
-    pub name: String,
-    pub parent: String,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]

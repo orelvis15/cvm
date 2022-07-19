@@ -16,13 +16,13 @@ use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTa
 use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 pub struct Install {}
 
 impl CommandStrategy for Install {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();
@@ -44,10 +44,10 @@ impl CommandStrategy for Install {
             }
         }
 
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
+        let bin_folder = CustomFolders::get_path_string(&CustomFolders::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &version], false);
         let version_folder_path = Path::new(&version_folder);
-        let cardano_folder = url_build(vec![&Folder::get_path(Folder::GIT, &config), &config.build_cardano_node.cnode_repository_name], false);
+        let cardano_folder = url_build(vec![&CustomFolders::get_path_string(&CustomFolders::GIT, &config), &config.build_cardano_node.cnode_repository_name], false);
 
         if version_folder_path.exists() {
             return Err(Message::VersionExist(MessageData {

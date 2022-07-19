@@ -10,18 +10,18 @@ use crate::task::task_impl::commons::folder_manager::folder_manager_io_data::Fol
 use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 pub struct Clean {}
 
 impl CommandStrategy for Clean {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
-        let home_dir = Folder::get_home_dir()?;
+        let home_dir = CustomFolders::get_home_dir()?;
         let mut ghcup_dir = String::from(home_dir);
         ghcup_dir.push_str(format!("/{}", &config.init.ghcup_bin_path).as_str());
-        let git_folder = Folder::get_path(Folder::GIT, &config);
+        let git_folder = CustomFolders::get_path_string(&CustomFolders::GIT, &config);
 
 
         TaskManager::default().start(vec![

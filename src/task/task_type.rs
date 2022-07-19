@@ -42,7 +42,7 @@ impl TaskType {
             TaskType::RunCommand(data) => { data.description.to_string() }
             TaskType::InstallDependences => { "Installing necessary dependencies".to_string() }
             TaskType::InstallGhcup => { "Install ghcup".to_string() }
-            TaskType::CreateFolderStructure => { "Creating folder structure".to_string() }
+            TaskType::CreateFolderStructure => { "Creating folders structure".to_string() }
             TaskType::DownloadConfigFiles => { "Downloading scripts and configuration files".to_string() }
             TaskType::InstallLibsodium => { "Installing libsodium".to_string() }
             TaskType::BuildCardanoNode => { "Compiling cardano node".to_string() }

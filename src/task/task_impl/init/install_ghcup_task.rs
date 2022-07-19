@@ -15,7 +15,7 @@ use crate::task::task_impl::commons::file_manager::file_manager_task::FileManage
 use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::term::log_level::LogLevel::L2;
 use crate::utils::download_manager::download;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 #[derive(Default)]
 pub struct InstallHanskellGhcTask {
@@ -35,7 +35,7 @@ impl Task for InstallHanskellGhcTask {
             return Ok(false);
         };
 
-        self.home = Folder::get_home_dir()?;
+        self.home = CustomFolders::get_home_dir()?;
         self.install_sh_uri = download_install_ghc_file(&config.init)?;
         self.ghcup_dir = url_build(vec![&self.home, &config.init.ghcup_bin_path], false);
         Ok(true)
@@ -53,7 +53,7 @@ impl Task for InstallHanskellGhcTask {
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        let home_dir = Folder::get_home_dir()?;
+        let home_dir = CustomFolders::get_home_dir()?;
         let cabal_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"cabal".to_string()], false);
         let ghc_bin_path = url_build(vec![&home_dir, &config.init.ghcup_bin_path, &"ghc".to_string()], false);
 

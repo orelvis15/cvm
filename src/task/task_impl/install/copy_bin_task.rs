@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::file_manager::file_manager_io_data::FileManagerAction;
 use crate::task::task_impl::commons::file_manager::file_manager_task::FileManagerTask;
@@ -53,7 +53,7 @@ impl Task for CopyBinTask {
     }
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
+        let bin_folder = CustomFolders::get_path_string(&CustomFolders::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
 
         let mut files_paths = vec![];

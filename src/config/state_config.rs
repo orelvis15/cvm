@@ -7,13 +7,13 @@ use std::io::Write;
 use std::path::Path;
 use crate::{Message, Success, url_build};
 use crate::task::task_type::TaskType;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 const FILE_NAME: &str = "state.tom";
 const PROJECT_FOLDER: &str = ".cvm";
 
 pub fn get_state() -> Result<State, Message> {
-    let home_dir = Folder::get_home_dir()?;
+    let home_dir = CustomFolders::get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
 
     if !Path::new(file_path.as_str()).exists() {
@@ -77,7 +77,7 @@ pub fn set_version_use(version: String) -> Result<Success, Message> {
 }
 
 fn set_state(state: State) -> Result<Success, Message> {
-    let home_dir = Folder::get_home_dir()?;
+    let home_dir = CustomFolders::get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
     let mut file = File::options().truncate(true).write(true).open(file_path)?;
     let toml_str = toml::to_string(&state).unwrap();
@@ -114,7 +114,7 @@ pub fn get_task_complete(task: &TaskType) -> bool {
 }
 
 fn create_state_file() -> Result<Success, Message> {
-    let home_dir = Folder::get_home_dir()?;
+    let home_dir = CustomFolders::get_home_dir()?;
     let file_path = url_build(vec![&home_dir, &PROJECT_FOLDER.to_string(), &FILE_NAME.to_string()], false);
     let state = State::default();
     let toml_str = toml::to_string(&state).unwrap();

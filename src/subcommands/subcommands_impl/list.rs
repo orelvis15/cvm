@@ -8,17 +8,17 @@ use crate::{CommandStrategy, config, Message, Success};
 use crate::utils::version_utils::verify_version;
 use crate::config::state_config::get_state;
 use crate::context::context::Context;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 pub struct List{}
 
 impl CommandStrategy for List{
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
 
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
-        let current_folder = Folder::get_path(Folder::CURRENT, &config);
+        let bin_folder = CustomFolders::get_path_string(&CustomFolders::BIN, &config);
+        let current_folder = CustomFolders::get_path_string(&CustomFolders::CURRENT, &config);
 
         let current_version = get_state()?.r#use.version;
 

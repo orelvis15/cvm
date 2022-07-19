@@ -2,7 +2,7 @@ use crate::task::task_impl::task_input_data::TaskInputData;
 
 /// Input for Download Task
 /// * `urls` -> Vec<String> All the urls that we are going to download
-/// * `folder` -> String Folder where we are going to save
+/// * `folders` -> String Folder where we are going to save
 #[derive(Default)]
 pub struct DownloadInputData{
     pub urls: TaskInputData,

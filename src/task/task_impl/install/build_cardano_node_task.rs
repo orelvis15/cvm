@@ -4,7 +4,7 @@ use crate::context::context::Context;
 use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
 use crate::task::task_impl::commons::file_manager::file_manager_task::FileManagerTask;
@@ -30,10 +30,10 @@ pub struct BuildCardanoNodeTask {
 
 impl Task for BuildCardanoNodeTask {
     fn prepare(self: &mut Self, context: &mut Context, config: &RemoteConfig) -> Result<bool, Message> {
-        self.cardano_folder = url_build(vec![&Folder::get_path(Folder::GIT, &config), &config.build_cardano_node.cnode_repository_name], false);
-        self.ghcup_folder = url_build(vec![&Folder::get_home_dir()?, &config.init.ghcup_bin_path], false);
+        self.cardano_folder = url_build(vec![&CustomFolders::get_path_string(&CustomFolders::GIT, &config), &config.build_cardano_node.cnode_repository_name], false);
+        self.ghcup_folder = url_build(vec![&CustomFolders::get_home_dir()?, &config.init.ghcup_bin_path], false);
         self.libsodium_ported_file = url_build(vec![&self.cardano_folder, &config.build_cardano_node.cnode_ported_libsodium_file_name], false);
-        self.git_folder = Folder::get_path(Folder::GIT, &config);
+        self.git_folder = CustomFolders::get_path_string(&CustomFolders::GIT, &config);
         Ok(true)
     }
 

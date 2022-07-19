@@ -12,7 +12,7 @@ use crate::message::message::{Message, MessageData, MessageKind};
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 use crate::utils::download_manager::download;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::utils::version_utils::get_last_cvm_version;
 
 const GIT_DOWNLOAD_URL: &str = "https://github.com/orelvis15/cvm/releases/download";
@@ -67,7 +67,7 @@ impl Task for CheckUpdateTask {
 }
 
 fn download_and_copy_version(version: &String) -> Result<Success, Message> {
-    let home_dir = Folder::get_home_dir()?;
+    let home_dir = CustomFolders::get_home_dir()?;
 
     let mut version_map = HashMap::new();
     version_map.insert("version".to_string(), version);

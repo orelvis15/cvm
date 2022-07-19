@@ -11,7 +11,7 @@ pub struct Stop {}
 
 impl CommandStrategy for Stop {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         sudo::escalate_if_needed().expect("Super user permissions are required");
 

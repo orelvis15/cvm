@@ -4,7 +4,7 @@ use crate::context::context::Context;
 use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::message::message::Message;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::task::task::Task;
 use crate::task::task_impl::commons::command::run_command_io_data::RunCommandInputData;
 use crate::task::task_impl::commons::file_manager::file_manager_task::FileManagerTask;
@@ -26,7 +26,7 @@ impl Task for InstallLibsodiumTask {
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
         let libsodium_repo = &config.init.libsodium_repository;
-        let git_folder = Folder::get_path(Folder::GIT, &config);
+        let git_folder = CustomFolders::get_path_string(&CustomFolders::GIT, &config);
         let libsodium_folder = url_build(vec![&git_folder, &config.init.libsodium_folder], false);
 
         TaskManager::default().start(vec![

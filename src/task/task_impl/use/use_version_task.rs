@@ -9,7 +9,7 @@ use crate::{Success, url_build};
 use crate::config::remote_config::RemoteConfig;
 use crate::config::state_config::set_version_use;
 use crate::message::message::{Message, MessageData};
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 use crate::task::task::Task;
 use crate::task::task_type::TaskType;
 
@@ -30,10 +30,10 @@ impl Task for UserVersionTask {
 
     fn run(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
 
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
+        let bin_folder = CustomFolders::get_path_string(&CustomFolders::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
         let version_folder_path = Path::new(version_folder.as_str());
-        let current_folder = Folder::get_path(Folder::CURRENT, &config);
+        let current_folder = CustomFolders::get_path_string(&CustomFolders::CURRENT, &config);
         let current_folder_path = Path::new(current_folder.as_str());
 
         if !version_folder_path.exists() {
@@ -49,7 +49,7 @@ impl Task for UserVersionTask {
 
             if let Err(error) = folder_result {
                 return Err(Message::CreateFolderStructure(MessageData {
-                    message: "Error creating folder structure".to_string(),
+                    message: "Error creating folders structure".to_string(),
                     task: self.get_type(),
                     stack: vec![error.to_string()],
                     ..Default::default()
@@ -64,18 +64,18 @@ impl Task for UserVersionTask {
 
     fn check(self: &Self, context: &mut Context, config: &RemoteConfig) -> Result<Success, Message> {
 
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
+        let bin_folder = CustomFolders::get_path_string(&CustomFolders::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &self.input_data.version], false);
-        let current_folder = Folder::get_path(Folder::CURRENT, &config);
+        let current_folder = CustomFolders::get_path_string(&CustomFolders::CURRENT, &config);
 
         for entity in fs::read_dir(Path::new(&current_folder))? {
             if entity.as_ref().unwrap().path().is_file() {
                 let file_name = entity.as_ref().unwrap().file_name().to_str().unwrap().to_string();
 
-                //file in version x.x.x folder
+                //file in version x.x.x folders
                 let mut version_file = File::open(entity.unwrap().path())?;
 
-                //file in current folder
+                //file in current folders
                 let mut current_file = File::open(Path::new(&url_build(vec![&current_folder.to_string(), &file_name], false)))?;
 
                 if !diff_files(&mut version_file, &mut current_file) {

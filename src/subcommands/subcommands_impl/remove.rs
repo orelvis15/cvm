@@ -13,13 +13,13 @@ use crate::task::task_impl::r#use::service_manager_task::{ServicesAction, Servic
 use crate::task::task_impl::task_input_data::TaskInputData;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
-use crate::utils::folders::Folder;
+use crate::resolvers::folders::custom_folders::CustomFolders;
 
 pub struct Remove {}
 
 impl CommandStrategy for Remove {
     fn start(command: &ArgMatches, context: &mut Context) -> Result<Success, Message> {
-        let config = config::remote_config::get_remote_config()?;
+        let config = config::remote_config::get_remote_config(context)?;
 
         let version_arg = command.get_one::<String>(Args::VERSION._to_string()).unwrap();
         let mut version = verify_version(version_arg.as_str())?.to_string();
@@ -32,9 +32,9 @@ impl CommandStrategy for Remove {
             }
         };
 
-        let current_folder = Folder::get_path(Folder::CURRENT, &config);
+        let current_folder = CustomFolders::get_path_string(&CustomFolders::CURRENT, &config);
         let current_version = read_version(&current_folder);
-        let bin_folder = Folder::get_path(Folder::BIN, &config);
+        let bin_folder = CustomFolders::get_path_string(&CustomFolders::BIN, &config);
         let version_folder = url_build(vec![&bin_folder, &version], false);
 
         let mut task_queue: Vec<Box<dyn Task>> = vec![];
