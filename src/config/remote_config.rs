@@ -51,6 +51,15 @@ pub struct RemoteConfig {
     pub structure_folder_item: Vec<StructureFolderItem>,
     pub binaries: Binaries,
     pub services_item: Vec<Services>,
+    pub download_install: DownloadInstall
+}
+
+#[derive(Deserialize, Debug, Clone, Default)]
+pub struct DownloadInstall {
+    pub base_url: String,
+    pub end_url: String,
+    pub versions: Vec<String>,
+    pub build_id: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]

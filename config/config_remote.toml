@@ -42,6 +42,12 @@ cnode_ported_libsodium_data = "package cardano-crypto-praos\n  flags: -external-
 required_files = ["cardano-node", "cardano-cli"]
 others_files = ["cardano-submit-api", "cardano-api", "cardano-api-test", "cardano-node-capi", "cardano-topology", "cardano-git-rev", "cardano-node-chairman", "cardano-client-demo", "cardano-testnet", "locli", "trace-dispatcher", "trace-forward", "trace-resources", "tx-generator" ]
 
+[download_install]
+base_url = "https://hydra.iohk.io/build/"
+end_url = "/download/1/cardano-node-{version}-linux.tar.gz"
+versions = ["1.35.0"]
+build_id = ["16994721"]
+
 #Services items
 
 [[services_item]]

@@ -80,6 +80,6 @@ fn build_run_cabal_command(cabal_path: &String, folder_path: &String, binaries: 
 }
 
 fn build_cabal_update_command(cabal_path: &String) -> RunCommandInputData {
-    let args: Vec<String> = vec![url_build(vec![cabal_path, &Cmd::Cabal.as_string()], false), Cmd::Update.as_string()];
+    let args: Vec<String> = vec![url_build(vec![cabal_path, &Cmd::Cabal.as_string()], false), Cmd::V2Update.as_string()];
     RunCommandInputData { command: Cmd::Sudo.as_string() , args, current_dir: "".to_string() }
 }
