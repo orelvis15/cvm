@@ -181,6 +181,7 @@ pub enum Cmd {
     Systemctl,
     DaemonReload,
     Update,
+    V2Update,
     Clean,
     Help,
     Sudo,
@@ -214,6 +215,7 @@ impl Cmd {
             Cmd::Clean => {"clean".to_string()}
             Cmd::Help => {"help".to_string()}
             Cmd::Sudo => {"sudo".to_string()}
+            Cmd::V2Update => {"v2-update".to_string()}
         }
     }
 }

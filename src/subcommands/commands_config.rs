@@ -18,10 +18,12 @@ pub fn command_config() -> ArgMatches {
             .about("Start the environment to be able to build a Cardano node")
             .arg(get_arg_network())
             .arg(get_arg_force_init())
+            .arg(get_arg_build_init())
         )
         .subcommand(Command::new(CommandsConfig::INSTALL.to_string())
             .about("Build the cardano node and make it available for use")
             .arg(get_arg_version())
+            .arg(get_arg_build_install())
         )
         .subcommand(Command::new(CommandsConfig::USE.to_string())
             .about("Change the current cardano-node to the new version")
@@ -56,6 +58,20 @@ fn get_arg_version() -> Arg<'static> {
 
 fn get_arg_network() -> Arg<'static> {
     Arg::new(Args::NETWORK._to_string()).default_value(Args::LATEST._to_string()).takes_value(true)
+}
+
+fn get_arg_build_install() -> Arg<'static> {
+    Arg::new(Args::BUILD._to_string())
+        .short('b')
+        .long(Args::BUILD._to_string())
+        .help("Build cardano-node locally")
+}
+
+fn get_arg_build_init() -> Arg<'static> {
+    Arg::new(Args::BUILD._to_string())
+        .short('b')
+        .long(Args::BUILD._to_string())
+        .help("Prepare server for build cardano-node")
 }
 
 fn get_arg_force_init() -> Arg<'static> {
@@ -107,6 +123,7 @@ pub enum Args {
     VERSION,
     LATEST,
     FORCE,
+    BUILD,
 }
 
 impl Args {
@@ -116,6 +133,7 @@ impl Args {
             Args::VERSION => { "version" }
             Args::LATEST => { "latest" }
             Args::FORCE => { "force" }
+            Args::BUILD => { "build" }
         }
     }
 }
@@ -127,6 +145,7 @@ impl Display for Args {
             Args::VERSION => write!(f, "version"),
             Args::LATEST => write!(f, "latest"),
             Args::FORCE => write!(f, "force"),
+            Args::BUILD => write!(f, "build"),
         }
     }
 }

@@ -3,7 +3,7 @@
 use std::fmt;
 use std::fmt::Formatter;
 use crate::task::task_impl::commons::run_command_task::RunCommandInputData;
-use crate::task::task_impl::install::copy_bin_task::CopyBinInputData;
+use crate::task::task_impl::install::build::copy_bin_task::CopyBinInputData;
 use crate::task::task_impl::r#use::use_version_task::UserVersionData;
 use crate::task::task_impl::update::check_update_task::CheckUpdateData;
 
@@ -27,6 +27,7 @@ pub enum TaskType {
     FolderManager(String),
     FileManager(String),
     Permission(String),
+    DownloadInstall(String),
 }
 
 impl Default for TaskType {
@@ -56,6 +57,7 @@ impl TaskType {
             TaskType::FileManager(text) => { text.to_string() }
             TaskType::UpdateConfigFiles => {"Updating configuration files".to_string() }
             TaskType::Libsecp256k1 => {"Installing libsecp256k1".to_string()}
+            TaskType::DownloadInstall(version) => {format!("Downloading version {}", version)}
         }
     }
 }
@@ -91,6 +93,7 @@ impl fmt::Display for TaskType {
             TaskType::FileManager(_) =>  write!(f, "Task: File_Manager"),
             TaskType::UpdateConfigFiles => write!(f, "Task: Update_Config_File"),
             TaskType::Libsecp256k1 => write!(f, "Task: Libsecp256k1"),
+            TaskType::DownloadInstall(_) => write!(f, "Task: Donwload installer"),
         }
     }
 }
