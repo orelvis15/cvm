@@ -10,6 +10,7 @@ use subcommands::subcommands_impl::install::Install;
 use subcommands::subcommands_impl::list::List;
 use subcommands::subcommands_impl::start::Start;
 use subcommands::subcommands_impl::stop::Stop;
+use crate::subcommands::commands_config::CommandsConfig;
 use crate::subcommands_impl::clean::Clean;
 use crate::subcommands_impl::config::Config;
 use crate::subcommands_impl::r#use::Use;
@@ -53,7 +54,7 @@ fn main() {
         Some(("clean", matches)) => {
             Clean::start(matches)
         }
-        Some(("list", matches)) => {
+        Some(("ls", matches)) => {
             List::start(matches)
         }
         Some(("update", matches)) => {

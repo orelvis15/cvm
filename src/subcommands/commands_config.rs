@@ -41,7 +41,7 @@ pub fn command_config() -> ArgMatches {
         )
         .subcommand(Command::new(CommandsConfig::CLEAN.to_string())
             .about("Remove temporary and build files"))
-        .subcommand(Command::new(CommandsConfig::LIST.to_string())
+        .subcommand(Command::new(CommandsConfig::LS.to_string())
             .about("List all installed versions of cardano node"))
         .subcommand(Command::new(CommandsConfig::UPDATE.to_string())
             .about("Update to the new version of CVM if it exists"))
@@ -93,7 +93,7 @@ pub enum CommandsConfig {
     INSTALL,
     USE,
     REMOVE,
-    LIST,
+    LS,
     UPDATE,
     START,
     STOP,
@@ -108,7 +108,7 @@ impl Display for CommandsConfig {
             CommandsConfig::INSTALL => write!(f, "install"),
             CommandsConfig::USE => write!(f, "use"),
             CommandsConfig::REMOVE => write!(f, "remove"),
-            CommandsConfig::LIST => write!(f, "list"),
+            CommandsConfig::LS => write!(f, "ls"),
             CommandsConfig::UPDATE => write!(f, "update"),
             CommandsConfig::START => write!(f, "start"),
             CommandsConfig::STOP => write!(f, "stop"),
