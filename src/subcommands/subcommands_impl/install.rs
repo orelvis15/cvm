@@ -10,8 +10,9 @@ use crate::{Message, CommandStrategy, Term, MessageData, url_build, config};
 use crate::config::state_config::get_state;
 use crate::message::message::MessageKind;
 use crate::task::task_impl::commons::folder_manager_task::{FolderManagerAction, FolderManagerTask};
-use crate::task::task_impl::install::build_cardano_node_task::BuildCardanoNodeTask;
-use crate::task::task_impl::install::copy_bin_task::{CopyBinInputData, CopyBinTask};
+use crate::task::task_impl::install::build::build_cardano_node_task::BuildCardanoNodeTask;
+use crate::task::task_impl::install::build::copy_bin_task::{CopyBinInputData, CopyBinTask};
+use crate::task::task_impl::install::download::download_install_task::DownloadInstallTask;
 use crate::task_manager::task_manager::TaskManager;
 use crate::term::log_level::LogLevel::L1;
 use crate::utils::folders::Folder;
@@ -20,7 +21,6 @@ pub struct Install {}
 
 impl CommandStrategy for Install {
     fn start(command: &ArgMatches) -> Result<Success, Message> {
-
         let config = config::remote_config::get_remote_config()?;
         let mut term = Term { stdout: stdout() };
 
@@ -60,11 +60,25 @@ impl CommandStrategy for Install {
         let mut build_cardano_task = BuildCardanoNodeTask::default();
         build_cardano_task.version = version.to_string();
 
-        TaskManager::default().start(vec![
-            Box::new(build_cardano_task),
-            Box::new(FolderManagerTask { input_data: FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())]) }),
-            Box::new(CopyBinTask { input_data: CopyBinInputData { files_names: config.binaries.required_files.clone(),
-                origin_path: cardano_folder.clone(), version: version.clone(), bin_folder: bin_folder.clone(), version_folder: version_folder.clone() } }),
-        ], &config, &mut term, L1)
+        if command.contains_id(Args::BUILD._to_string()) {
+            TaskManager::default().start(vec![
+                Box::new(build_cardano_task),
+                Box::new(FolderManagerTask { input_data: FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())]) }),
+                Box::new(CopyBinTask {
+                    input_data: CopyBinInputData {
+                        files_names: config.binaries.required_files.clone(),
+                        origin_path: cardano_folder.clone(),
+                        version: version.clone(),
+                        bin_folder: bin_folder.clone(),
+                        version_folder: version_folder.clone(),
+                    }
+                }),
+            ], &config, &mut term, L1)
+        } else {
+            TaskManager::default().start(vec![
+                Box::new(FolderManagerTask { input_data: FolderManagerAction::Create(vec![(bin_folder.clone(), version.clone())]) }),
+                Box::new(DownloadInstallTask { version }),
+            ], &config, &mut term, L1)
+        }
     }
 }
