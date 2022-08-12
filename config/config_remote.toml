@@ -45,8 +45,8 @@ others_files = ["cardano-submit-api", "cardano-api", "cardano-api-test", "cardan
 [download_install]
 base_url = "https://hydra.iohk.io/build/"
 end_url = "/download/1/cardano-node-{version}-linux.tar.gz"
-versions = ["1.35.0", "1.34.1", "1.34.0", "1.33.0", "1.32.1", "1.31.0"]
-build_id = ["16994721", "13065769", "12997298", "9941151", "9116140", "8110920"]
+versions = ["1.35.3", "1.35.0", "1.34.1", "1.34.0", "1.33.0", "1.32.1", "1.31.0"]
+build_id = ["17428010", "16994721", "13065769", "12997298", "9941151", "9116140", "8110920"]
 
 #Services items
 
